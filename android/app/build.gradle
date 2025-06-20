@@ -1,7 +1,7 @@
 apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
-apply plugin: "com.google.gms.google-services" // ✅ Add this at the top or bottom
+apply plugin: "com.google.gms.google-services" // ✅ Google services plugin
 
 react {
     autolinkLibrariesWithApp()
@@ -55,5 +55,8 @@ dependencies {
     }
 
     // ✅ Google Sign-In
-    implementation 'com.google.android.gms:play-services-auth:20.7.0' // required for Google login
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
 }
+
+// ✅ Vector icons support
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"

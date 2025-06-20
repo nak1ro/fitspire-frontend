@@ -5,7 +5,7 @@ export const register = async (
   username: string,
   password: string
 ) => {
-  const res = await api.post('/auth/register', {
+  const res = await api.post('/account/register', {
     email,
     userName: username,
     password,
@@ -14,7 +14,7 @@ export const register = async (
 };
 
 export const login = async (login: string, password: string) => {
-  const res = await api.post('/auth/login', {
+  const res = await api.post('/account/login', {
     login,
     password,
   });
@@ -22,7 +22,7 @@ export const login = async (login: string, password: string) => {
 };
 
 export const googleLogin = async (idToken: string) => {
-  const res = await api.post('/auth/external-login', {
+  const res = await api.post('/account/external-login', {
     provider: 'Google',
     idToken,
   });
