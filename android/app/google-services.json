@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "268643532089",
+    "project_id": "fitspire-463517",
+    "storage_bucket": "fitspire-463517.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268643532089:android:b7a0247a21481e9a2c3ce8",
+        "android_client_info": {
+          "package_name": "com.fitspire"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "268643532089-mr2phs5sm2pfsdpa4oatkd5cu8q2b66t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.fitspire",
+            "certificate_hash": "097c2bec9e91a7af4840bdd1376b3a9d5f0ed564"
+          }
+        },
+        {
+          "client_id": "268643532089-0lcasnq6gqjesub9qvaon791gu3a3r06.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAA7rqJuS-NA3v2c7kgS5GVDf1owp61atI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "268643532089-0lcasnq6gqjesub9qvaon791gu3a3r06.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
