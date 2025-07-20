@@ -1,9 +1,10 @@
+// src/home/HomeScreen.tsx
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/MainStack';
-import { useAuth } from '../auth/AuthContext'; // Adjust path as needed
+import { useAuth } from '../auth/AuthContext';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'Home'>;
 
@@ -13,9 +14,20 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     await logout();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' as never }],
+    // Do not reset to 'Login' here; AppNavigator will swap to AuthStack.
+  };
+
+  const openOtherUser = () => {
+    navigation.navigate('OtherUserProfile', {
+      displayName: 'John Doe',
+      userName: 'johnny',
+      bio: 'Fitness enthusiast and runner. Love sharing workout tips.',
+      imageUrl: null,
+      workouts: [
+        { id: '1', title: 'Morning Run', durationMinutes: 45, likes: 23 },
+        { id: '2', title: 'Chest Day', durationMinutes: 60, likes: 41 },
+        { id: '3', title: 'HIIT Circuit', durationMinutes: 30, likes: 18 },
+      ],
     });
   };
 
@@ -23,17 +35,14 @@ export default function HomeScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>Welcome to Fitspire</Text>
 
-      <Button
-        title="Go to Profile"
-        onPress={() => navigation.navigate('Profile')}
-      />
+      <Button title="Go to My Profile" onPress={() => navigation.navigate('Profile')} />
+
+      <View style={styles.button}>
+        <Button title="Open Other User Profile" onPress={openOtherUser} />
+      </View>
 
       <View style={styles.logoutButton}>
-        <Button
-          title="Logout"
-          color="red"
-          onPress={handleLogout}
-        />
+        <Button title="Logout" color="red" onPress={handleLogout} />
       </View>
     </View>
   );
@@ -42,5 +51,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
+  button: { marginTop: 16 },
   logoutButton: { marginTop: 20 },
 });
