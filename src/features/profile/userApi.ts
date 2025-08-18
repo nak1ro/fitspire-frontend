@@ -25,6 +25,8 @@ export type UpdateUserPreferencesDto = Partial<UserPreferencesDto>;
 
 export const getProfile = async (): Promise<UserProfileDto> => {
   const res = await api.get('/user/profile');
+  console.log('getProfile', res.data);
+  if (!res.data) {console.log('no data');}
   return res.data;
 };
 

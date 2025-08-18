@@ -1,24 +1,67 @@
+// App.tsx
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, ActivityIndicator } from 'react-native';
+import {
+  NavigationContainer,
+  DarkTheme as NavDarkTheme,
+  DefaultTheme as NavLightTheme,
+  Theme as NavTheme,
+} from '@react-navigation/native';
+
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
-import { View, ActivityIndicator } from 'react-native';
-import AppNavigator from './src/navigation/AppNavigator.tsx';
+import { AppThemeProvider, useTheme } from './src/ui/theme/ThemeProvider.tsx';
 
-function Root() {
+
+function ThemedNavigation() {
+  const { theme, scheme } = useTheme();
   const { token, loading } = useAuth();
+
+  const navTheme: NavTheme =
+    scheme === 'dark'
+      ? {
+        ...NavDarkTheme,
+        colors: {
+          ...NavDarkTheme.colors,
+          background: theme.colors.bg,
+          card: theme.colors.cardBg,
+          text: theme.colors.text,
+          border: theme.colors.border,
+          primary: theme.colors.accent,
+          notification: theme.colors.accent,
+        },
+      }
+      : {
+        ...NavLightTheme,
+        colors: {
+          ...NavLightTheme.colors,
+          background: theme.colors.bg,
+          card: theme.colors.cardBg,
+          text: theme.colors.text,
+          border: theme.colors.border,
+          primary: theme.colors.accent,
+          notification: theme.colors.accent,
+        },
+      };
 
   if (loading) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <ActivityIndicator size="large" />
+      <View
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: theme.colors.bg,
+        }}
+      >
+        <ActivityIndicator size="large" color={theme.colors.accent} />
       </View>
     );
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer theme={navTheme}>
       {!token ? <AuthStack /> : <MainStack />}
     </NavigationContainer>
   );
@@ -27,7 +70,9 @@ function Root() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <AppThemeProvider>
+        <ThemedNavigation />
+      </AppThemeProvider>
     </AuthProvider>
   );
 }

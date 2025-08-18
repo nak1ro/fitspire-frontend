@@ -8,12 +8,8 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
+import { useTheme } from '../../ui/theme/ThemeProvider'; // adjust path if needed
 
-const ACCENT = '#007BFF';           // match LoginScreen primary
-const BG = '#fff';
-const BORDER = '#ddd';
-const BODY = '#444';
-const MUTED = '#777';
 const RADIUS = 10;
 
 type WorkoutItem = {
@@ -25,7 +21,7 @@ type WorkoutItem = {
 
 type Props = {
   displayName: string;
-  userName: string;         // without '@'
+  userName: string; // without '@'
   bio: string;
   imageUrl?: string | null;
   workouts: WorkoutItem[];
@@ -46,7 +42,10 @@ const OtherUserProfileCard: React.FC<Props> = ({
                                                  workouts,
                                                  onWorkoutPress,
                                                }) => {
+  const { theme } = useTheme();
   const firstName = displayName.trim().split(/\s+/)[0] || 'this user';
+
+  const styles = createStyles(theme);
 
   return (
     <View style={styles.card}>
@@ -57,7 +56,9 @@ const OtherUserProfileCard: React.FC<Props> = ({
             <Image source={{ uri: imageUrl }} style={styles.avatar} />
           ) : (
             <View style={styles.initialsCircle}>
-              <Text style={styles.initialsText}>{initialsFromName(displayName)}</Text>
+              <Text style={styles.initialsText}>
+                {initialsFromName(displayName)}
+              </Text>
             </View>
           )}
         </View>
@@ -79,7 +80,7 @@ const OtherUserProfileCard: React.FC<Props> = ({
         </Text>
       )}
 
-      {/* Divider with label (like LoginScreen's OR divider) */}
+      {/* Divider with label */}
       <View style={styles.dividerContainer}>
         <View style={styles.divider} />
         <Text style={styles.sectionLabel}>Workouts</Text>
@@ -106,7 +107,9 @@ const OtherUserProfileCard: React.FC<Props> = ({
                 </Text>
                 <View style={styles.workoutMetaRow}>
                   <View style={styles.metaChip}>
-                    <Text style={styles.metaChipText}>{item.durationMinutes}m</Text>
+                    <Text style={styles.metaChipText}>
+                      {item.durationMinutes}m
+                    </Text>
                   </View>
                   <View style={[styles.metaChip, { marginLeft: 6 }]}>
                     <Text style={styles.metaChipText}>❤ {item.likes}</Text>
@@ -130,99 +133,124 @@ const OtherUserProfileCard: React.FC<Props> = ({
 
 export default memo(OtherUserProfileCard);
 
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: BG,
-    borderRadius: RADIUS,
-    borderWidth: 1,
-    borderColor: BORDER,
-    padding: 16,
-  },
+// ==================
+// Dynamic styles
+// ==================
+const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+  StyleSheet.create({
+    card: {
+      backgroundColor: theme.colors.cardBg,
+      borderRadius: RADIUS,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      padding: 16,
+    },
 
-  // Header
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-  },
-  avatarRing: {
-    padding: 3,
-    borderRadius: 999,
-    borderWidth: 2,
-    borderColor: ACCENT,
-    marginRight: 12,
-  },
-  avatar: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
-    backgroundColor: '#eee',
-  },
-  initialsCircle: {
-    width: 86,
-    height: 86,
-    borderRadius: 43,
-    backgroundColor: ACCENT,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initialsText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 28,
-  },
+    // Header
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+    },
+    avatarRing: {
+      padding: 3,
+      borderRadius: 999,
+      borderWidth: 2,
+      borderColor: theme.colors.accent,
+      marginRight: 12,
+    },
+    avatar: {
+      width: 86,
+      height: 86,
+      borderRadius: 43,
+      backgroundColor: '#eee',
+    },
+    initialsCircle: {
+      width: 86,
+      height: 86,
+      borderRadius: 43,
+      backgroundColor: theme.colors.accent,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    initialsText: {
+      color: '#fff',
+      fontWeight: '700',
+      fontSize: 28,
+    },
 
-  nameCol: { flex: 1, minWidth: 0 },
-  displayName: { fontSize: 26, fontWeight: '700', color: '#111' },
-  username: { marginTop: 2, fontSize: 14, color: MUTED, fontWeight: '600' },
+    nameCol: { flex: 1, minWidth: 0 },
+    displayName: {
+      fontSize: 26,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
+    username: {
+      marginTop: 2,
+      fontSize: 14,
+      color: theme.colors.muted,
+      fontWeight: '600',
+    },
 
-  bio: {
-    marginTop: 6,
-    fontSize: 15,
-    lineHeight: 20,
-    color: BODY,
-  },
+    bio: {
+      marginTop: 6,
+      fontSize: 15,
+      lineHeight: 20,
+      color: theme.colors.text,
+    },
 
-  // Divider with center label (mirrors LoginScreen style)
-  dividerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 16,
-    marginBottom: 10,
-  },
-  divider: { flex: 1, height: 1, backgroundColor: BORDER },
-  sectionLabel: { marginHorizontal: 10, color: MUTED, fontWeight: '600' },
+    // Divider
+    dividerContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 16,
+      marginBottom: 10,
+    },
+    divider: { flex: 1, height: 1, backgroundColor: theme.colors.border },
+    sectionLabel: {
+      marginHorizontal: 10,
+      color: theme.colors.muted,
+      fontWeight: '600',
+    },
 
-  // Workouts
-  workoutCard: {
-    width: 180,
-    borderRadius: RADIUS,
-    backgroundColor: BG,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: BORDER,
-  },
-  workoutTitle: { fontSize: 15, fontWeight: '700', color: '#111' },
-  workoutMetaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10 },
-  metaChip: {
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    borderRadius: 999,
-    backgroundColor: '#f7f7f7',
-    borderWidth: 1,
-    borderColor: '#ccc',
-  },
-  metaChipText: { fontSize: 12, fontWeight: '700', color: '#374151' },
+    // Workouts
+    workoutCard: {
+      width: 180,
+      borderRadius: RADIUS,
+      backgroundColor: theme.colors.cardBg,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    workoutTitle: { fontSize: 15, fontWeight: '700', color: theme.colors.text },
+    workoutMetaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 10,
+    },
+    metaChip: {
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      borderRadius: 999,
+      backgroundColor: theme.colors.accentSoft,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+    },
+    metaChipText: {
+      fontSize: 12,
+      fontWeight: '700',
+      color: theme.colors.text,
+    },
 
-  // Empty
-  emptyBox: {
-    paddingVertical: 14,
-    paddingHorizontal: 12,
-    borderRadius: RADIUS,
-    borderWidth: 1,
-    borderColor: BORDER,
-    backgroundColor: BG,
-  },
-  emptyTitle: { fontSize: 14, fontWeight: '800', color: '#111' },
-  emptySubtitle: { marginTop: 4, fontSize: 13, color: MUTED },
-});
+    // Empty
+    emptyBox: {
+      paddingVertical: 14,
+      paddingHorizontal: 12,
+      borderRadius: RADIUS,
+      borderWidth: 1,
+      borderColor: theme.colors.border,
+      backgroundColor: theme.colors.cardBg,
+    },
+    emptyTitle: { fontSize: 14, fontWeight: '800', color: theme.colors.text },
+    emptySubtitle: { marginTop: 4, fontSize: 13, color: theme.colors.muted },
+  });
