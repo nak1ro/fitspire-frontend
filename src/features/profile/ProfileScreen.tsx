@@ -4,7 +4,6 @@ import {
   View,
   Text,
   TextInput,
-  Image,
   StyleSheet,
   ScrollView,
   TouchableOpacity,
@@ -14,15 +13,33 @@ import {
   ToastAndroid,
   Alert,
 } from 'react-native';
-import { launchImageLibrary, ImageLibraryOptions, Asset } from 'react-native-image-picker';
-import { getProfile, updateProfile, uploadProfilePhoto, getPreferences, updatePreferences } from './userApi';
+import {
+  launchImageLibrary,
+  ImageLibraryOptions,
+  Asset,
+} from 'react-native-image-picker';
+import {
+  getProfile,
+  updateProfile,
+  uploadProfilePhoto,
+  getPreferences,
+  updatePreferences,
+} from './userApi';
+
+import Card from '../../ui/design/atoms/Card';
+import { Button } from '../../ui/design/atoms/Button';
+import ValuePill from '../../ui/design/atoms/ValuePill';
+import Avatar from '../../ui/design/atoms/Avatar';
+import { useDesign, makeLocalStyles } from '../../ui/design/system';
 import { useTheme } from '../../ui/theme/ThemeProvider';
 
 type Lang = 'en' | 'pl' | 'es';
 type Units = 'metric' | 'imperial';
 
 export default function ProfileScreen() {
-  const { theme, setScheme } = useTheme();
+  const { setScheme } = useTheme(); // for toggling persisted scheme
+  const d = useDesign();
+  const styles = makeLocalStyles(d, makeStyles);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,15 +53,17 @@ export default function ProfileScreen() {
   // preferences
   const [preferredLanguage, setPreferredLanguage] = useState<Lang>('en');
   const [isDarkModeEnabled, setDarkModeEnabled] = useState(false);
-  const [receiveEmailNotifications, setReceiveEmailNotifications] = useState(true);
+  const [receiveEmailNotifications, setReceiveEmailNotifications] =
+    useState(true);
   const [unitSystem, setUnitSystem] = useState<Units>('metric');
 
   // UI state (custom snackbar-like banner)
-  const [snack, setSnack] = useState<{ visible: boolean; msg: string }>({ visible: false, msg: '' });
+  const [snack, setSnack] = useState<{ visible: boolean; msg: string }>({
+    visible: false,
+    msg: '',
+  });
   const [openLang, setOpenLang] = useState(false);
   const [openUnits, setOpenUnits] = useState(false);
-
-  const styles = makeStyles(theme);
 
   const showToast = (msg: string) => {
     setSnack({ visible: true, msg });
@@ -53,7 +72,7 @@ export default function ProfileScreen() {
         ToastAndroid.show(msg, ToastAndroid.SHORT);
       } catch {}
     }
-    setTimeout(() => setSnack((s) => ({ ...s, visible: false })), 2200);
+    setTimeout(() => setSnack(s => ({ ...s, visible: false })), 2200);
   };
 
   const loadAll = useCallback(async () => {
@@ -70,7 +89,7 @@ export default function ProfileScreen() {
       setUnitSystem((prefs.unitSystem as Units) ?? 'metric');
 
       // Ensure global theme reflects remote pref on entry
-      setScheme(prefs?.isDarkModeEnabled ? 'dark' : 'light', { persist: true, syncRemote: false });
+      setScheme(prefs?.isDarkModeEnabled ? 'dark' : 'light', { persist: true });
     } catch (e: any) {
       Alert.alert('Error', e?.response?.data?.message || 'Failed to load profile');
     } finally {
@@ -83,7 +102,10 @@ export default function ProfileScreen() {
   }, [loadAll]);
 
   const pickImage = async () => {
-    const options: ImageLibraryOptions = { mediaType: 'photo', selectionLimit: 1 };
+    const options: ImageLibraryOptions = {
+      mediaType: 'photo',
+      selectionLimit: 1,
+    };
     const result = await launchImageLibrary(options);
     if (result.didCancel) return;
     const asset: Asset | undefined = result.assets && result.assets[0];
@@ -124,174 +146,208 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View style={styles.loadingWrap}>
-        <ActivityIndicator size="large" color={theme.colors.accent} />
-        <Text style={{ marginTop: 12, color: theme.colors.text }}>Loading your profile…</Text>
+        <ActivityIndicator size="large" color={d.tokens.primary} />
+        <Text style={{ marginTop: 12, color: d.tokens.textStrong }}>
+          Loading your profile…
+        </Text>
       </View>
     );
   }
 
   return (
     <View style={styles.wrapper}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        {/* Header */}
-        <Text style={styles.hero}>Your Profile</Text>
-
-        {/* Photo Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Photo</Text>
-          <View style={styles.row}>
-            <View style={styles.avatarRing}>
-              <Image
-                source={profileImage ? { uri: profileImage } : require('../../../assets/default-avatar.png')}
-                style={styles.avatar}
-              />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.usernameFixed} selectable>
+      <ScrollView
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        {/* ---------- Profile header card (avatar + names + change picture) ---------- */}
+        <Card>
+          <View style={styles.headerRow}>
+            <Avatar
+              source={
+                profileImage
+                  ? { uri: profileImage }
+                  : require('../../../assets/default-avatar.png')
+              }
+            />
+            <View style={{ flex: 1, paddingRight: 12, marginLeft: 12 }}>
+              <Text style={styles.headerName} numberOfLines={1}>
+                {displayName || 'Your name'}
+              </Text>
+              <Text style={styles.headerHandle} numberOfLines={1}>
                 @{userName}
               </Text>
-              <Text style={styles.helper}>Username is fixed</Text>
-              <TouchableOpacity
-                style={[styles.outlineBtn, saving && styles.outlineBtnDisabled]}
-                onPress={pickImage}
-                disabled={saving}
-                activeOpacity={0.9}
-              >
-                <Text style={[styles.outlineBtnText, saving && styles.outlineBtnTextDisabled]}>
-                  {saving ? 'Uploading…' : 'Change Profile Picture'}
-                </Text>
-              </TouchableOpacity>
             </View>
+            <Button
+              title={saving ? 'Uploading…' : 'Change picture'}
+              onPress={pickImage}
+              disabled={saving}
+            />
           </View>
-        </View>
+        </Card>
 
-        {/* About You */}
-        <View style={styles.card}>
+        {/* ---------- About you ---------- */}
+        <Card style={{ marginTop: 14 }}>
           <Text style={styles.cardTitle}>About you</Text>
+
+          <Text style={styles.inputLabel}>Display name</Text>
           <TextInput
             style={styles.input}
             placeholder="Display Name"
             value={displayName}
             onChangeText={setDisplayName}
-            placeholderTextColor={theme.colors.muted}
+            placeholderTextColor={d.tokens.textMuted}
           />
+
+          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Bio</Text>
           <TextInput
             style={[styles.input, { height: 110, textAlignVertical: 'top' }]}
-            placeholder="Bio"
+            placeholder="Tell people a bit about you"
             value={bio}
             onChangeText={setBio}
-            placeholderTextColor={theme.colors.muted}
+            placeholderTextColor={d.tokens.textMuted}
             multiline
             numberOfLines={5}
           />
-          <View style={styles.dividerContainer}>
-            <View style={styles.divider} />
-          </View>
-        </View>
 
-        {/* Preferences */}
-        <View style={styles.card}>
+          <View style={styles.inlineBtns}>
+            <Button
+              title="Save"
+              onPress={handleSave}
+              loading={saving}
+              full
+            />
+          </View>
+        </Card>
+
+        {/* ---------- Preferences ---------- */}
+        <Card style={{ marginTop: 14 }}>
           <Text style={styles.cardTitle}>Preferences</Text>
 
           {/* Language */}
           <TouchableOpacity
-            onPress={() => setOpenLang((o) => !o)}
-            activeOpacity={0.8}
-            style={styles.selectorHeader}
+            onPress={() => setOpenLang(o => !o)}
+            activeOpacity={0.9}
+            style={styles.prefRow}
           >
-            <View style={styles.selectorHeaderLeft}>
-              <Text style={styles.selectorTitle}>Language</Text>
-              <Text style={styles.selectorDesc}>Preferred language for the app</Text>
+            <View>
+              <Text style={styles.prefTitle}>Language</Text>
+              <Text style={styles.prefDesc}>App language</Text>
             </View>
-            <Text style={styles.selectorValue}>
-              {preferredLanguage === 'en' ? 'English' : preferredLanguage === 'pl' ? 'Polski' : 'Español'}
-            </Text>
+            <ValuePill>
+              {preferredLanguage === 'en'
+                ? 'English'
+                : preferredLanguage === 'pl'
+                  ? 'Polski'
+                  : 'Español'}
+            </ValuePill>
           </TouchableOpacity>
-
           {openLang && (
             <View style={styles.radioGroup}>
-              <RadioRow label="English" selected={preferredLanguage === 'en'} onPress={() => setPreferredLanguage('en')} />
-              <RadioRow label="Polski" selected={preferredLanguage === 'pl'} onPress={() => setPreferredLanguage('pl')} />
-              <RadioRow label="Español" selected={preferredLanguage === 'es'} onPress={() => setPreferredLanguage('es')} />
+              <RadioRow
+                label="English"
+                selected={preferredLanguage === 'en'}
+                onPress={() => setPreferredLanguage('en')}
+              />
+              <RadioRow
+                label="Polski"
+                selected={preferredLanguage === 'pl'}
+                onPress={() => setPreferredLanguage('pl')}
+              />
+              <RadioRow
+                label="Español"
+                selected={preferredLanguage === 'es'}
+                onPress={() => setPreferredLanguage('es')}
+              />
             </View>
           )}
 
           {/* Units */}
           <TouchableOpacity
-            onPress={() => setOpenUnits((o) => !o)}
-            activeOpacity={0.8}
-            style={[styles.selectorHeader, { marginTop: 12 }]}
+            onPress={() => setOpenUnits(o => !o)}
+            activeOpacity={0.9}
+            style={[styles.prefRow, { marginTop: 10 }]}
           >
-            <View style={styles.selectorHeaderLeft}>
-              <Text style={styles.selectorTitle}>Units</Text>
-              <Text style={styles.selectorDesc}>Measurement system</Text>
+            <View>
+              <Text style={styles.prefTitle}>Units</Text>
+              <Text style={styles.prefDesc}>Distance & weight</Text>
             </View>
-            <Text style={styles.selectorValue}>
-              {unitSystem === 'metric' ? 'Metric (kg, cm)' : 'Imperial (lbs, in)'}
-            </Text>
+            <ValuePill>
+              {unitSystem === 'metric'
+                ? 'Metric (km, kg)'
+                : 'Imperial (mi, lb)'}
+            </ValuePill>
           </TouchableOpacity>
-
           {openUnits && (
             <View style={styles.radioGroup}>
-              <RadioRow label="Metric (kg, cm)" selected={unitSystem === 'metric'} onPress={() => setUnitSystem('metric')} />
-              <RadioRow label="Imperial (lbs, in)" selected={unitSystem === 'imperial'} onPress={() => setUnitSystem('imperial')} />
+              <RadioRow
+                label="Metric (kg, cm)"
+                selected={unitSystem === 'metric'}
+                onPress={() => setUnitSystem('metric')}
+              />
+              <RadioRow
+                label="Imperial (lbs, in)"
+                selected={unitSystem === 'imperial'}
+                onPress={() => setUnitSystem('imperial')}
+              />
             </View>
           )}
 
-          {/* Toggles */}
-          <View style={[styles.toggleRow, { marginTop: 12 }]}>
+          {/* Dark mode toggle */}
+          <View style={[styles.prefRow, { marginTop: 10 }]}>
             <View>
-              <Text style={styles.selectorTitle}>Dark Mode</Text>
-              <Text style={styles.selectorDesc}>Use a darker color palette</Text>
+              <Text style={styles.prefTitle}>Dark mode</Text>
+              <Text style={styles.prefDesc}>Theme appearance</Text>
             </View>
             <RNSwitch
               value={isDarkModeEnabled}
-              onValueChange={(v) => {
+              onValueChange={v => {
                 setDarkModeEnabled(v);
-                // instant global update (persisted to backend on Save)
-                setScheme(v ? 'dark' : 'light', { persist: true, syncRemote: false });
+                setScheme(v ? 'dark' : 'light', { persist: true });
               }}
-              trackColor={{ false: theme.colors.border, true: theme.colors.accentSoft }}
-              thumbColor={isDarkModeEnabled ? theme.colors.accent : '#f4f3f4'}
+              trackColor={{
+                false: d.tokens.cardBorder,
+                true: d.theme.colors.accentSoft,
+              }}
+              thumbColor={isDarkModeEnabled ? d.tokens.primary : '#f4f3f4'}
             />
           </View>
 
-          <View style={styles.separator} />
-
-          <View style={styles.toggleRow}>
+          {/* Email notifications */}
+          <View style={[styles.prefRow, { marginTop: 10 }]}>
             <View>
-              <Text style={styles.selectorTitle}>Email Notifications</Text>
-              <Text style={styles.selectorDesc}>Receive updates via email</Text>
+              <Text style={styles.prefTitle}>Email notifications</Text>
+              <Text style={styles.prefDesc}>Account & activity updates</Text>
             </View>
             <RNSwitch
               value={receiveEmailNotifications}
               onValueChange={setReceiveEmailNotifications}
-              trackColor={{ false: theme.colors.border, true: theme.colors.accentSoft }}
-              thumbColor={receiveEmailNotifications ? theme.colors.accent : '#f4f3f4'}
+              trackColor={{
+                false: d.tokens.cardBorder,
+                true: d.theme.colors.accentSoft,
+              }}
+              thumbColor={receiveEmailNotifications ? d.tokens.primary : '#f4f3f4'}
             />
           </View>
-        </View>
 
-        <View style={{ height: 120 }} />
+          {/* Divider */}
+          <View style={styles.divider} />
+
+          {/* Card actions */}
+          <View style={styles.inlineBtns}>
+            <Button
+              title="Apply"
+              onPress={handleSave}
+              loading={saving}
+              full
+            />
+          </View>
+        </Card>
+
+        <View style={{ height: 24 }} />
       </ScrollView>
 
-      {/* Sticky Save */}
-      <View style={styles.stickyBar}>
-        <TouchableOpacity
-          style={[styles.button, saving && styles.buttonDisabled]}
-          onPress={handleSave}
-          disabled={saving}
-          activeOpacity={0.9}
-        >
-          {saving ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.buttonText}>Save Changes</Text>
-          )}
-        </TouchableOpacity>
-      </View>
-
-      {/* Simple snackbar-like banner */}
+      {/* Snackbar-ish banner */}
       {snack.visible && (
         <View style={styles.snack}>
           <Text style={styles.snackText}>{snack.msg}</Text>
@@ -301,7 +357,7 @@ export default function ProfileScreen() {
   );
 }
 
-/** ------- Small presentational helpers ------- */
+/** ------- Small presentational helpers (refactored to design tokens) ------- */
 function RadioRow({
                     label,
                     selected,
@@ -311,117 +367,114 @@ function RadioRow({
   selected: boolean;
   onPress: () => void;
 }) {
-  const { theme } = useTheme();
+  const d = useDesign();
+  const s = makeLocalStyles(d, ({ tokens }) => ({
+    row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+    outer: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      borderWidth: 2,
+      borderColor: selected ? tokens.primary : tokens.cardBorder,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginRight: 10,
+    },
+    inner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: tokens.primary,
+    },
+    label: { fontSize: 14, color: tokens.textStrong },
+  }));
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={radioStyles.row}>
-      <View style={[radioStylesOuter(theme), selected && radioStylesOuterSelected(theme)]}>
-        {selected && <View style={radioStylesInner(theme)} />}
-      </View>
-      <Text style={radioStylesLabel(theme)}>{label}</Text>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={s.row}>
+      <View style={s.outer}>{selected && <View style={s.inner} />}</View>
+      <Text style={s.label}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
-/** ------- Styles (theme-aware) ------- */
-const makeStyles = (theme: import('../../ui/theme/theme').AppTheme) =>
+/** ------- Styles (theme-aware via design system) ------- */
+const makeStyles = (d: ReturnType<typeof useDesign>) =>
   StyleSheet.create({
-    wrapper: { flex: 1, backgroundColor: theme.colors.bg },
-    container: { padding: 24, paddingBottom: 160 },
+    wrapper: { flex: 1, backgroundColor: d.theme.colors.bg },
+    container: { padding: 16, paddingBottom: 40 },
+
     loadingWrap: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       padding: 24,
-      backgroundColor: theme.colors.bg,
+      backgroundColor: d.theme.colors.bg,
     },
-    hero: {
-      fontSize: 36,
+
+    // ---- Header ----
+    headerRow: { flexDirection: 'row', alignItems: 'center' },
+    headerName: { color: d.tokens.textStrong, fontSize: 18, fontWeight: '800' },
+    headerHandle: {
+      color: d.tokens.textMuted,
+      fontSize: 13,
       fontWeight: '700',
-      textAlign: 'left',
-      color: theme.colors.accent,
-      marginBottom: 8,
+      marginTop: 2,
     },
-    card: {
-      backgroundColor: theme.colors.cardBg,
-      borderRadius: 10,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      padding: 16,
-      marginTop: 14,
+
+    // ---- Titles ----
+    cardTitle: {
+      fontSize: 18,
+      fontWeight: '800',
+      color: d.tokens.textStrong,
+      marginBottom: 12,
     },
-    cardTitle: { fontSize: 18, fontWeight: '700', color: theme.colors.text, marginBottom: 10 },
-    row: { flexDirection: 'row', alignItems: 'center' },
-    avatarRing: {
-      padding: 3,
-      borderRadius: 999,
-      borderWidth: 2,
-      borderColor: theme.colors.accent,
-      marginRight: 12,
+
+    // inputs
+    inputLabel: {
+      color: d.tokens.textMuted,
+      fontWeight: '700',
+      fontSize: 12,
+      marginBottom: 6,
     },
-    avatar: { width: 96, height: 96, borderRadius: 48, backgroundColor: '#eee' },
-    usernameFixed: { fontWeight: '700', color: theme.colors.text, marginBottom: 2, fontSize: 16 },
-    helper: { color: theme.colors.muted, marginBottom: 6 },
-    outlineBtn: {
-      borderWidth: 1,
-      borderColor: theme.colors.accent,
-      borderRadius: 10,
-      paddingVertical: 12,
-      paddingHorizontal: 14,
-      alignSelf: 'flex-start',
-    },
-    outlineBtnDisabled: { opacity: 0.6 },
-    outlineBtnText: { color: theme.colors.accent, fontWeight: '600', fontSize: 16 },
-    outlineBtnTextDisabled: { color: theme.colors.accentSoft },
     input: {
-      borderColor: theme.colors.border,
+      borderColor: d.tokens.fieldBorder,
       borderWidth: 1,
       borderRadius: 10,
-      paddingHorizontal: 15,
+      paddingHorizontal: 14,
       paddingVertical: 12,
       fontSize: 16,
-      marginTop: 10,
-      backgroundColor: theme.colors.cardBg,
-      color: theme.colors.text,
+      backgroundColor: d.tokens.fieldBg,
+      color: d.tokens.textStrong,
     },
-    dividerContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 14 },
-    divider: { flex: 1, height: 1, backgroundColor: theme.colors.border },
-    selectorHeader: {
+
+    // Preference rows
+    prefRow: {
       borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 10,
+      borderColor: d.tokens.cardBorder,
+      borderRadius: d.radii.lg,
       paddingHorizontal: 12,
-      paddingVertical: 10,
-      backgroundColor: theme.colors.cardBg,
+      paddingVertical: 12,
+      backgroundColor: d.tokens.card,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
     },
-    selectorHeaderLeft: { maxWidth: '70%' },
-    selectorTitle: { fontSize: 15, fontWeight: '600', color: theme.colors.text },
-    selectorDesc: { fontSize: 12, color: theme.colors.muted, marginTop: 2 },
-    selectorValue: { fontSize: 13, color: theme.colors.muted, fontWeight: '600' },
+    prefTitle: { fontSize: 15, fontWeight: '700', color: d.tokens.textStrong },
+    prefDesc: { fontSize: 12, color: d.tokens.textMuted, marginTop: 2 },
+
     radioGroup: { paddingHorizontal: 6, paddingTop: 8 },
-    toggleRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-      borderRadius: 10,
-      paddingHorizontal: 12,
-      paddingVertical: 10,
-      backgroundColor: theme.colors.cardBg,
-    },
-    separator: { height: 12 },
-    stickyBar: { position: 'absolute', left: 24, right: 24, bottom: 24 },
-    button: { backgroundColor: theme.colors.accent, paddingVertical: 14, borderRadius: 10, alignItems: 'center' },
-    buttonDisabled: { opacity: 0.7 },
-    buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
+
+    // divider
+    divider: { height: 1, backgroundColor: d.tokens.divider, marginTop: 14, marginBottom: 6 },
+
+    // buttons
+    inlineBtns: { flexDirection: 'row', gap: 12, marginTop: 14 },
+
+    // snack
     snack: {
       position: 'absolute',
-      left: 24,
-      right: 24,
-      bottom: 92,
+      left: 16,
+      right: 16,
+      bottom: 24,
       backgroundColor: '#111',
       paddingVertical: 10,
       paddingHorizontal: 14,
@@ -430,29 +483,3 @@ const makeStyles = (theme: import('../../ui/theme/theme').AppTheme) =>
     },
     snackText: { color: '#fff', textAlign: 'center' },
   });
-
-const radioStyles = {
-  row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 } as const,
-};
-const radioStylesOuter = (theme: import('../../ui/theme/theme').AppTheme) =>
-  StyleSheet.create({
-    outer: {
-      width: 18,
-      height: 18,
-      borderRadius: 9,
-      borderWidth: 2,
-      borderColor: theme.colors.border,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 10,
-    },
-  }).outer;
-
-const radioStylesOuterSelected = (theme: import('../../ui/theme/theme').AppTheme) =>
-  StyleSheet.create({ outerSelected: { borderColor: theme.colors.accent } }).outerSelected;
-
-const radioStylesInner = (theme: import('../../ui/theme/theme').AppTheme) =>
-  StyleSheet.create({ inner: { width: 10, height: 10, borderRadius: 5, backgroundColor: theme.colors.accent } }).inner;
-
-const radioStylesLabel = (theme: import('../../ui/theme/theme').AppTheme) =>
-  StyleSheet.create({ label: { fontSize: 14, color: theme.colors.text } }).label;

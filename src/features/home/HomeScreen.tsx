@@ -1,4 +1,3 @@
-// src/home/HomeScreen.tsx
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -14,7 +13,6 @@ export default function HomeScreen() {
 
   const handleLogout = async () => {
     await logout();
-    // Do not reset to 'Login' here; AppNavigator will swap to AuthStack.
   };
 
   const openOtherUser = () => {
@@ -24,9 +22,9 @@ export default function HomeScreen() {
       bio: 'Fitness enthusiast and runner. Love sharing workout tips.',
       imageUrl: null,
       workouts: [
-        { id: '1', title: 'Morning Run', durationMinutes: 45, likes: 23 },
-        { id: '2', title: 'Chest Day', durationMinutes: 60, likes: 41 },
-        { id: '3', title: 'HIIT Circuit', durationMinutes: 30, likes: 18 },
+        { id: '1', title: 'Back Day', durationMinutes: 45, avgBpm: 23 },
+        { id: '2', title: 'Chest Day', durationMinutes: 60, avgBpm: 41 },
+        { id: '3', title: 'HIIT Circuit', durationMinutes: 30, avgBpm: 18 },
       ],
     });
   };

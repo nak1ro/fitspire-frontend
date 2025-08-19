@@ -1,14 +1,8 @@
-// OtherUserProfileCard.tsx
 import React, { memo } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  StyleSheet,
-  FlatList,
-  TouchableOpacity,
-} from 'react-native';
-import { useTheme } from '../../ui/theme/ThemeProvider'; // adjust path if needed
+import { View, Text, Image, StyleSheet, FlatList } from 'react-native';
+import { useTheme } from '../../ui/theme/ThemeProvider';
+import { AppTheme } from '../../ui/theme/theme';
+import WorkoutCard from '../workout/WorkoutCard';
 
 const RADIUS = 10;
 
@@ -16,12 +10,16 @@ type WorkoutItem = {
   id: string;
   title: string;
   durationMinutes: number;
-  likes: number;
+
+  subtitle?: string;
+  badgeLabel?: string;
+  kcal?: number;
+  avgBpm?: number;
 };
 
 type Props = {
   displayName: string;
-  userName: string; // without '@'
+  userName: string;
   bio: string;
   imageUrl?: string | null;
   workouts: WorkoutItem[];
@@ -35,16 +33,15 @@ function initialsFromName(name: string) {
 }
 
 const OtherUserProfileCard: React.FC<Props> = ({
-                                                 displayName,
-                                                 userName,
-                                                 bio,
-                                                 imageUrl,
-                                                 workouts,
-                                                 onWorkoutPress,
-                                               }) => {
+  displayName,
+  userName,
+  bio,
+  imageUrl,
+  workouts,
+  onWorkoutPress,
+}) => {
   const { theme } = useTheme();
   const firstName = displayName.trim().split(/\s+/)[0] || 'this user';
-
   const styles = createStyles(theme);
 
   return (
@@ -91,33 +88,31 @@ const OtherUserProfileCard: React.FC<Props> = ({
       {workouts.length > 0 ? (
         <FlatList
           data={workouts}
-          keyExtractor={(item) => item.id}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 4 }}
-          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
-          renderItem={({ item }) => (
-            <TouchableOpacity
-              activeOpacity={0.85}
-              onPress={() => onWorkoutPress && onWorkoutPress(item.id)}
-            >
-              <View style={styles.workoutCard}>
-                <Text style={styles.workoutTitle} numberOfLines={2}>
-                  {item.title}
-                </Text>
-                <View style={styles.workoutMetaRow}>
-                  <View style={styles.metaChip}>
-                    <Text style={styles.metaChipText}>
-                      {item.durationMinutes}m
-                    </Text>
-                  </View>
-                  <View style={[styles.metaChip, { marginLeft: 6 }]}>
-                    <Text style={styles.metaChipText}>❤ {item.likes}</Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          )}
+          keyExtractor={item => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingVertical: 4 }}
+          ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          nestedScrollEnabled
+          renderItem={({ item }) => {
+            const subtitle = item.subtitle ?? 'Workout';
+            const badgeLabel = item.badgeLabel ?? 'Shared';
+            const durationMin = item.durationMinutes;
+            const kcal = item.kcal ?? Math.max(0, Math.round(durationMin * 6));
+            const avgBpm = item.avgBpm ?? 0;
+
+            return (
+              <WorkoutCard
+                title={item.title}
+                subtitle={subtitle}
+                badgeLabel={badgeLabel}
+                durationMin={durationMin}
+                kcal={kcal}
+                avgBpm={avgBpm}
+                onStart={() => onWorkoutPress?.(item.id)}
+                rightCta={{ label: 'Save' }}
+              />
+            );
+          }}
         />
       ) : (
         <View style={styles.emptyBox}>
@@ -133,10 +128,7 @@ const OtherUserProfileCard: React.FC<Props> = ({
 
 export default memo(OtherUserProfileCard);
 
-// ==================
-// Dynamic styles
-// ==================
-const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
+const createStyles = (theme: AppTheme) =>
   StyleSheet.create({
     card: {
       backgroundColor: theme.colors.cardBg,
@@ -146,7 +138,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       padding: 16,
     },
 
-    // Header
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -199,7 +190,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       color: theme.colors.text,
     },
 
-    // Divider
     dividerContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -213,36 +203,6 @@ const createStyles = (theme: ReturnType<typeof useTheme>['theme']) =>
       fontWeight: '600',
     },
 
-    // Workouts
-    workoutCard: {
-      width: 180,
-      borderRadius: RADIUS,
-      backgroundColor: theme.colors.cardBg,
-      padding: 12,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-    },
-    workoutTitle: { fontSize: 15, fontWeight: '700', color: theme.colors.text },
-    workoutMetaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 10,
-    },
-    metaChip: {
-      paddingVertical: 4,
-      paddingHorizontal: 8,
-      borderRadius: 999,
-      backgroundColor: theme.colors.accentSoft,
-      borderWidth: 1,
-      borderColor: theme.colors.border,
-    },
-    metaChipText: {
-      fontSize: 12,
-      fontWeight: '700',
-      color: theme.colors.text,
-    },
-
-    // Empty
     emptyBox: {
       paddingVertical: 14,
       paddingHorizontal: 12,

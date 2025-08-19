@@ -1,99 +1,92 @@
 // src/ui/theme/ThemeProvider.tsx
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Appearance, ColorSchemeName } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { darkTheme, lightTheme } from './theme';
-import type { AppTheme, Scheme } from './theme';
-import { getPreferences, updatePreferences } from '../../features/profile/userApi';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { Appearance, ColorSchemeName } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { AppTheme, ThemeScheme, lightTheme, darkTheme, buildTokens, Tokens } from "./theme";
 
-const STORAGE_KEY = '@app_theme_scheme';
+type SchemePref = ThemeScheme | "system";
 
-type ThemeContextValue = {
-  scheme: Scheme;
+type Ctx = {
+  // For ProfileScreen
   theme: AppTheme;
-  setScheme: (s: Scheme, opts?: { persist?: boolean; syncRemote?: boolean }) => void;
-  toggleScheme: (opts?: { persist?: boolean; syncRemote?: boolean }) => void;
+  setScheme: (scheme: SchemePref, opts?: { persist?: boolean }) => void;
+
+  // Extra (optional)
+  schemePref: SchemePref;
+  resolvedScheme: ThemeScheme;
+
+  // For cards/components
+  tokens: Tokens;
+
+  // ✅ Added so WorkoutCard compiles
+  mode: ThemeScheme; // alias of resolvedScheme
+  radii: { sm: number; md: number; lg: number; pill: number };
+  spacing: (n: number) => number;
 };
 
-const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
+const STORAGE_KEY = "@app:schemePref";
+const ThemeCtx = createContext<Ctx | null>(null);
 
-function schemeToTheme(s: Scheme): AppTheme {
-  return s === 'dark' ? darkTheme : lightTheme;
+function makeTheme(scheme: ThemeScheme): AppTheme {
+  return scheme === "dark" ? darkTheme : lightTheme;
 }
 
-export function AppThemeProvider({ children }: { children: React.ReactNode }) {
-  const sys = Appearance.getColorScheme() as ColorSchemeName;
-  const systemInitial: Scheme = sys === 'dark' ? 'dark' : 'light';
-  const [scheme, setSchemeState] = useState<Scheme>(systemInitial);
-  const [bootstrapped, setBootstrapped] = useState(false);
-  const schemeRef = useRef(scheme);
-  schemeRef.current = scheme;
+export const ThemeProvider: React.FC<{ children: React.ReactNode; initial?: SchemePref }> = ({
+                                                                                               children,
+                                                                                               initial = "system",
+                                                                                             }) => {
+  const [schemePref, setSchemePref] = useState<SchemePref>(initial);
+  const [systemScheme, setSystemScheme] = useState<ThemeScheme>(
+    ((Appearance.getColorScheme() as ColorSchemeName) ?? "light") as ThemeScheme
+  );
 
-  const setScheme = useCallback((s: Scheme, opts?: { persist?: boolean; syncRemote?: boolean }) => {
-    setSchemeState(s);
-    if (opts?.persist !== false) {
-      AsyncStorage.setItem(STORAGE_KEY, s).catch(() => {});
-    }
-    if (opts?.syncRemote) {
-      updatePreferences({
-        isDarkModeEnabled: s === 'dark',
-      } as any).catch(() => {});
-    }
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
+      if (stored === "light" || stored === "dark" || stored === "system") {
+        setSchemePref(stored as SchemePref);
+      }
+    });
   }, []);
 
-  const toggleScheme = useCallback((opts?: { persist?: boolean; syncRemote?: boolean }) => {
-    setScheme(schemeRef.current === 'dark' ? 'light' : 'dark', opts);
-  }, [setScheme]);
-
-  // Follow system only if user didn’t explicitly choose.
   useEffect(() => {
     const sub = Appearance.addChangeListener(({ colorScheme }) => {
-      AsyncStorage.getItem(STORAGE_KEY).then(saved => {
-        if (!saved) {
-          setScheme(colorScheme === 'dark' ? 'dark' : 'light', { persist: false, syncRemote: false });
-        }
-      }).catch(() => {});
+      setSystemScheme(((colorScheme ?? "light") as ThemeScheme));
     });
     return () => sub.remove();
-  }, [setScheme]);
+  }, []);
 
-  // Bootstrap: AsyncStorage → backend → system
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const saved = await AsyncStorage.getItem(STORAGE_KEY);
-        if (saved === 'light' || saved === 'dark') {
-          if (!cancelled) setScheme(saved as Scheme, { persist: false, syncRemote: false });
-        } else {
-          try {
-            const prefs = await getPreferences();
-            const fromRemote: Scheme = prefs?.isDarkModeEnabled ? 'dark' : 'light';
-            if (!cancelled) setScheme(fromRemote, { persist: true, syncRemote: false });
-          } catch {
-            // fall back to system
-          }
-        }
-      } finally {
-        if (!cancelled) setBootstrapped(true);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [setScheme]);
+  const resolvedScheme: ThemeScheme = schemePref === "system" ? systemScheme : schemePref;
+  const theme = useMemo(() => makeTheme(resolvedScheme), [resolvedScheme]);
+  const tokens = useMemo(() => buildTokens(theme), [theme]);
 
-  const theme = useMemo(() => schemeToTheme(scheme), [scheme]);
+  const setScheme = useCallback((scheme: SchemePref, opts?: { persist?: boolean }) => {
+    setSchemePref(scheme);
+    if (opts?.persist) AsyncStorage.setItem(STORAGE_KEY, scheme);
+  }, []);
 
-  if (!bootstrapped) return null;
+  // ✅ design-system-ish primitives
+  const radii = useMemo(() => ({ sm: 8, md: 10, lg: 14, pill: 999 }), []);
+  const spacing = useCallback((n: number) => 4 * n, []);
 
-  return (
-    <ThemeContext.Provider value={{ scheme, theme, setScheme, toggleScheme }}>
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo<Ctx>(
+    () => ({
+      theme,
+      tokens,
+      setScheme,
+      schemePref,
+      resolvedScheme,
+      mode: resolvedScheme, // alias
+      radii,
+      spacing,
+    }),
+    [theme, tokens, setScheme, schemePref, resolvedScheme, radii, spacing]
   );
-}
+
+  return <ThemeCtx.Provider value={value}>{children}</ThemeCtx.Provider>;
+};
 
 export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error('useTheme must be used within <AppThemeProvider>');
+  const ctx = useContext(ThemeCtx);
+  if (!ctx) throw new Error("useTheme must be used inside <ThemeProvider>");
   return ctx;
 }

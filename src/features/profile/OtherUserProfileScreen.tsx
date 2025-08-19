@@ -1,4 +1,3 @@
-// src/features/profile/OtherUserProfileScreen.tsx
 import React from 'react';
 import { ScrollView, StyleSheet } from 'react-native';
 import { RouteProp, useRoute } from '@react-navigation/native';

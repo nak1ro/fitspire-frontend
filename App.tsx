@@ -11,15 +11,15 @@ import {
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
-import { AppThemeProvider, useTheme } from './src/ui/theme/ThemeProvider.tsx';
+import { ThemeProvider, useTheme } from './src/ui/theme/ThemeProvider.tsx';
 
 
 function ThemedNavigation() {
-  const { theme, scheme } = useTheme();
+  const { theme, schemePref } = useTheme();
   const { token, loading } = useAuth();
 
   const navTheme: NavTheme =
-    scheme === 'dark'
+    schemePref === 'dark'
       ? {
         ...NavDarkTheme,
         colors: {
@@ -70,9 +70,9 @@ function ThemedNavigation() {
 export default function App() {
   return (
     <AuthProvider>
-      <AppThemeProvider>
+      <ThemeProvider>
         <ThemedNavigation />
-      </AppThemeProvider>
+      </ThemeProvider>
     </AuthProvider>
   );
 }
