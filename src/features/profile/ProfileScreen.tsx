@@ -78,7 +78,10 @@ export default function ProfileScreen() {
   const loadAll = useCallback(async () => {
     setLoading(true);
     try {
-      const [profile, prefs] = await Promise.all([getProfile(), getPreferences()]);
+      const [profile, prefs] = await Promise.all([
+        getProfile(),
+        getPreferences(),
+      ]);
       setDisplayName(profile.displayName ?? '');
       setBio(profile.bio ?? '');
       setProfileImage(profile.profilePictureUrl ?? null);
@@ -91,7 +94,10 @@ export default function ProfileScreen() {
       // Ensure global theme reflects remote pref on entry
       setScheme(prefs?.isDarkModeEnabled ? 'dark' : 'light', { persist: true });
     } catch (e: any) {
-      Alert.alert('Error', e?.response?.data?.message || 'Failed to load profile');
+      Alert.alert(
+        'Error',
+        e?.response?.data?.message || 'Failed to load profile',
+      );
     } finally {
       setLoading(false);
     }
@@ -119,7 +125,10 @@ export default function ProfileScreen() {
       setProfileImage(updated.profilePictureUrl ?? uri);
       showToast('📷 Profile picture updated');
     } catch (e: any) {
-      Alert.alert('Upload failed', e?.response?.data?.message || 'Please try again.');
+      Alert.alert(
+        'Upload failed',
+        e?.response?.data?.message || 'Please try again.',
+      );
     } finally {
       setSaving(false);
     }
@@ -211,12 +220,7 @@ export default function ProfileScreen() {
           />
 
           <View style={styles.inlineBtns}>
-            <Button
-              title="Save"
-              onPress={handleSave}
-              loading={saving}
-              full
-            />
+            <Button title="Save" onPress={handleSave} loading={saving} full />
           </View>
         </Card>
 
@@ -238,8 +242,8 @@ export default function ProfileScreen() {
               {preferredLanguage === 'en'
                 ? 'English'
                 : preferredLanguage === 'pl'
-                  ? 'Polski'
-                  : 'Español'}
+                ? 'Polski'
+                : 'Español'}
             </ValuePill>
           </TouchableOpacity>
           {openLang && (
@@ -326,7 +330,9 @@ export default function ProfileScreen() {
                 false: d.tokens.cardBorder,
                 true: d.theme.colors.accentSoft,
               }}
-              thumbColor={receiveEmailNotifications ? d.tokens.primary : '#f4f3f4'}
+              thumbColor={
+                receiveEmailNotifications ? d.tokens.primary : '#f4f3f4'
+              }
             />
           </View>
 
@@ -335,12 +341,7 @@ export default function ProfileScreen() {
 
           {/* Card actions */}
           <View style={styles.inlineBtns}>
-            <Button
-              title="Apply"
-              onPress={handleSave}
-              loading={saving}
-              full
-            />
+            <Button title="Apply" onPress={handleSave} loading={saving} full />
           </View>
         </Card>
 
@@ -359,10 +360,10 @@ export default function ProfileScreen() {
 
 /** ------- Small presentational helpers (refactored to design tokens) ------- */
 function RadioRow({
-                    label,
-                    selected,
-                    onPress,
-                  }: {
+  label,
+  selected,
+  onPress,
+}: {
   label: string;
   selected: boolean;
   onPress: () => void;
@@ -464,7 +465,12 @@ const makeStyles = (d: ReturnType<typeof useDesign>) =>
     radioGroup: { paddingHorizontal: 6, paddingTop: 8 },
 
     // divider
-    divider: { height: 1, backgroundColor: d.tokens.divider, marginTop: 14, marginBottom: 6 },
+    divider: {
+      height: 1,
+      backgroundColor: d.tokens.divider,
+      marginTop: 14,
+      marginBottom: 6,
+    },
 
     // buttons
     inlineBtns: { flexDirection: 'row', gap: 12, marginTop: 14 },
