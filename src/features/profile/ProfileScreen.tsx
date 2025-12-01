@@ -313,7 +313,7 @@ export default function ProfileScreen() {
                 false: d.tokens.cardBorder,
                 true: d.theme.colors.accentSoft,
               }}
-              thumbColor={isDarkModeEnabled ? d.tokens.primary : '#f4f3f4'}
+              thumbColor={isDarkModeEnabled ? d.tokens.primary : d.tokens.avatarFallback}
             />
           </View>
 
@@ -331,7 +331,7 @@ export default function ProfileScreen() {
                 true: d.theme.colors.accentSoft,
               }}
               thumbColor={
-                receiveEmailNotifications ? d.tokens.primary : '#f4f3f4'
+                receiveEmailNotifications ? d.tokens.primary : d.tokens.avatarFallback
               }
             />
           </View>
@@ -481,11 +481,11 @@ const makeStyles = (d: ReturnType<typeof useDesign>) =>
       left: 16,
       right: 16,
       bottom: 24,
-      backgroundColor: '#111',
+      backgroundColor: d.tokens.snackBg,
       paddingVertical: 10,
       paddingHorizontal: 14,
       borderRadius: 8,
       opacity: 0.96,
     },
-    snackText: { color: '#fff', textAlign: 'center' },
+    snackText: { color: d.tokens.snackText, textAlign: 'center' },
   });

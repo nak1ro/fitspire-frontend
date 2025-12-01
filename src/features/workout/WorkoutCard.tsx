@@ -26,7 +26,7 @@ export default function WorkoutCard(p: Props) {
     <Ionicons
       name={name}
       size={18}
-      color={d.theme.scheme === 'dark' ? '#9fb3c8' : '#5b7083'}
+      color={c.iconSoft}
       style={{ marginRight: 2 }}
     />
   );
@@ -59,8 +59,7 @@ export default function WorkoutCard(p: Props) {
               borderRadius: d.radii.md,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor:
-                d.theme.scheme === 'dark' ? '#3a2a00' : '#fff2cc',
+              backgroundColor: d.theme.colors.accentSoft,
             }}
           >
             <Text style={{ fontSize: 20, color: c.iconSoft }}>🏋️</Text>

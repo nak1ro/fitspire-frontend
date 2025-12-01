@@ -6,6 +6,7 @@ import {
 import { useAuth } from './AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AuthStack';
+import { useTheme } from '../../ui/theme/ThemeProvider';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -16,6 +17,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const { register, loading } = useAuth();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+  const { theme, tokens } = useTheme();
 
   const handleRegister = async () => {
     try {
@@ -30,6 +32,8 @@ export default function RegisterScreen({ navigation }: Props) {
       setError(e?.response?.data?.message || 'Registration failed');
     }
   };
+
+  const styles = createStyles(theme.colors, tokens);
 
   return (
     <KeyboardAvoidingView
@@ -50,7 +54,7 @@ export default function RegisterScreen({ navigation }: Props) {
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
-            placeholderTextColor="#888"
+            placeholderTextColor={tokens.textPlaceholder}
           />
           <TextInput
             style={styles.input}
@@ -58,7 +62,7 @@ export default function RegisterScreen({ navigation }: Props) {
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
-            placeholderTextColor="#888"
+            placeholderTextColor={tokens.textPlaceholder}
           />
           <TextInput
             style={styles.input}
@@ -66,14 +70,14 @@ export default function RegisterScreen({ navigation }: Props) {
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholderTextColor="#888"
+            placeholderTextColor={tokens.textPlaceholder}
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
             {loading ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={tokens.onPrimary} />
             ) : (
               <Text style={styles.buttonText}>Register</Text>
             )}
@@ -88,28 +92,29 @@ export default function RegisterScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fdfdfd' },
-  logo: { fontSize: 30, fontWeight: '700', textAlign: 'center', marginBottom: 24, color: '#007BFF' },
+const createStyles = (colors: any, tokens: any) => StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.bg },
+  logo: { fontSize: 30, fontWeight: '700', textAlign: 'center', marginBottom: 24, color: tokens.primary },
   input: {
-    borderColor: '#ddd',
+    borderColor: tokens.fieldBorder,
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     marginBottom: 14,
-    backgroundColor: '#fff',
+    backgroundColor: tokens.fieldBg,
+    color: tokens.textStrong,
   },
   button: {
-    backgroundColor: '#28a745',
+    backgroundColor: tokens.buttonSuccess,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  link: { color: '#007BFF', textAlign: 'center', marginTop: 20 },
-  error: { color: 'red', textAlign: 'center', marginBottom: 10 },
-  success: { color: 'green', textAlign: 'center', marginBottom: 20 },
+  buttonText: { color: tokens.onPrimary, fontWeight: '600', fontSize: 16 },
+  link: { color: tokens.textLink, textAlign: 'center', marginTop: 20 },
+  error: { color: tokens.textError, textAlign: 'center', marginBottom: 10 },
+  success: { color: tokens.textSuccess, textAlign: 'center', marginBottom: 20 },
 });

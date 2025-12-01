@@ -116,7 +116,7 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({
     }),
     [theme, tokens, setScheme, schemePref, resolvedScheme, radii, spacing],
   );
-  
+
   // Replace `null` with a splash screen if you have one.
   if (!hydrated) {
     return null;

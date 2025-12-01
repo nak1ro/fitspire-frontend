@@ -51,6 +51,10 @@ export type Tokens = {
   textStrong: string;
   textMuted: string;
   textBase: string;
+  textPlaceholder: string;
+  textLink: string;
+  textError: string;
+  textSuccess: string;
 
   card: string;
   cardBorder: string;
@@ -75,6 +79,15 @@ export type Tokens = {
 
   iconSoft: string;
   iconStrong: string;
+
+  // Overlays & notifications
+  snackBg: string;
+  snackText: string;
+  avatarFallback: string;
+
+  // Buttons
+  buttonSuccess: string;
+  buttonDanger: string;
 };
 
 export function buildTokens(theme: AppTheme): Tokens {
@@ -86,6 +99,10 @@ export function buildTokens(theme: AppTheme): Tokens {
       textStrong: theme.colors.text,
       textMuted: theme.colors.muted,
       textBase: '#cfd6dd',
+      textPlaceholder: '#6b7280',
+      textLink: theme.colors.accent,
+      textError: '#f87171',
+      textSuccess: '#4ade80',
 
       card: theme.colors.cardBg,
       cardBorder: theme.colors.border,
@@ -108,8 +125,15 @@ export function buildTokens(theme: AppTheme): Tokens {
       pillBorder: '#ff6b4a',
       pillText: '#1b0d07',
 
-      iconSoft: '#ffd76a',
+      iconSoft: '#9fb3c8',
       iconStrong: '#ff6b4a',
+
+      snackBg: '#f0f1f3',
+      snackText: '#1a1d21',
+      avatarFallback: '#3a3f45',
+
+      buttonSuccess: '#22c55e',
+      buttonDanger: '#ef4444',
     };
   }
 
@@ -120,6 +144,10 @@ export function buildTokens(theme: AppTheme): Tokens {
     textStrong: theme.colors.text,
     textMuted: theme.colors.muted,
     textBase: '#1f2937',
+    textPlaceholder: '#9ca3af',
+    textLink: theme.colors.accent,
+    textError: '#dc2626',
+    textSuccess: '#16a34a',
 
     card: theme.colors.cardBg,
     cardBorder: theme.colors.border,
@@ -142,7 +170,14 @@ export function buildTokens(theme: AppTheme): Tokens {
     pillBorder: '#ffd1cb',
     pillText: '#ee3a22',
 
-    iconSoft: '#8a5b00',
+    iconSoft: '#5b7083',
     iconStrong: '#ff6b4a',
+
+    snackBg: '#1a1d21',
+    snackText: '#f0f1f3',
+    avatarFallback: '#e5e7eb',
+
+    buttonSuccess: '#22c55e',
+    buttonDanger: '#ef4444',
   };
 }

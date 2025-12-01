@@ -44,7 +44,7 @@ export function Button({ title, onPress, disabled, loading, style, variant = "pr
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={isPrimary ? "#fff" : undefined} />
+        <ActivityIndicator color={isPrimary ? d.tokens.onPrimary : d.tokens.textMuted} />
       ) : (
         <Text style={isPrimary ? s.primaryText : s.ghostText}>{title}</Text>
       )}

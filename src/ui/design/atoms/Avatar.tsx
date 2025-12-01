@@ -5,7 +5,7 @@ import { useDesign } from "../system";
 type Props = Omit<ImageProps, "style"> & { size?: number; rounded?: number };
 
 export default function Avatar({ size = 52, rounded, ...rest }: Props) {
-  const { radii } = useDesign();
+  const { radii, tokens } = useDesign();
   return (
     <Image
       {...rest}
@@ -13,7 +13,7 @@ export default function Avatar({ size = 52, rounded, ...rest }: Props) {
         width: size,
         height: size,
         borderRadius: rounded ?? radii.md,
-        backgroundColor: "#ddd",
+        backgroundColor: tokens.avatarFallback,
       }}
     />
   );

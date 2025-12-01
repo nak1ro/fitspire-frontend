@@ -7,6 +7,7 @@ import { useAuth } from './AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AuthStack';
 import { GoogleSigninButton } from '@react-native-google-signin/google-signin';
+import { useTheme } from '../../ui/theme/ThemeProvider';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
@@ -15,6 +16,7 @@ export default function LoginScreen({ navigation }: Props) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const { login, loading, loginWithGoogle } = useAuth();
+  const { theme, tokens } = useTheme();
 
   const handleLogin = async () => {
     try {
@@ -24,6 +26,8 @@ export default function LoginScreen({ navigation }: Props) {
       setError(e?.response?.data?.message || 'Login failed');
     }
   };
+
+  const styles = createStyles(theme.colors, tokens);
 
   return (
     <KeyboardAvoidingView
@@ -39,7 +43,7 @@ export default function LoginScreen({ navigation }: Props) {
         value={loginValue}
         onChangeText={setLoginValue}
         autoCapitalize="none"
-        placeholderTextColor="#888"
+        placeholderTextColor={tokens.textPlaceholder}
       />
 
       <TextInput
@@ -48,17 +52,17 @@ export default function LoginScreen({ navigation }: Props) {
         value={password}
         onChangeText={setPassword}
         secureTextEntry
-        placeholderTextColor="#888"
+        placeholderTextColor={tokens.textPlaceholder}
       />
 
       {error ? <Text style={styles.error}>{error}</Text> : null}
 
       <TouchableOpacity style={styles.button} onPress={handleLogin} disabled={loading}>
-        {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Login</Text>}
+        {loading ? <ActivityIndicator color={tokens.onPrimary} /> : <Text style={styles.buttonText}>Login</Text>}
       </TouchableOpacity>
 
       <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-        <Text style={styles.link}>Don’t have an account? Register</Text>
+        <Text style={styles.link}>Don't have an account? Register</Text>
       </TouchableOpacity>
 
       <View style={styles.dividerContainer}>
@@ -70,7 +74,7 @@ export default function LoginScreen({ navigation }: Props) {
       <View style={styles.googleButton}>
         <GoogleSigninButton
           size={GoogleSigninButton.Size.Wide}
-          color={GoogleSigninButton.Color.Dark}
+          color={theme.scheme === 'dark' ? GoogleSigninButton.Color.Dark : GoogleSigninButton.Color.Light}
           onPress={async () => {
             try {
               await loginWithGoogle();
@@ -84,30 +88,31 @@ export default function LoginScreen({ navigation }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: '#fdfdfd' },
-  logo: { fontSize: 36, fontWeight: '700', textAlign: 'center', color: '#007BFF' },
-  subtitle: { fontSize: 18, textAlign: 'center', marginBottom: 24, color: '#444' },
+const createStyles = (colors: any, tokens: any) => StyleSheet.create({
+  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.bg },
+  logo: { fontSize: 36, fontWeight: '700', textAlign: 'center', color: tokens.primary },
+  subtitle: { fontSize: 18, textAlign: 'center', marginBottom: 24, color: tokens.textMuted },
   input: {
-    borderColor: '#ddd',
+    borderColor: tokens.fieldBorder,
     borderWidth: 1,
     borderRadius: 10,
     paddingHorizontal: 15,
     paddingVertical: 12,
     fontSize: 16,
     marginBottom: 14,
-    backgroundColor: '#fff',
+    backgroundColor: tokens.fieldBg,
+    color: tokens.textStrong,
   },
   button: {
-    backgroundColor: '#007BFF',
+    backgroundColor: tokens.primary,
     paddingVertical: 14,
     borderRadius: 10,
     alignItems: 'center',
     marginTop: 8,
   },
-  buttonText: { color: '#fff', fontWeight: '600', fontSize: 16 },
-  link: { color: '#007BFF', textAlign: 'center', marginTop: 16 },
-  error: { color: 'red', textAlign: 'center', marginBottom: 8 },
+  buttonText: { color: tokens.onPrimary, fontWeight: '600', fontSize: 16 },
+  link: { color: tokens.textLink, textAlign: 'center', marginTop: 16 },
+  error: { color: tokens.textError, textAlign: 'center', marginBottom: 8 },
   googleButton: { alignItems: 'center', marginTop: 20 },
   dividerContainer: {
     flexDirection: 'row',
@@ -118,10 +123,10 @@ const styles = StyleSheet.create({
   divider: {
     flex: 1,
     height: 1,
-    backgroundColor: '#ccc',
+    backgroundColor: tokens.divider,
   },
   orText: {
     marginHorizontal: 10,
-    color: '#777',
+    color: tokens.textMuted,
   },
 });

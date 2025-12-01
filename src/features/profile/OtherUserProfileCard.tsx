@@ -154,7 +154,7 @@ const createStyles = (theme: AppTheme) =>
       width: 86,
       height: 86,
       borderRadius: 43,
-      backgroundColor: '#eee',
+      backgroundColor: theme.colors.border,
     },
     initialsCircle: {
       width: 86,
@@ -165,7 +165,7 @@ const createStyles = (theme: AppTheme) =>
       justifyContent: 'center',
     },
     initialsText: {
-      color: '#fff',
+      color: theme.scheme === 'dark' ? theme.colors.bg : theme.colors.cardBg,
       fontWeight: '700',
       fontSize: 28,
     },

@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/MainStack';
 import { useAuth } from '../auth/AuthContext';
+import { useTheme } from '../../ui/theme/ThemeProvider';
+import { Button } from '../../ui/design/atoms/Button';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'Home'>;
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { logout } = useAuth();
+  const { theme, tokens } = useTheme();
 
   const handleLogout = async () => {
     await logout();
@@ -30,25 +33,29 @@ export default function HomeScreen() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Fitspire</Text>
+    <View style={[styles.container, { backgroundColor: theme.colors.bg }]}>
+      <Text style={[styles.title, { color: tokens.textStrong }]}>Welcome to Fitspire</Text>
 
       <Button title="Go to My Profile" onPress={() => navigation.navigate('Profile')} />
 
       <View style={styles.button}>
-        <Button title="Open Other User Profile" onPress={openOtherUser} />
+        <Button title="Open Other User Profile" onPress={openOtherUser} variant="ghost" />
       </View>
 
       <View style={styles.logoutButton}>
-        <Button title="Logout" color="red" onPress={handleLogout} />
+        <Button
+          title="Logout"
+          onPress={handleLogout}
+          style={{ backgroundColor: tokens.buttonDanger }}
+        />
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 24 },
   title: { fontSize: 20, fontWeight: 'bold', marginBottom: 20 },
-  button: { marginTop: 16 },
-  logoutButton: { marginTop: 20 },
+  button: { marginTop: 16, width: '100%' },
+  logoutButton: { marginTop: 20, width: '100%' },
 });
