@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
 import { ThemeProvider, useTheme } from './src/ui/theme/ThemeProvider.tsx';
+import { PaperThemeProvider } from './src/ui/theme/PaperThemeProvider';
 
 
 function ThemedNavigation() {
@@ -71,7 +72,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <ThemedNavigation />
+        <PaperThemeProvider>
+          <ThemedNavigation />
+        </PaperThemeProvider>
       </ThemeProvider>
     </AuthProvider>
   );
