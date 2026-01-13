@@ -4,5 +4,4 @@
  * Centralized Zustand stores for UI state.
  */
 
-// Theme store will be added in Phase 3
-// export { useThemeStore } from './useThemeStore';
+export { useThemeStore } from './useThemeStore';
