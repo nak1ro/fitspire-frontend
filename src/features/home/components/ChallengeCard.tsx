@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Card, Text, ProgressBar, Button, useTheme } from 'react-native-paper';
-import { useTheme as useAppTheme } from '../../../ui/theme/ThemeProvider';
+import { useTheme } from '../../../common/hooks/useTheme';
+import { Text, Card } from '../../../common/ui';
 
 type ChallengeCardProps = {
   title: string;
@@ -11,30 +11,36 @@ type ChallengeCardProps = {
 };
 
 export function ChallengeCard({ title, progress, daysRemaining, onPress }: ChallengeCardProps) {
-  const paperTheme = useTheme();
-  const { spacing } = useAppTheme();
+  const theme = useTheme();
 
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
-      <Card style={[styles.card, { marginRight: spacing(2) }]}>
-        <Card.Content>
-          <Text variant="titleMedium" style={{ color: paperTheme.colors.onSurface, marginBottom: spacing(1) }}>
-            {title}
-          </Text>
-          <ProgressBar
-            progress={progress}
-            color={paperTheme.colors.primary}
-            style={[styles.progressBar, { marginBottom: spacing(1) }]}
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8}>
+      <Card variant="glass" padding="md" style={styles.card}>
+        <Text variant="heading" weight="semibold" style={{ marginBottom: theme.spacing[2] }}>
+          {title}
+        </Text>
+
+        {/* Progress bar */}
+        <View style={[styles.progressTrack, { backgroundColor: theme.colors.border }]}>
+          <View
+            style={[
+              styles.progressFill,
+              {
+                width: `${Math.min(progress * 100, 100)}%`,
+                backgroundColor: theme.colors.primary[500],
+              },
+            ]}
           />
-          <View style={styles.footer}>
-            <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
-              {daysRemaining} days left
-            </Text>
-            <Text variant="bodySmall" style={{ color: paperTheme.colors.primary }}>
-              {Math.round(progress * 100)}%
-            </Text>
-          </View>
-        </Card.Content>
+        </View>
+
+        <View style={[styles.footer, { marginTop: theme.spacing[2] }]}>
+          <Text variant="label" color="secondary">
+            {daysRemaining} days left
+          </Text>
+          <Text variant="label" color="accent" weight="semibold">
+            {Math.round(progress * 100)}%
+          </Text>
+        </View>
       </Card>
     </TouchableOpacity>
   );
@@ -43,9 +49,15 @@ export function ChallengeCard({ title, progress, daysRemaining, onPress }: Chall
 const styles = StyleSheet.create({
   card: {
     width: 280,
+    marginRight: 8,
   },
-  progressBar: {
+  progressTrack: {
     height: 8,
+    borderRadius: 4,
+    overflow: 'hidden',
+  },
+  progressFill: {
+    height: '100%',
     borderRadius: 4,
   },
   footer: {
@@ -54,4 +66,3 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 });
-

@@ -108,8 +108,6 @@ const OtherUserProfileCard: React.FC<Props> = ({
                 durationMin={durationMin}
                 kcal={kcal}
                 avgBpm={avgBpm}
-                onStart={() => onWorkoutPress?.(item.id)}
-                rightCta={{ label: 'Save' }}
               />
             );
           }}

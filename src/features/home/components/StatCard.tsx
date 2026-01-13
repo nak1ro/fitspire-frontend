@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { Card, Text, useTheme } from 'react-native-paper';
-import { useTheme as useAppTheme } from '../../../ui/theme/ThemeProvider';
+import { useTheme } from '../../../common/hooks/useTheme';
+import { Text, Card } from '../../../common/ui';
 
 type StatCardProps = {
   label: string;
@@ -10,22 +10,19 @@ type StatCardProps = {
 };
 
 export function StatCard({ label, value, icon }: StatCardProps) {
-  const paperTheme = useTheme();
-  const { spacing } = useAppTheme();
+  const theme = useTheme();
 
   return (
-    <Card style={[styles.card, { marginRight: spacing(2) }]}>
-      <Card.Content style={styles.content}>
-        <Text variant="headlineMedium" style={{ color: paperTheme.colors.primary }}>
-          {icon}
-        </Text>
-        <Text variant="headlineSmall" style={{ color: paperTheme.colors.onSurface, marginTop: spacing(1) }}>
-          {value}
-        </Text>
-        <Text variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant, marginTop: spacing(0.5) }}>
-          {label}
-        </Text>
-      </Card.Content>
+    <Card variant="glass" padding="md" style={styles.card}>
+      <Text variant="heading" color="accent" style={styles.icon}>
+        {icon}
+      </Text>
+      <Text variant="title" weight="bold" style={{ marginTop: theme.spacing[2] }}>
+        {value}
+      </Text>
+      <Text variant="label" color="secondary" style={{ marginTop: theme.spacing[1] }}>
+        {label}
+      </Text>
     </Card>
   );
 }
@@ -34,10 +31,9 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     minWidth: 100,
+    marginRight: 8,
   },
-  content: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
+  icon: {
+    fontSize: 24,
   },
 });
-

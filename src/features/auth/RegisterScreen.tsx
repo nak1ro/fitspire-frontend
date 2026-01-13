@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
-import {
-  Text, TextInput, TouchableOpacity,
-  StyleSheet, ActivityIndicator, KeyboardAvoidingView, Platform
-} from 'react-native';
+import { View, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { useAuth } from './AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AuthStack';
-import { useTheme } from '../../ui/theme/ThemeProvider';
+import { useTheme } from '../../common/hooks/useTheme';
+import { Text, Button, Input } from '../../common/ui';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -17,7 +15,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const { register, loading } = useAuth();
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
-  const { theme, tokens } = useTheme();
+  const theme = useTheme();
 
   const handleRegister = async () => {
     try {
@@ -33,58 +31,56 @@ export default function RegisterScreen({ navigation }: Props) {
     }
   };
 
-  const styles = createStyles(theme.colors, tokens);
-
   return (
     <KeyboardAvoidingView
-      style={styles.container}
+      style={[styles.container, { backgroundColor: theme.colors.background }]}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <Text style={styles.logo}>Create Account</Text>
+      <Text variant="title" weight="bold" color="accent" style={styles.logo}>
+        Create Account
+      </Text>
 
       {success ? (
-        <Text style={styles.success}>
+        <Text variant="body" color="success" style={styles.success}>
           🎉 Registration successful! Check your email to confirm.
         </Text>
       ) : (
         <>
-          <TextInput
-            style={styles.input}
+          <Input
             placeholder="Email"
             value={email}
             onChangeText={setEmail}
             autoCapitalize="none"
-            placeholderTextColor={tokens.textPlaceholder}
+            containerStyle={styles.inputContainer}
           />
-          <TextInput
-            style={styles.input}
+          <Input
             placeholder="Username"
             value={username}
             onChangeText={setUsername}
             autoCapitalize="none"
-            placeholderTextColor={tokens.textPlaceholder}
+            containerStyle={styles.inputContainer}
           />
-          <TextInput
-            style={styles.input}
+          <Input
             placeholder="Password"
             value={password}
             onChangeText={setPassword}
             secureTextEntry
-            placeholderTextColor={tokens.textPlaceholder}
+            error={error || undefined}
+            containerStyle={styles.inputContainer}
           />
 
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          <TouchableOpacity style={styles.button} onPress={handleRegister} disabled={loading}>
-            {loading ? (
-              <ActivityIndicator color={tokens.onPrimary} />
-            ) : (
-              <Text style={styles.buttonText}>Register</Text>
-            )}
-          </TouchableOpacity>
+          <Button
+            title="Register"
+            onPress={handleRegister}
+            loading={loading}
+            fullWidth
+            style={styles.button}
+          />
 
           <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.link}>Already have an account? Log in</Text>
+            <Text variant="body" color="accent" style={styles.link}>
+              Already have an account? Log in
+            </Text>
           </TouchableOpacity>
         </>
       )}
@@ -92,29 +88,28 @@ export default function RegisterScreen({ navigation }: Props) {
   );
 }
 
-const createStyles = (colors: any, tokens: any) => StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 24, backgroundColor: colors.bg },
-  logo: { fontSize: 30, fontWeight: '700', textAlign: 'center', marginBottom: 24, color: tokens.primary },
-  input: {
-    borderColor: tokens.fieldBorder,
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 24,
+  },
+  logo: {
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  inputContainer: {
     marginBottom: 14,
-    backgroundColor: tokens.fieldBg,
-    color: tokens.textStrong,
   },
   button: {
-    backgroundColor: tokens.buttonSuccess,
-    paddingVertical: 14,
-    borderRadius: 10,
-    alignItems: 'center',
     marginTop: 10,
   },
-  buttonText: { color: tokens.onPrimary, fontWeight: '600', fontSize: 16 },
-  link: { color: tokens.textLink, textAlign: 'center', marginTop: 20 },
-  error: { color: tokens.textError, textAlign: 'center', marginBottom: 10 },
-  success: { color: tokens.textSuccess, textAlign: 'center', marginBottom: 20 },
+  link: {
+    textAlign: 'center',
+    marginTop: 20,
+  },
+  success: {
+    textAlign: 'center',
+    marginBottom: 20,
+  },
 });
