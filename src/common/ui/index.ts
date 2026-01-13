@@ -9,3 +9,5 @@ export { GlassContainer, type GlassContainerProps } from './GlassContainer';
 export { Avatar, type AvatarProps } from './Avatar';
 export { Input, type InputProps } from './Input';
 export { Icon, type IconProps } from './Icon';
+export { Header, type HeaderProps } from './Header';
+export { FAB, type FABProps } from './FAB';

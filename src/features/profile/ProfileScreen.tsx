@@ -2,7 +2,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
-  Text,
   TextInput,
   StyleSheet,
   ScrollView,
@@ -26,20 +25,14 @@ import {
   updatePreferences,
 } from './userApi';
 
-import Card from '../../ui/design/atoms/Card';
-import { Button } from '../../ui/design/atoms/Button';
-import ValuePill from '../../ui/design/atoms/ValuePill';
-import Avatar from '../../ui/design/atoms/Avatar';
-import { useDesign, makeLocalStyles } from '../../ui/design/system';
-import { useTheme } from '../../ui/theme/ThemeProvider';
+import { useTheme } from '../../common/hooks/useTheme';
+import { Text, Button, Card, Avatar, Input } from '../../common/ui';
 
 type Lang = 'en' | 'pl' | 'es';
 type Units = 'metric' | 'imperial';
 
 export default function ProfileScreen() {
-  const { setScheme } = useTheme(); // for toggling persisted scheme
-  const d = useDesign();
-  const styles = makeLocalStyles(d, makeStyles);
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -53,11 +46,10 @@ export default function ProfileScreen() {
   // preferences
   const [preferredLanguage, setPreferredLanguage] = useState<Lang>('en');
   const [isDarkModeEnabled, setDarkModeEnabled] = useState(false);
-  const [receiveEmailNotifications, setReceiveEmailNotifications] =
-    useState(true);
+  const [receiveEmailNotifications, setReceiveEmailNotifications] = useState(true);
   const [unitSystem, setUnitSystem] = useState<Units>('metric');
 
-  // UI state (custom snackbar-like banner)
+  // UI state
   const [snack, setSnack] = useState<{ visible: boolean; msg: string }>({
     visible: false,
     msg: '',
@@ -70,7 +62,7 @@ export default function ProfileScreen() {
     if (Platform.OS === 'android') {
       try {
         ToastAndroid.show(msg, ToastAndroid.SHORT);
-      } catch {}
+      } catch { }
     }
     setTimeout(() => setSnack(s => ({ ...s, visible: false })), 2200);
   };
@@ -90,9 +82,6 @@ export default function ProfileScreen() {
       setDarkModeEnabled(!!prefs.isDarkModeEnabled);
       setReceiveEmailNotifications(!!prefs.receiveEmailNotifications);
       setUnitSystem((prefs.unitSystem as Units) ?? 'metric');
-
-      // Ensure global theme reflects remote pref on entry
-      setScheme(prefs?.isDarkModeEnabled ? 'dark' : 'light', { persist: true });
     } catch (e: any) {
       Alert.alert(
         'Error',
@@ -101,7 +90,7 @@ export default function ProfileScreen() {
     } finally {
       setLoading(false);
     }
-  }, [setScheme]);
+  }, []);
 
   useEffect(() => {
     loadAll();
@@ -154,9 +143,9 @@ export default function ProfileScreen() {
 
   if (loading) {
     return (
-      <View style={styles.loadingWrap}>
-        <ActivityIndicator size="large" color={d.tokens.primary} />
-        <Text style={{ marginTop: 12, color: d.tokens.textStrong }}>
+      <View style={[styles.loadingWrap, { backgroundColor: theme.colors.background }]}>
+        <ActivityIndicator size="large" color={theme.colors.primary[500]} />
+        <Text variant="body" style={{ marginTop: 12 }}>
           Loading your profile…
         </Text>
       </View>
@@ -164,105 +153,93 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={styles.wrapper}>
+    <View style={[styles.wrapper, { backgroundColor: theme.colors.background }]}>
       <ScrollView
         contentContainerStyle={styles.container}
         keyboardShouldPersistTaps="handled"
       >
-        {/* ---------- Profile header card (avatar + names + change picture) ---------- */}
-        <Card>
+        {/* Profile header card */}
+        <Card variant="solid" padding="md">
           <View style={styles.headerRow}>
-            <Avatar
-              source={
-                profileImage
-                  ? { uri: profileImage }
-                  : require('../../../assets/default-avatar.png')
-              }
-            />
-            <View style={{ flex: 1, paddingRight: 12, marginLeft: 12 }}>
-              <Text style={styles.headerName} numberOfLines={1}>
+            <Avatar source={profileImage} name={displayName} size="xl" />
+            <View style={{ flex: 1, marginLeft: theme.spacing[4] }}>
+              <Text variant="heading" weight="bold" numberOfLines={1}>
                 {displayName || 'Your name'}
               </Text>
-              <Text style={styles.headerHandle} numberOfLines={1}>
+              <Text variant="label" color="secondary" style={{ marginTop: 2 }}>
                 @{userName}
               </Text>
             </View>
-            <Button
-              title={saving ? 'Uploading…' : 'Change picture'}
-              onPress={pickImage}
-              disabled={saving}
-            />
           </View>
+          <Button
+            title={saving ? 'Uploading…' : 'Change picture'}
+            onPress={pickImage}
+            disabled={saving}
+            variant="secondary"
+            style={{ marginTop: theme.spacing[4] }}
+            fullWidth
+          />
         </Card>
 
-        {/* ---------- About you ---------- */}
-        <Card style={{ marginTop: 14 }}>
-          <Text style={styles.cardTitle}>About you</Text>
+        {/* About you */}
+        <Card variant="solid" padding="md" style={{ marginTop: 14 }}>
+          <Text variant="heading" weight="bold" style={{ marginBottom: theme.spacing[4] }}>
+            About you
+          </Text>
 
-          <Text style={styles.inputLabel}>Display name</Text>
-          <TextInput
-            style={styles.input}
+          <Input
+            label="Display name"
             placeholder="Display Name"
             value={displayName}
             onChangeText={setDisplayName}
-            placeholderTextColor={d.tokens.textMuted}
+            containerStyle={{ marginBottom: theme.spacing[3] }}
           />
 
-          <Text style={[styles.inputLabel, { marginTop: 12 }]}>Bio</Text>
-          <TextInput
-            style={[styles.input, { height: 110, textAlignVertical: 'top' }]}
+          <Input
+            label="Bio"
             placeholder="Tell people a bit about you"
             value={bio}
             onChangeText={setBio}
-            placeholderTextColor={d.tokens.textMuted}
             multiline
             numberOfLines={5}
           />
 
-          <View style={styles.inlineBtns}>
-            <Button title="Save" onPress={handleSave} loading={saving} full />
-          </View>
+          <Button
+            title="Save"
+            onPress={handleSave}
+            loading={saving}
+            fullWidth
+            style={{ marginTop: theme.spacing[4] }}
+          />
         </Card>
 
-        {/* ---------- Preferences ---------- */}
-        <Card style={{ marginTop: 14 }}>
-          <Text style={styles.cardTitle}>Preferences</Text>
+        {/* Preferences */}
+        <Card variant="solid" padding="md" style={{ marginTop: 14 }}>
+          <Text variant="heading" weight="bold" style={{ marginBottom: theme.spacing[4] }}>
+            Preferences
+          </Text>
 
           {/* Language */}
           <TouchableOpacity
             onPress={() => setOpenLang(o => !o)}
             activeOpacity={0.9}
-            style={styles.prefRow}
+            style={[styles.prefRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border }]}
           >
             <View>
-              <Text style={styles.prefTitle}>Language</Text>
-              <Text style={styles.prefDesc}>App language</Text>
+              <Text variant="body" weight="semibold">Language</Text>
+              <Text variant="caption" color="secondary">App language</Text>
             </View>
-            <ValuePill>
-              {preferredLanguage === 'en'
-                ? 'English'
-                : preferredLanguage === 'pl'
-                ? 'Polski'
-                : 'Español'}
-            </ValuePill>
+            <View style={[styles.pill, { backgroundColor: theme.colors.primary[500] }]}>
+              <Text variant="label" color="inverse">
+                {preferredLanguage === 'en' ? 'English' : preferredLanguage === 'pl' ? 'Polski' : 'Español'}
+              </Text>
+            </View>
           </TouchableOpacity>
           {openLang && (
             <View style={styles.radioGroup}>
-              <RadioRow
-                label="English"
-                selected={preferredLanguage === 'en'}
-                onPress={() => setPreferredLanguage('en')}
-              />
-              <RadioRow
-                label="Polski"
-                selected={preferredLanguage === 'pl'}
-                onPress={() => setPreferredLanguage('pl')}
-              />
-              <RadioRow
-                label="Español"
-                selected={preferredLanguage === 'es'}
-                onPress={() => setPreferredLanguage('es')}
-              />
+              <RadioRow label="English" selected={preferredLanguage === 'en'} onPress={() => setPreferredLanguage('en')} />
+              <RadioRow label="Polski" selected={preferredLanguage === 'pl'} onPress={() => setPreferredLanguage('pl')} />
+              <RadioRow label="Español" selected={preferredLanguage === 'es'} onPress={() => setPreferredLanguage('es')} />
             </View>
           )}
 
@@ -270,222 +247,107 @@ export default function ProfileScreen() {
           <TouchableOpacity
             onPress={() => setOpenUnits(o => !o)}
             activeOpacity={0.9}
-            style={[styles.prefRow, { marginTop: 10 }]}
+            style={[styles.prefRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, marginTop: 10 }]}
           >
             <View>
-              <Text style={styles.prefTitle}>Units</Text>
-              <Text style={styles.prefDesc}>Distance & weight</Text>
+              <Text variant="body" weight="semibold">Units</Text>
+              <Text variant="caption" color="secondary">Distance & weight</Text>
             </View>
-            <ValuePill>
-              {unitSystem === 'metric'
-                ? 'Metric (km, kg)'
-                : 'Imperial (mi, lb)'}
-            </ValuePill>
+            <View style={[styles.pill, { backgroundColor: theme.colors.primary[500] }]}>
+              <Text variant="label" color="inverse">
+                {unitSystem === 'metric' ? 'Metric' : 'Imperial'}
+              </Text>
+            </View>
           </TouchableOpacity>
           {openUnits && (
             <View style={styles.radioGroup}>
-              <RadioRow
-                label="Metric (kg, cm)"
-                selected={unitSystem === 'metric'}
-                onPress={() => setUnitSystem('metric')}
-              />
-              <RadioRow
-                label="Imperial (lbs, in)"
-                selected={unitSystem === 'imperial'}
-                onPress={() => setUnitSystem('imperial')}
-              />
+              <RadioRow label="Metric (kg, cm)" selected={unitSystem === 'metric'} onPress={() => setUnitSystem('metric')} />
+              <RadioRow label="Imperial (lbs, in)" selected={unitSystem === 'imperial'} onPress={() => setUnitSystem('imperial')} />
             </View>
           )}
 
           {/* Dark mode toggle */}
-          <View style={[styles.prefRow, { marginTop: 10 }]}>
+          <View style={[styles.prefRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, marginTop: 10 }]}>
             <View>
-              <Text style={styles.prefTitle}>Dark mode</Text>
-              <Text style={styles.prefDesc}>Theme appearance</Text>
+              <Text variant="body" weight="semibold">Dark mode</Text>
+              <Text variant="caption" color="secondary">Theme appearance</Text>
             </View>
             <RNSwitch
               value={isDarkModeEnabled}
-              onValueChange={v => {
-                setDarkModeEnabled(v);
-                setScheme(v ? 'dark' : 'light', { persist: true });
-              }}
-              trackColor={{
-                false: d.tokens.cardBorder,
-                true: d.theme.colors.accentSoft,
-              }}
-              thumbColor={isDarkModeEnabled ? d.tokens.primary : d.tokens.avatarFallback}
+              onValueChange={setDarkModeEnabled}
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary[300] }}
+              thumbColor={isDarkModeEnabled ? theme.colors.primary[500] : theme.colors.text.secondary}
             />
           </View>
 
           {/* Email notifications */}
-          <View style={[styles.prefRow, { marginTop: 10 }]}>
+          <View style={[styles.prefRow, { backgroundColor: theme.colors.surface, borderColor: theme.colors.border, marginTop: 10 }]}>
             <View>
-              <Text style={styles.prefTitle}>Email notifications</Text>
-              <Text style={styles.prefDesc}>Account & activity updates</Text>
+              <Text variant="body" weight="semibold">Email notifications</Text>
+              <Text variant="caption" color="secondary">Account & activity updates</Text>
             </View>
             <RNSwitch
               value={receiveEmailNotifications}
               onValueChange={setReceiveEmailNotifications}
-              trackColor={{
-                false: d.tokens.cardBorder,
-                true: d.theme.colors.accentSoft,
-              }}
-              thumbColor={
-                receiveEmailNotifications ? d.tokens.primary : d.tokens.avatarFallback
-              }
+              trackColor={{ false: theme.colors.border, true: theme.colors.primary[300] }}
+              thumbColor={receiveEmailNotifications ? theme.colors.primary[500] : theme.colors.text.secondary}
             />
           </View>
 
-          {/* Divider */}
-          <View style={styles.divider} />
+          <View style={[styles.divider, { backgroundColor: theme.colors.border }]} />
 
-          {/* Card actions */}
-          <View style={styles.inlineBtns}>
-            <Button title="Apply" onPress={handleSave} loading={saving} full />
-          </View>
+          <Button
+            title="Apply"
+            onPress={handleSave}
+            loading={saving}
+            fullWidth
+          />
         </Card>
 
         <View style={{ height: 24 }} />
       </ScrollView>
 
-      {/* Snackbar-ish banner */}
+      {/* Snackbar */}
       {snack.visible && (
-        <View style={styles.snack}>
-          <Text style={styles.snackText}>{snack.msg}</Text>
+        <View style={[styles.snack, { backgroundColor: theme.colors.surface }]}>
+          <Text variant="body">{snack.msg}</Text>
         </View>
       )}
     </View>
   );
 }
 
-/** ------- Small presentational helpers (refactored to design tokens) ------- */
-function RadioRow({
-  label,
-  selected,
-  onPress,
-}: {
-  label: string;
-  selected: boolean;
-  onPress: () => void;
-}) {
-  const d = useDesign();
-  const s = makeLocalStyles(d, ({ tokens }) => ({
-    row: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
-    outer: {
-      width: 18,
-      height: 18,
-      borderRadius: 9,
-      borderWidth: 2,
-      borderColor: selected ? tokens.primary : tokens.cardBorder,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginRight: 10,
-    },
-    inner: {
-      width: 10,
-      height: 10,
-      borderRadius: 5,
-      backgroundColor: tokens.primary,
-    },
-    label: { fontSize: 14, color: tokens.textStrong },
-  }));
+function RadioRow({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
+  const theme = useTheme();
   return (
-    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={s.row}>
-      <View style={s.outer}>{selected && <View style={s.inner} />}</View>
-      <Text style={s.label}>{label}</Text>
+    <TouchableOpacity onPress={onPress} activeOpacity={0.8} style={styles.radioRow}>
+      <View style={[styles.radioOuter, { borderColor: selected ? theme.colors.primary[500] : theme.colors.border }]}>
+        {selected && <View style={[styles.radioInner, { backgroundColor: theme.colors.primary[500] }]} />}
+      </View>
+      <Text variant="body">{label}</Text>
     </TouchableOpacity>
   );
 }
 
-/** ------- Styles (theme-aware via design system) ------- */
-const makeStyles = (d: ReturnType<typeof useDesign>) =>
-  StyleSheet.create({
-    wrapper: { flex: 1, backgroundColor: d.theme.colors.bg },
-    container: { padding: 16, paddingBottom: 40 },
-
-    loadingWrap: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 24,
-      backgroundColor: d.theme.colors.bg,
-    },
-
-    // ---- Header ----
-    headerRow: { flexDirection: 'row', alignItems: 'center' },
-    headerName: { color: d.tokens.textStrong, fontSize: 18, fontWeight: '800' },
-    headerHandle: {
-      color: d.tokens.textMuted,
-      fontSize: 13,
-      fontWeight: '700',
-      marginTop: 2,
-    },
-
-    // ---- Titles ----
-    cardTitle: {
-      fontSize: 18,
-      fontWeight: '800',
-      color: d.tokens.textStrong,
-      marginBottom: 12,
-    },
-
-    // inputs
-    inputLabel: {
-      color: d.tokens.textMuted,
-      fontWeight: '700',
-      fontSize: 12,
-      marginBottom: 6,
-    },
-    input: {
-      borderColor: d.tokens.fieldBorder,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingHorizontal: 14,
-      paddingVertical: 12,
-      fontSize: 16,
-      backgroundColor: d.tokens.fieldBg,
-      color: d.tokens.textStrong,
-    },
-
-    // Preference rows
-    prefRow: {
-      borderWidth: 1,
-      borderColor: d.tokens.cardBorder,
-      borderRadius: d.radii.lg,
-      paddingHorizontal: 12,
-      paddingVertical: 12,
-      backgroundColor: d.tokens.card,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-    },
-    prefTitle: { fontSize: 15, fontWeight: '700', color: d.tokens.textStrong },
-    prefDesc: { fontSize: 12, color: d.tokens.textMuted, marginTop: 2 },
-
-    radioGroup: { paddingHorizontal: 6, paddingTop: 8 },
-
-    // divider
-    divider: {
-      height: 1,
-      backgroundColor: d.tokens.divider,
-      marginTop: 14,
-      marginBottom: 6,
-    },
-
-    // buttons
-    inlineBtns: { flexDirection: 'row', gap: 12, marginTop: 14 },
-
-    // snack
-    snack: {
-      position: 'absolute',
-      left: 16,
-      right: 16,
-      bottom: 24,
-      backgroundColor: d.tokens.snackBg,
-      paddingVertical: 10,
-      paddingHorizontal: 14,
-      borderRadius: 8,
-      opacity: 0.96,
-    },
-    snackText: { color: d.tokens.snackText, textAlign: 'center' },
-  });
+const styles = StyleSheet.create({
+  wrapper: { flex: 1 },
+  container: { padding: 16, paddingBottom: 40 },
+  loadingWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+  headerRow: { flexDirection: 'row', alignItems: 'center' },
+  prefRow: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  pill: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
+  radioGroup: { paddingHorizontal: 6, paddingTop: 8 },
+  radioRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8 },
+  radioOuter: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, alignItems: 'center', justifyContent: 'center', marginRight: 10 },
+  radioInner: { width: 10, height: 10, borderRadius: 5 },
+  divider: { height: 1, marginVertical: 14 },
+  snack: { position: 'absolute', left: 16, right: 16, bottom: 24, paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8 },
+});

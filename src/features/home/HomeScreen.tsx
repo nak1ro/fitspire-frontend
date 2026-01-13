@@ -6,23 +6,17 @@ import {
   RefreshControl,
   TouchableOpacity,
 } from 'react-native';
-import {
-  Appbar,
-  Text,
-  FAB,
-  Portal,
-  useTheme,
-  Avatar,
-} from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/MainStack';
 import { useAuth } from '../auth/AuthContext';
-import { useTheme as useAppTheme } from '../../ui/theme/ThemeProvider';
+import { useTheme } from '../../common/hooks/useTheme';
+import { Text, Avatar, Header, FAB } from '../../common/ui';
 import { StatCard } from './components/StatCard';
 import { ChallengeCard } from './components/ChallengeCard';
 import { WorkoutPostCard } from './components/WorkoutPostCard';
 import { log } from '../../utils/logger';
+import { Bell, Dumbbell, PenLine } from 'lucide-react-native';
 
 type NavigationProp = NativeStackNavigationProp<MainStackParamList, 'Home'>;
 
@@ -34,126 +28,28 @@ const mockStats = {
 };
 
 const mockChallenges = [
-  {
-    id: '1',
-    title: '30-Day Cardio Challenge',
-    progress: 0.65,
-    daysRemaining: 11,
-  },
-  {
-    id: '2',
-    title: 'Weekly Strength Training',
-    progress: 0.8,
-    daysRemaining: 2,
-  },
+  { id: '1', title: '30-Day Cardio Challenge', progress: 0.65, daysRemaining: 11 },
+  { id: '2', title: 'Weekly Strength Training', progress: 0.8, daysRemaining: 2 },
 ];
 
 const mockWorkouts = [
-  {
-    id: '1',
-    userName: 'Sarah Johnson',
-    userAvatar: undefined,
-    workoutType: 'gym' as const,
-    workoutTitle: 'Upper Body Strength',
-    timestamp: '2 hours ago',
-    duration: 60,
-    calories: 320,
-    sets: 4,
-    reps: 12,
-    likes: 24,
-    comments: 5,
-  },
-  {
-    id: '2',
-    userName: 'Mike Chen',
-    userAvatar: undefined,
-    workoutType: 'running' as const,
-    workoutTitle: 'Morning 5K Run',
-    timestamp: '4 hours ago',
-    duration: 28,
-    calories: 280,
-    likes: 18,
-    comments: 3,
-  },
-  {
-    id: '3',
-    userName: 'Emma Wilson',
-    userAvatar: undefined,
-    workoutType: 'yoga' as const,
-    workoutTitle: 'Vinyasa Flow',
-    timestamp: '6 hours ago',
-    duration: 45,
-    calories: 150,
-    likes: 31,
-    comments: 8,
-  },
-  {
-    id: '4',
-    userName: 'Alex Rodriguez',
-    userAvatar: undefined,
-    workoutType: 'cycling' as const,
-    workoutTitle: 'Indoor Cycling Session',
-    timestamp: '8 hours ago',
-    duration: 50,
-    calories: 420,
-    likes: 15,
-    comments: 2,
-  },
-  {
-    id: '5',
-    userName: 'Lisa Park',
-    userAvatar: undefined,
-    workoutType: 'swimming' as const,
-    workoutTitle: 'Swimming Laps',
-    timestamp: '12 hours ago',
-    duration: 40,
-    calories: 380,
-    likes: 22,
-    comments: 6,
-  },
-  {
-    id: '6',
-    userName: 'David Kim',
-    userAvatar: undefined,
-    workoutType: 'gym' as const,
-    workoutTitle: 'Leg Day',
-    timestamp: '1 day ago',
-    duration: 75,
-    calories: 450,
-    sets: 5,
-    reps: 10,
-    likes: 28,
-    comments: 7,
-  },
-  {
-    id: '7',
-    userName: 'Jessica Brown',
-    userAvatar: undefined,
-    workoutType: 'running' as const,
-    workoutTitle: 'Trail Run',
-    timestamp: '1 day ago',
-    duration: 35,
-    calories: 310,
-    likes: 19,
-    comments: 4,
-  },
+  { id: '1', userName: 'Sarah Johnson', workoutType: 'gym' as const, workoutTitle: 'Upper Body Strength', timestamp: '2 hours ago', duration: 60, calories: 320, sets: 4, reps: 12, likes: 24, comments: 5 },
+  { id: '2', userName: 'Mike Chen', workoutType: 'running' as const, workoutTitle: 'Morning 5K Run', timestamp: '4 hours ago', duration: 28, calories: 280, likes: 18, comments: 3 },
+  { id: '3', userName: 'Emma Wilson', workoutType: 'yoga' as const, workoutTitle: 'Vinyasa Flow', timestamp: '6 hours ago', duration: 45, calories: 150, likes: 31, comments: 8 },
+  { id: '4', userName: 'Alex Rodriguez', workoutType: 'cycling' as const, workoutTitle: 'Indoor Cycling Session', timestamp: '8 hours ago', duration: 50, calories: 420, likes: 15, comments: 2 },
+  { id: '5', userName: 'Lisa Park', workoutType: 'swimming' as const, workoutTitle: 'Swimming Laps', timestamp: '12 hours ago', duration: 40, calories: 380, likes: 22, comments: 6 },
 ];
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
-  const paperTheme = useTheme();
-  const { spacing } = useAppTheme();
+  const theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
-  const [fabOpen, setFabOpen] = useState(false);
 
   const onRefresh = useCallback(() => {
     setRefreshing(true);
     log.app.debug('Pull to refresh triggered');
-    // Simulate refresh
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 1000);
+    setTimeout(() => setRefreshing(false), 1000);
   }, []);
 
   const handleWorkoutPress = (id: string) => {
@@ -166,47 +62,32 @@ export default function HomeScreen() {
 
   const handleLogWorkout = () => {
     log.app.info('Log workout FAB pressed');
-    setFabOpen(false);
-    // Navigate to log workout screen when implemented
   };
 
   const handleCreatePost = () => {
     log.app.info('Create post FAB pressed');
-    setFabOpen(false);
-    // Navigate to create post screen when implemented
-  };
-
-  const handleViewAllChallenges = () => {
-    log.app.info('View all challenges pressed');
-    // Navigate to challenges screen when implemented
   };
 
   const userName = user?.displayName || user?.userName || 'User';
-  const userInitial = userName.charAt(0).toUpperCase();
 
   return (
-    <View style={[styles.container, { backgroundColor: paperTheme.colors.background }]}>
+    <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
       {/* Header */}
-      <Appbar.Header style={{ backgroundColor: paperTheme.colors.surface }}>
-        <Appbar.Content title="Fitspire" titleStyle={{ fontWeight: 'bold' }} />
-        <TouchableOpacity onPress={() => log.app.debug('Notifications pressed')}>
-          <Appbar.Action icon="bell-outline" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => navigation.navigate('Profile')}
-          style={{ marginRight: spacing(1) }}
-        >
-          <Avatar.Text
-            size={32}
-            label={userInitial}
-            style={{ backgroundColor: paperTheme.colors.primaryContainer }}
-          />
-        </TouchableOpacity>
-      </Appbar.Header>
+      <Header
+        title="Fitspire"
+        rightActions={[
+          <TouchableOpacity onPress={() => log.app.debug('Notifications pressed')}>
+            <Bell size={24} color={theme.colors.text.primary} />
+          </TouchableOpacity>,
+          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
+            <Avatar name={userName} size="sm" />
+          </TouchableOpacity>,
+        ]}
+      />
 
       <ScrollView
         style={styles.scrollView}
-        contentContainerStyle={[styles.content, { padding: spacing(2) }]}
+        contentContainerStyle={[styles.content, { padding: theme.spacing[4] }]}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -214,45 +95,24 @@ export default function HomeScreen() {
       >
         {/* Quick Stats Section */}
         <View style={styles.section}>
-          <Text
-            variant="titleLarge"
-            style={[styles.sectionTitle, { color: paperTheme.colors.onBackground, marginBottom: spacing(2) }]}
-          >
+          <Text variant="heading" weight="bold" style={{ marginBottom: theme.spacing[4] }}>
             Quick Stats
           </Text>
           <View style={styles.statsRow}>
-            <StatCard
-              label="Day Streak"
-              value={`${mockStats.streak} days`}
-              icon="🔥"
-            />
-            <StatCard
-              label="This Week"
-              value={`${mockStats.weeklyWorkouts.completed}/${mockStats.weeklyWorkouts.total}`}
-              icon="✅"
-            />
-            <StatCard
-              label="Active Minutes"
-              value={`${mockStats.weeklyMinutes} min`}
-              icon="⏱️"
-            />
+            <StatCard label="Day Streak" value={`${mockStats.streak} days`} icon="🔥" />
+            <StatCard label="This Week" value={`${mockStats.weeklyWorkouts.completed}/${mockStats.weeklyWorkouts.total}`} icon="✅" />
+            <StatCard label="Active Minutes" value={`${mockStats.weeklyMinutes} min`} icon="⏱️" />
           </View>
         </View>
 
         {/* Active Challenges Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text
-              variant="titleLarge"
-              style={[styles.sectionTitle, { color: paperTheme.colors.onBackground }]}
-            >
+            <Text variant="heading" weight="bold">
               Active Challenges
             </Text>
-            <TouchableOpacity onPress={handleViewAllChallenges}>
-              <Text
-                variant="bodyMedium"
-                style={{ color: paperTheme.colors.primary, fontWeight: '600' }}
-              >
+            <TouchableOpacity>
+              <Text variant="body" color="accent" weight="semibold">
                 View All
               </Text>
             </TouchableOpacity>
@@ -260,7 +120,7 @@ export default function HomeScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={[styles.challengesScroll, { paddingVertical: spacing(1) }]}
+            contentContainerStyle={{ paddingVertical: theme.spacing[2] }}
           >
             {mockChallenges.map(challenge => (
               <ChallengeCard
@@ -276,17 +136,13 @@ export default function HomeScreen() {
 
         {/* Recent Workouts Feed */}
         <View style={styles.section}>
-          <Text
-            variant="titleLarge"
-            style={[styles.sectionTitle, { color: paperTheme.colors.onBackground, marginBottom: spacing(2) }]}
-          >
+          <Text variant="heading" weight="bold" style={{ marginBottom: theme.spacing[4] }}>
             Recent Workouts
           </Text>
           {mockWorkouts.map(workout => (
             <WorkoutPostCard
               key={workout.id}
               userName={workout.userName}
-              userAvatar={workout.userAvatar}
               workoutType={workout.workoutType}
               workoutTitle={workout.workoutTitle}
               timestamp={workout.timestamp}
@@ -302,33 +158,21 @@ export default function HomeScreen() {
         </View>
       </ScrollView>
 
-      {/* FAB Group */}
-      <Portal>
-        <FAB.Group
-          open={fabOpen}
-          visible
-          icon={fabOpen ? 'close' : 'plus'}
-          actions={[
-            {
-              icon: 'dumbbell',
-              label: 'Log Workout',
-              onPress: handleLogWorkout,
-            },
-            {
-              icon: 'pencil',
-              label: 'Create Post',
-              onPress: handleCreatePost,
-            },
-          ]}
-          onStateChange={({ open }) => setFabOpen(open)}
-          onPress={() => {
-            if (fabOpen) {
-              setFabOpen(false);
-            }
-          }}
-          style={styles.fab}
-        />
-      </Portal>
+      {/* FAB */}
+      <FAB
+        actions={[
+          {
+            icon: <Dumbbell size={20} color={theme.colors.text.primary} />,
+            label: 'Log Workout',
+            onPress: handleLogWorkout,
+          },
+          {
+            icon: <PenLine size={20} color={theme.colors.text.primary} />,
+            label: 'Create Post',
+            onPress: handleCreatePost,
+          },
+        ]}
+      />
     </View>
   );
 }
@@ -341,7 +185,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   content: {
-    paddingBottom: 100, // Space for FAB
+    paddingBottom: 100,
   },
   section: {
     marginBottom: 24,
@@ -352,19 +196,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 12,
   },
-  sectionTitle: {
-    fontWeight: 'bold',
-  },
   statsRow: {
     flexDirection: 'row',
     gap: 12,
-  },
-  challengesScroll: {
-    paddingRight: 16,
-  },
-  fab: {
-    position: 'absolute',
-    right: 16,
-    bottom: 16,
   },
 });
