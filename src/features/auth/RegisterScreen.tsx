@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useAuth } from './AuthContext';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigation/AuthStack';
 import { useTheme } from '../../common/hooks/useTheme';
-import { Text, Button, Input } from '../../common/ui';
+import { Text, Button, Input, GlassContainer } from '../../common/ui';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -32,63 +33,81 @@ export default function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: theme.colors.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+    <LinearGradient
+      colors={[theme.colors.primary[700], theme.colors.primary[500]]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      style={styles.gradient}
     >
-      <Text variant="title" weight="bold" color="accent" style={styles.logo}>
-        Create Account
-      </Text>
-
-      {success ? (
-        <Text variant="body" color="success" style={styles.success}>
-          🎉 Registration successful! Check your email to confirm.
+      <KeyboardAvoidingView
+        style={styles.container}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <Text variant="title" weight="bold" color="inverse" style={styles.logo}>
+          Create Account
         </Text>
-      ) : (
-        <>
-          <Input
-            placeholder="Email"
-            value={email}
-            onChangeText={setEmail}
-            autoCapitalize="none"
-            containerStyle={styles.inputContainer}
-          />
-          <Input
-            placeholder="Username"
-            value={username}
-            onChangeText={setUsername}
-            autoCapitalize="none"
-            containerStyle={styles.inputContainer}
-          />
-          <Input
-            placeholder="Password"
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            error={error || undefined}
-            containerStyle={styles.inputContainer}
-          />
+        <Text variant="body" color="inverse" style={styles.subtitle}>
+          Join the fitness community ✨
+        </Text>
 
-          <Button
-            title="Register"
-            onPress={handleRegister}
-            loading={loading}
-            fullWidth
-            style={styles.button}
-          />
-
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text variant="body" color="accent" style={styles.link}>
-              Already have an account? Log in
+        {success ? (
+          <GlassContainer intensity="medium" style={styles.successCard}>
+            <Text variant="heading" color="inverse" style={{ textAlign: 'center' }}>
+              🎉 Registration successful!
             </Text>
-          </TouchableOpacity>
-        </>
-      )}
-    </KeyboardAvoidingView>
+            <Text variant="body" color="inverse" style={{ textAlign: 'center', marginTop: 8, opacity: 0.9 }}>
+              Check your email to confirm.
+            </Text>
+          </GlassContainer>
+        ) : (
+          <GlassContainer intensity="medium" style={styles.formCard}>
+            <Input
+              placeholder="Email"
+              value={email}
+              onChangeText={setEmail}
+              autoCapitalize="none"
+              containerStyle={styles.inputContainer}
+            />
+            <Input
+              placeholder="Username"
+              value={username}
+              onChangeText={setUsername}
+              autoCapitalize="none"
+              containerStyle={styles.inputContainer}
+            />
+            <Input
+              placeholder="Password"
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry
+              error={error || undefined}
+              containerStyle={styles.inputContainer}
+            />
+
+            <Button
+              title="Register"
+              onPress={handleRegister}
+              loading={loading}
+              fullWidth
+              style={styles.button}
+            />
+
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text variant="body" color="inverse" style={styles.link}>
+                Already have an account? Log in
+              </Text>
+            </TouchableOpacity>
+          </GlassContainer>
+        )}
+      </KeyboardAvoidingView>
+    </LinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
+  gradient: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     justifyContent: 'center',
@@ -96,20 +115,30 @@ const styles = StyleSheet.create({
   },
   logo: {
     textAlign: 'center',
-    marginBottom: 24,
+    marginBottom: 8,
+  },
+  subtitle: {
+    textAlign: 'center',
+    marginBottom: 32,
+    opacity: 0.9,
+  },
+  formCard: {
+    padding: 24,
+    borderRadius: 24,
+  },
+  successCard: {
+    padding: 32,
+    borderRadius: 24,
   },
   inputContainer: {
-    marginBottom: 14,
+    marginBottom: 16,
   },
   button: {
-    marginTop: 10,
+    marginTop: 8,
   },
   link: {
     textAlign: 'center',
-    marginTop: 20,
-  },
-  success: {
-    textAlign: 'center',
-    marginBottom: 20,
+    marginTop: 16,
+    opacity: 0.9,
   },
 });
