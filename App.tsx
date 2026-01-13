@@ -1,6 +1,6 @@
 // App.tsx
 import React from 'react';
-import { View, ActivityIndicator, useColorScheme } from 'react-native';
+import { View, ActivityIndicator } from 'react-native';
 import {
   NavigationContainer,
   DarkTheme as NavDarkTheme,
@@ -8,11 +8,13 @@ import {
   Theme as NavTheme,
 } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { QueryClientProvider } from '@tanstack/react-query';
 
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
 import { useTheme } from './src/common/hooks/useTheme';
+import { queryClient } from './src/services';
 
 function ThemedNavigation() {
   const theme = useTheme();
@@ -69,10 +71,12 @@ function ThemedNavigation() {
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <AuthProvider>
-        <ThemedNavigation />
-      </AuthProvider>
-    </SafeAreaProvider>
+    <QueryClientProvider client={queryClient}>
+      <SafeAreaProvider>
+        <AuthProvider>
+          <ThemedNavigation />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </QueryClientProvider>
   );
 }
