@@ -1,48 +1,47 @@
 // App.tsx
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, useColorScheme } from 'react-native';
 import {
   NavigationContainer,
   DarkTheme as NavDarkTheme,
   DefaultTheme as NavLightTheme,
   Theme as NavTheme,
 } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
-import { ThemeProvider, useTheme } from './src/ui/theme/ThemeProvider.tsx';
-import { PaperThemeProvider } from './src/ui/theme/PaperThemeProvider';
-
+import { useTheme } from './src/common/hooks/useTheme';
 
 function ThemedNavigation() {
-  const { theme, schemePref } = useTheme();
+  const theme = useTheme();
   const { token, loading } = useAuth();
 
   const navTheme: NavTheme =
-    schemePref === 'dark'
+    theme.scheme === 'dark'
       ? {
         ...NavDarkTheme,
         colors: {
           ...NavDarkTheme.colors,
-          background: theme.colors.bg,
-          card: theme.colors.cardBg,
-          text: theme.colors.text,
+          background: theme.colors.background,
+          card: theme.colors.surface,
+          text: theme.colors.text.primary,
           border: theme.colors.border,
-          primary: theme.colors.accent,
-          notification: theme.colors.accent,
+          primary: theme.colors.primary[500],
+          notification: theme.colors.primary[500],
         },
       }
       : {
         ...NavLightTheme,
         colors: {
           ...NavLightTheme.colors,
-          background: theme.colors.bg,
-          card: theme.colors.cardBg,
-          text: theme.colors.text,
+          background: theme.colors.background,
+          card: theme.colors.surface,
+          text: theme.colors.text.primary,
           border: theme.colors.border,
-          primary: theme.colors.accent,
-          notification: theme.colors.accent,
+          primary: theme.colors.primary[500],
+          notification: theme.colors.primary[500],
         },
       };
 
@@ -53,10 +52,10 @@ function ThemedNavigation() {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          backgroundColor: theme.colors.bg,
+          backgroundColor: theme.colors.background,
         }}
       >
-        <ActivityIndicator size="large" color={theme.colors.accent} />
+        <ActivityIndicator size="large" color={theme.colors.primary[500]} />
       </View>
     );
   }
@@ -70,12 +69,10 @@ function ThemedNavigation() {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ThemeProvider>
-        <PaperThemeProvider>
-          <ThemedNavigation />
-        </PaperThemeProvider>
-      </ThemeProvider>
-    </AuthProvider>
+    <SafeAreaProvider>
+      <AuthProvider>
+        <ThemedNavigation />
+      </AuthProvider>
+    </SafeAreaProvider>
   );
 }
