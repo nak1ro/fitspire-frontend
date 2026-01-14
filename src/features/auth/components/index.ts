@@ -2,4 +2,7 @@
  * Auth Feature - Components
  */
 
-export { };
+export { AuthHeader } from './AuthHeader';
+export { AuthDivider } from './AuthDivider';
+export { SocialLoginButtons } from './SocialLoginButtons';
+export { AuthFooter } from './AuthFooter';
