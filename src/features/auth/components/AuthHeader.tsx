@@ -18,10 +18,10 @@ export function AuthHeader({ title, subtitle }: AuthHeaderProps) {
 
     return (
         <View style={{ alignItems: 'center', marginBottom: theme.spacing[8] }}>
-            {/* Logo using Avatar component */}
+            {/* Logo using Avatar component with name="Fitspire" -> shows "F" */}
             <Avatar
                 size="2xl"
-                initials="F"
+                name="Fitspire"
                 style={{ marginBottom: theme.spacing[4] }}
             />
 

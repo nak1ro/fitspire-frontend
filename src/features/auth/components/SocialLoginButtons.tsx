@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Text } from '@/common/ui';
+import { Button } from '@/common/ui';
 import { useTheme } from '@/common/hooks';
 
 interface SocialLoginButtonsProps {
@@ -29,24 +29,24 @@ export function SocialLoginButtons({
         <View style={{ gap: theme.spacing[3] }}>
             {/* Google Button */}
             <Button
+                title="Continue with Google"
                 variant="secondary"
                 onPress={onGooglePress}
                 loading={isGoogleLoading}
                 disabled={disabled}
-            >
-                Continue with Google
-            </Button>
+                fullWidth
+            />
 
             {/* Microsoft Button (placeholder) */}
             {onMicrosoftPress && (
                 <Button
+                    title="Continue with Microsoft (Coming Soon)"
                     variant="ghost"
                     onPress={onMicrosoftPress}
                     loading={isMicrosoftLoading}
                     disabled={true}
-                >
-                    Continue with Microsoft (Coming Soon)
-                </Button>
+                    fullWidth
+                />
             )}
         </View>
     );
