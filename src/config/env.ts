@@ -1,18 +1,19 @@
 /**
  * Environment Configuration
  * 
- * Centralized environment-specific settings.
+ * Non-secret app configuration.
+ * For API URLs and secrets, use .env files with @env imports.
  */
+
+import { API_BASE_URL, API_TIMEOUT } from '@env';
 
 export const ENV = {
     isDev: __DEV__,
     isProd: !__DEV__,
 
     api: {
-        baseUrl: __DEV__
-            ? 'http://localhost:5000/api'
-            : 'https://api.fitspire.app/api',
-        timeout: 30000,
+        baseUrl: API_BASE_URL,
+        timeout: parseInt(API_TIMEOUT, 10) || 30000,
     },
 
     storage: {

@@ -7,10 +7,7 @@
 
 import axios, { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-const API_BASE_URL = __DEV__
-    ? 'http://localhost:5000/api'
-    : 'https://api.fitspire.app/api';
+import { API_BASE_URL, API_TIMEOUT } from '@env';
 
 const TOKEN_KEY = 'authToken';
 
@@ -19,7 +16,7 @@ const TOKEN_KEY = 'authToken';
  */
 const apiClient: AxiosInstance = axios.create({
     baseURL: API_BASE_URL,
-    timeout: 30000,
+    timeout: parseInt(API_TIMEOUT, 10) || 30000,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -47,7 +44,6 @@ apiClient.interceptors.response.use(
     (error: AxiosError) => {
         if (error.response?.status === 401) {
             // Token expired or invalid - could trigger logout here
-            // For now, just reject the promise
         }
         return Promise.reject(error);
     }
