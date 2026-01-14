@@ -9,7 +9,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { MainStackParamList } from '../../navigation/MainStack';
-import { useAuth } from '../auth/AuthContext';
+import { useAuthStore } from '@/features/auth/hooks';
 import { useTheme } from '../../common/hooks/useTheme';
 import { Text, Avatar, Header, FAB } from '../../common/ui';
 import { StatCard } from './components/StatCard';
@@ -42,7 +42,7 @@ const mockWorkouts = [
 
 export default function HomeScreen() {
   const navigation = useNavigation<NavigationProp>();
-  const { user } = useAuth();
+  const { user } = useAuthStore();
   const theme = useTheme();
   const [refreshing, setRefreshing] = useState(false);
 

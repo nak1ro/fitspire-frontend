@@ -10,15 +10,16 @@ import {
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClientProvider } from '@tanstack/react-query';
 
-import { AuthProvider, useAuth } from './src/features/auth/AuthContext';
 import AuthStack from './src/navigation/AuthStack';
 import MainStack from './src/navigation/MainStack';
 import { useTheme } from './src/common/hooks/useTheme';
 import { queryClient } from './src/services';
+import { useIsAuthenticated, useIsHydrated } from './src/features/auth/hooks';
 
 function ThemedNavigation() {
   const theme = useTheme();
-  const { token, loading } = useAuth();
+  const isAuthenticated = useIsAuthenticated();
+  const isHydrated = useIsHydrated();
 
   const navTheme: NavTheme =
     theme.scheme === 'dark'
@@ -47,7 +48,8 @@ function ThemedNavigation() {
         },
       };
 
-  if (loading) {
+  // Show loading while Zustand hydrates from AsyncStorage
+  if (!isHydrated) {
     return (
       <View
         style={{
@@ -64,7 +66,7 @@ function ThemedNavigation() {
 
   return (
     <NavigationContainer theme={navTheme}>
-      {!token ? <AuthStack /> : <MainStack />}
+      {isAuthenticated ? <MainStack /> : <AuthStack />}
     </NavigationContainer>
   );
 }
@@ -73,9 +75,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <ThemedNavigation />
-        </AuthProvider>
+        <ThemedNavigation />
       </SafeAreaProvider>
     </QueryClientProvider>
   );
