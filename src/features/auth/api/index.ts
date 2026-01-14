@@ -3,4 +3,5 @@
  */
 
 export * from './endpoints';
+export * from './authApi';
 export * from './mutations';

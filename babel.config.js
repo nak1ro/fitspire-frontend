@@ -4,6 +4,7 @@ module.exports = {
     'nativewind/babel',
   ],
   plugins: [
+    '@babel/plugin-transform-export-namespace-from',
     [
       'module:react-native-dotenv',
       {
@@ -25,5 +26,7 @@ module.exports = {
         },
       },
     ],
+    // Reanimated plugin MUST be last
+    'react-native-reanimated/plugin',
   ],
 };

@@ -1,46 +1,25 @@
 /**
- * Auth Feature - API Mutations
+ * Auth Feature - React Query Mutations
  * 
- * React Query hooks for auth operations.
+ * React Query hooks that wrap the auth API functions.
  */
 
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
-import { apiClient } from '@/services';
-import { endpoints } from './endpoints';
+import {
+    loginApi,
+    registerApi,
+    oAuthLoginApi,
+    forgotPasswordApi,
+    verifyEmailApi,
+} from './authApi';
 import {
     LoginRequest,
     RegisterRequest,
-    OAuthLoginRequest,
     ForgotPasswordRequest,
     VerifyEmailRequest,
     AuthResponse,
 } from '../types';
 
-// API Functions
-const loginApi = async (request: LoginRequest): Promise<AuthResponse> => {
-    const { data } = await apiClient.post<AuthResponse>(endpoints.login, request);
-    return data;
-};
-
-const registerApi = async (request: RegisterRequest): Promise<AuthResponse> => {
-    const { data } = await apiClient.post<AuthResponse>(endpoints.register, request);
-    return data;
-};
-
-const oAuthLoginApi = async (request: OAuthLoginRequest): Promise<AuthResponse> => {
-    const { data } = await apiClient.post<AuthResponse>(endpoints.externalLogin, request);
-    return data;
-};
-
-const forgotPasswordApi = async (request: ForgotPasswordRequest): Promise<void> => {
-    await apiClient.post(endpoints.forgotPassword, request);
-};
-
-const verifyEmailApi = async (request: VerifyEmailRequest): Promise<void> => {
-    await apiClient.post(endpoints.verifyEmail, request);
-};
-
-// Mutation Hooks
 export function useLogin(
     options?: Omit<UseMutationOptions<AuthResponse, Error, LoginRequest>, 'mutationFn'>
 ) {
