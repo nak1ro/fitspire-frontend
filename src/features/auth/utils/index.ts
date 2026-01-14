@@ -2,4 +2,4 @@
  * Auth Feature - Utils
  */
 
-export { };
+export * from './validation';
