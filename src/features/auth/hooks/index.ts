@@ -19,3 +19,4 @@ export { useMicrosoftAuth } from './useMicrosoftAuth';
 // Email Auth Hooks
 export { useEmailLogin } from './useEmailLogin';
 export { useEmailRegister } from './useEmailRegister';
+export { useForgotPasswordFlow } from './useForgotPasswordFlow';

@@ -5,22 +5,17 @@
 
 import React from 'react';
 import { View } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Input, Button } from '@/common/ui';
+import { Button } from '@/common/ui';
 import { useTheme } from '@/common/hooks';
-import { AuthLayout, AuthDivider, SocialLoginButtons, AuthFooter } from '../components';
+import { AuthStackParamList } from '@/common/types';
+import { AuthLayout, AuthDivider, SocialLoginButtons, AuthFooter, FormInput } from '../components';
 import { registerSchema, RegisterFormData } from '../utils/validation';
 import { useEmailRegister, useGoogleAuth, useMicrosoftAuth } from '../hooks';
-
-type AuthStackParamList = {
-    Login: undefined;
-    Register: undefined;
-    ForgotPassword: undefined;
-};
 
 export function RegisterScreen() {
     const theme = useTheme();
@@ -33,11 +28,7 @@ export function RegisterScreen() {
 
     const isLoading = isEmailLoading || isGoogleLoading;
 
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<RegisterFormData>({
+    const { control, handleSubmit } = useForm<RegisterFormData>({
         resolver: zodResolver(registerSchema),
         defaultValues: {
             email: '',
@@ -53,73 +44,41 @@ export function RegisterScreen() {
             subtitle="Start your fitness journey today"
         >
             <View style={{ gap: theme.spacing[4] }}>
-                <Controller
+                <FormInput
                     control={control}
                     name="email"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Email"
-                            placeholder="Enter your email"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.email?.message}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Email"
+                    placeholder="Enter your email"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={!isLoading}
                 />
 
-                <Controller
+                <FormInput
                     control={control}
                     name="userName"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Username"
-                            placeholder="Choose a username"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.userName?.message}
-                            autoCapitalize="none"
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Username"
+                    placeholder="Choose a username"
+                    autoCapitalize="none"
+                    editable={!isLoading}
                 />
 
-                <Controller
+                <FormInput
                     control={control}
                     name="password"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Password"
-                            placeholder="Create a password"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.password?.message}
-                            secureTextEntry
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Password"
+                    placeholder="Create a password"
+                    secureTextEntry
+                    editable={!isLoading}
                 />
 
-                <Controller
+                <FormInput
                     control={control}
                     name="confirmPassword"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Confirm Password"
-                            placeholder="Confirm your password"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.confirmPassword?.message}
-                            secureTextEntry
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Confirm Password"
+                    placeholder="Confirm your password"
+                    secureTextEntry
+                    editable={!isLoading}
                 />
 
                 <Button

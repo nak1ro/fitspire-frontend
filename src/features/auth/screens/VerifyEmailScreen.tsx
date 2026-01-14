@@ -3,19 +3,13 @@
  * Email verification result screen
  */
 
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
+import { AuthStackParamList } from '@/common/types';
 import { AuthLayout } from '../components';
 import { useVerifyEmail } from '../api/mutations';
-
-type AuthStackParamList = {
-    Login: undefined;
-    Register: undefined;
-    ForgotPassword: undefined;
-    VerifyEmail: { token: string };
-};
 
 export function VerifyEmailScreen() {
     const navigation = useNavigation<NativeStackNavigationProp<AuthStackParamList>>();
@@ -24,14 +18,19 @@ export function VerifyEmailScreen() {
 
     const verifyMutation = useVerifyEmail();
 
-    useEffect(() => {
+    // Memoize mutate to fix useEffect dependency
+    const verifyToken = useCallback(() => {
         if (token) {
             verifyMutation.mutate({ token });
         }
     }, [token]);
 
+    useEffect(() => {
+        verifyToken();
+    }, [verifyToken]);
+
     // Determine state
-    const getState = () => {
+    const getState = (): 'loading' | 'success' | 'error' => {
         if (!token) return 'error';
         if (verifyMutation.isPending) return 'loading';
         if (verifyMutation.isSuccess) return 'success';
@@ -39,11 +38,11 @@ export function VerifyEmailScreen() {
         return 'loading';
     };
 
-    const state = getState();
+    const navigateToLogin = () => navigation.navigate('Login');
 
     return (
         <AuthLayout
-            state={state}
+            state={getState()}
             enableKeyboardAvoid={false}
             enableScroll={false}
             // Loading
@@ -52,7 +51,7 @@ export function VerifyEmailScreen() {
             successTitle="Email Verified!"
             successMessage="Your email has been successfully verified. You can now sign in to your account."
             successButtonTitle="Sign In"
-            onSuccessPress={() => navigation.navigate('Login')}
+            onSuccessPress={navigateToLogin}
             // Error
             errorTitle={!token ? 'Invalid Link' : 'Verification Failed'}
             errorMessage={
@@ -61,7 +60,7 @@ export function VerifyEmailScreen() {
                     : 'The verification link is invalid or has expired. Please request a new verification email from your account settings.'
             }
             errorButtonTitle="Back to Sign In"
-            onErrorPress={() => navigation.navigate('Login')}
+            onErrorPress={navigateToLogin}
         />
     );
 }

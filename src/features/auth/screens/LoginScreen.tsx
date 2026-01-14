@@ -4,23 +4,18 @@
  */
 
 import React from 'react';
-import { View } from 'react-native';
-import { useForm, Controller } from 'react-hook-form';
+import { View, TouchableOpacity } from 'react-native';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
-import { Input, Button } from '@/common/ui';
+import { Button, Text } from '@/common/ui';
 import { useTheme } from '@/common/hooks';
-import { AuthLayout, AuthDivider, SocialLoginButtons, AuthFooter } from '../components';
+import { AuthStackParamList } from '@/common/types';
+import { AuthLayout, AuthDivider, SocialLoginButtons, AuthFooter, FormInput } from '../components';
 import { loginSchema, LoginFormData } from '../utils/validation';
 import { useEmailLogin, useGoogleAuth, useMicrosoftAuth } from '../hooks';
-
-type AuthStackParamList = {
-    Login: undefined;
-    Register: undefined;
-    ForgotPassword: undefined;
-};
 
 export function LoginScreen() {
     const theme = useTheme();
@@ -33,11 +28,7 @@ export function LoginScreen() {
 
     const isLoading = isEmailLoading || isGoogleLoading;
 
-    const {
-        control,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<LoginFormData>({
+    const { control, handleSubmit } = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
             login: '',
@@ -51,40 +42,34 @@ export function LoginScreen() {
             subtitle="Sign in to continue your fitness journey"
         >
             <View style={{ gap: theme.spacing[4] }}>
-                <Controller
+                <FormInput
                     control={control}
                     name="login"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Email or Username"
-                            placeholder="Enter your email or username"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.login?.message}
-                            autoCapitalize="none"
-                            keyboardType="email-address"
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Email or Username"
+                    placeholder="Enter your email or username"
+                    autoCapitalize="none"
+                    keyboardType="email-address"
+                    editable={!isLoading}
                 />
 
-                <Controller
+                <FormInput
                     control={control}
                     name="password"
-                    render={({ field: { onChange, onBlur, value } }) => (
-                        <Input
-                            label="Password"
-                            placeholder="Enter your password"
-                            value={value}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            error={errors.password?.message}
-                            secureTextEntry
-                            editable={!isLoading}
-                        />
-                    )}
+                    label="Password"
+                    placeholder="Enter your password"
+                    secureTextEntry
+                    editable={!isLoading}
                 />
+
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('ForgotPassword')}
+                    style={{ alignSelf: 'flex-end', marginTop: -theme.spacing[2] }}
+                    activeOpacity={0.7}
+                >
+                    <Text variant="caption" style={{ color: theme.colors.primary[500] }}>
+                        Forgot Password?
+                    </Text>
+                </TouchableOpacity>
 
                 <Button
                     title="Sign In"

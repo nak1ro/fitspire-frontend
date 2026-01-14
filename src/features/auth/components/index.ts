@@ -7,3 +7,4 @@ export { AuthDivider } from './AuthDivider';
 export { SocialLoginButtons } from './SocialLoginButtons';
 export { AuthFooter } from './AuthFooter';
 export { AuthLayout } from './AuthLayout';
+export { FormInput } from './FormInput';
