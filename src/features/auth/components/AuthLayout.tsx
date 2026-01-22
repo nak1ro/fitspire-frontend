@@ -1,169 +1,42 @@
-/**
- * Auth Feature - AuthLayout Component
- * Consistent layout wrapper for all auth screens with state handling
- */
-
-import React, { ReactNode } from 'react';
-import {
-    View,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    ActivityIndicator,
-} from 'react-native';
-import { ScreenWrapper } from '@/common/layouts';
-import { Text, Button, GlassContainer } from '@/common/ui';
-import { useTheme } from '@/common/hooks';
-import { AuthHeader } from './AuthHeader';
-
-type LayoutState = 'form' | 'loading' | 'success' | 'error';
+import { ReactNode } from 'react';
+import { Card } from '@/shared/ui/Card';
+import { Typography } from '@/shared/ui/Typography';
 
 interface AuthLayoutProps {
-    children?: ReactNode;
-    state?: LayoutState;
-
-    // Loading state
-    loadingMessage?: string;
-
-    // Success state
-    successTitle?: string;
-    successMessage?: string;
-    successButtonTitle?: string;
-    onSuccessPress?: () => void;
-
-    // Error state
-    errorTitle?: string;
-    errorMessage?: string;
-    errorButtonTitle?: string;
-    onErrorPress?: () => void;
-
-    // Form header (shown in form state)
+    children: ReactNode;
     title?: string;
     subtitle?: string;
-
-    // Keyboard handling
-    enableKeyboardAvoid?: boolean;
-    enableScroll?: boolean;
+    showBrand?: boolean;
 }
 
-export function AuthLayout({
-    children,
-    state = 'form',
-    loadingMessage = 'Loading...',
-    successTitle = 'Success',
-    successMessage,
-    successButtonTitle = 'Continue',
-    onSuccessPress,
-    errorTitle = 'Error',
-    errorMessage,
-    errorButtonTitle = 'Try Again',
-    onErrorPress,
-    title,
-    subtitle,
-    enableKeyboardAvoid = true,
-    enableScroll = true,
-}: AuthLayoutProps) {
-    const theme = useTheme();
-
-    const containerStyle = {
-        flexGrow: 1,
-        justifyContent: 'center' as const,
-        padding: theme.spacing[6],
-    };
-
-    const renderContent = () => {
-        switch (state) {
-            case 'loading':
-                return (
-                    <GlassContainer intensity="medium" style={{ padding: theme.spacing[8], alignItems: 'center' }}>
-                        <ActivityIndicator size="large" color={theme.colors.primary[500]} />
-                        <Text variant="body" color="secondary" style={{ marginTop: theme.spacing[4] }}>
-                            {loadingMessage}
-                        </Text>
-                    </GlassContainer>
-                );
-
-            case 'success':
-                return (
-                    <>
-                        <AuthHeader title={successTitle} subtitle={successMessage} />
-                        <GlassContainer intensity="medium" style={{ padding: theme.spacing[6] }}>
-                            {onSuccessPress && (
-                                <Button
-                                    title={successButtonTitle}
-                                    variant="primary"
-                                    onPress={onSuccessPress}
-                                    fullWidth
-                                />
-                            )}
-                        </GlassContainer>
-                    </>
-                );
-
-            case 'error':
-                return (
-                    <>
-                        <AuthHeader title={errorTitle} subtitle={errorMessage} />
-                        <GlassContainer intensity="medium" style={{ padding: theme.spacing[6] }}>
-                            {onErrorPress && (
-                                <Button
-                                    title={errorButtonTitle}
-                                    variant="primary"
-                                    onPress={onErrorPress}
-                                    fullWidth
-                                />
-                            )}
-                        </GlassContainer>
-                    </>
-                );
-
-            case 'form':
-            default:
-                return (
-                    <>
-                        {(title || subtitle) && <AuthHeader title={title ?? ''} subtitle={subtitle} />}
-                        <GlassContainer intensity="medium" style={{ padding: theme.spacing[6] }}>
-                            {children}
-                        </GlassContainer>
-                    </>
-                );
-        }
-    };
-
-    const content = (
-        <View style={containerStyle}>
-            {renderContent()}
-        </View>
-    );
-
+export function AuthLayout({ children, title, subtitle, showBrand = true }: AuthLayoutProps) {
     return (
-        <ScreenWrapper gradient>
-            {enableKeyboardAvoid ? (
-                <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                    style={{ flex: 1 }}
-                >
-                    {enableScroll ? (
-                        <ScrollView
-                            contentContainerStyle={containerStyle}
-                            keyboardShouldPersistTaps="handled"
-                        >
-                            {renderContent()}
-                        </ScrollView>
-                    ) : (
-                        content
+        <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-8 bg-gradient-to-br from-primary-950 via-background to-accent-950 relative overflow-hidden">
+
+            {/* Ambient Background Orbs */}
+            <div className="absolute top-[-20%] left-[-10%] w-[500px] h-[500px] rounded-full bg-primary-600/20 blur-[100px] animate-pulse" />
+            <div className="absolute bottom-[-20%] right-[-10%] w-[500px] h-[500px] rounded-full bg-accent-600/20 blur-[100px] animate-pulse" style={{ animationDelay: '2s' }} />
+
+            <div className="w-full max-w-md relative z-10 space-y-8">
+                {showBrand && (
+                    <div className="flex flex-col items-center text-center space-y-2">
+                        <Typography variant="h2" weight="bold" className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">
+                            Fitspire
+                        </Typography>
+                    </div>
+                )}
+
+                <Card variant="glass" padding="lg" className="w-full space-y-6">
+                    {(title || subtitle) && (
+                        <div className="text-center space-y-2">
+                            {title && <Typography variant="h3" weight="semibold">{title}</Typography>}
+                            {subtitle && <Typography variant="body" color="muted">{subtitle}</Typography>}
+                        </div>
                     )}
-                </KeyboardAvoidingView>
-            ) : enableScroll ? (
-                <ScrollView
-                    contentContainerStyle={containerStyle}
-                    keyboardShouldPersistTaps="handled"
-                >
-                    {renderContent()}
-                </ScrollView>
-            ) : (
-                content
-            )}
-        </ScreenWrapper>
+
+                    {children}
+                </Card>
+            </div>
+        </div>
     );
 }
