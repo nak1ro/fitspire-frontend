@@ -1,5 +1,5 @@
 import { AUTH_ROUTES } from '../api/routes';
-import { AuthResponse } from '../types';
+import { AuthResponse, AuthUser } from '../types';
 import { env } from '@/shared/lib/env';
 
 /**
@@ -15,7 +15,17 @@ import { env } from '@/shared/lib/env';
 
 const BASE_URL = env.NEXT_PUBLIC_API_URL;
 
-export async function loginWithCredentials(login: string, password: string): Promise<AuthResponse['user']> {
+function toAuthUser(data: AuthResponse): AuthUser {
+    return {
+        id: data.id,
+        userName: data.userName,
+        email: data.email,
+        createdAt: data.createdAt,
+        token: data.token ?? undefined,
+    };
+}
+
+export async function loginWithCredentials(login: string, password: string): Promise<AuthUser> {
     const res = await fetch(`${BASE_URL}${AUTH_ROUTES.login}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -31,15 +41,10 @@ export async function loginWithCredentials(login: string, password: string): Pro
     }
 
     const data: AuthResponse = await res.json();
-    // .NET returns { token, user: { ... } }
-    // NextAuth User object needs to contain what we want in the session
-    return {
-        ...data.user,
-        token: data.token, // Attach token to user object to persist it
-    };
+    return toAuthUser(data);
 }
 
-export async function exchangeGoogleToken(idToken: string): Promise<AuthResponse['user']> {
+export async function exchangeGoogleToken(idToken: string): Promise<AuthUser> {
     const res = await fetch(`${BASE_URL}${AUTH_ROUTES.externalLogin}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -56,8 +61,5 @@ export async function exchangeGoogleToken(idToken: string): Promise<AuthResponse
     }
 
     const data: AuthResponse = await res.json();
-    return {
-        ...data.user,
-        token: data.token,
-    };
+    return toAuthUser(data);
 }
