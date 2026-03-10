@@ -1,6 +1,9 @@
 export interface ApiError {
     status: number;
     message: string;
+    title?: string;
+    detail?: string;
+    errors?: Record<string, string | string[]>;
 }
 
 export interface Pagination {

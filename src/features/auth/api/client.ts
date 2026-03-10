@@ -20,18 +20,18 @@ export const signUp = (data: SignUpRequest) => {
 
     return http<AuthResponse>(AUTH_ROUTES.register, {
         method: 'POST',
-        body: JSON.stringify(request)
+        json: request
     });
 };
 
 export const forgotPassword = (data: ForgotPasswordRequest) =>
     http<void>(AUTH_ROUTES.forgotPassword, {
         method: 'POST',
-        body: JSON.stringify(data)
+        json: data
     });
 
 export const verifyEmail = (data: VerifyEmailRequest) =>
     http<void>(AUTH_ROUTES.confirmEmail, {
         method: 'POST',
-        body: JSON.stringify(data)
+        json: data
     });
