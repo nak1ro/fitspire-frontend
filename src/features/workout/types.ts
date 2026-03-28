@@ -23,6 +23,17 @@ export interface Workout {
     createdAt: string;
 }
 
+export interface CompleteWorkoutRequest {
+    durationMinutes?: number | null;
+}
+
+export interface UpdateWorkoutRequest {
+    date?: string | null;
+    durationMinutes?: number | null;
+    notes?: string | null;
+    isPrivate?: boolean | null;
+}
+
 export interface ExerciseCategory {
     id: string;
     name: string;
@@ -50,6 +61,15 @@ export interface WorkoutRoutine {
     workoutType: WorkoutType;
     createdAt: string;
     updatedAt?: string | null;
+}
+
+export interface SaveWorkoutRoutineRequest {
+    name: string;
+    description?: string | null;
+}
+
+export interface CreateWorkoutFromRoutineRequest {
+    date: string;
 }
 
 export interface PersonalRecord {

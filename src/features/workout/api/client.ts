@@ -1,10 +1,14 @@
 import { http } from '@/shared/lib/http';
 import { WORKOUT_ROUTES } from './routes';
 import {
+    CompleteWorkoutRequest,
+    CreateWorkoutFromRoutineRequest,
     Exercise,
     ExerciseCategory,
     ExerciseQuery,
     PersonalRecord,
+    SaveWorkoutRoutineRequest,
+    UpdateWorkoutRequest,
     Workout,
     WorkoutFilter,
     WorkoutRoutine,
@@ -36,6 +40,26 @@ export const getWorkoutById = (accessToken: string, workoutId: string) =>
         accessToken,
     });
 
+export const completeWorkout = (accessToken: string, workoutId: string, data: CompleteWorkoutRequest) =>
+    http<{ success: boolean }>(WORKOUT_ROUTES.complete(workoutId), {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const updateWorkout = (accessToken: string, workoutId: string, data: UpdateWorkoutRequest) =>
+    http<void>(WORKOUT_ROUTES.byId(workoutId), {
+        method: 'PUT',
+        accessToken,
+        json: data,
+    });
+
+export const deleteWorkout = (accessToken: string, workoutId: string) =>
+    http<void>(WORKOUT_ROUTES.byId(workoutId), {
+        method: 'DELETE',
+        accessToken,
+    });
+
 export const getExerciseCategories = (accessToken: string) =>
     http<ExerciseCategory[]>(WORKOUT_ROUTES.exerciseCategories, {
         accessToken,
@@ -54,6 +78,34 @@ export const getWorkoutRoutines = (accessToken: string) =>
 
 export const getWorkoutRoutineById = (accessToken: string, routineId: string) =>
     http<WorkoutRoutine>(WORKOUT_ROUTES.routineById(routineId), {
+        accessToken,
+    });
+
+export const saveWorkoutAsRoutine = (
+    accessToken: string,
+    workoutId: string,
+    data: SaveWorkoutRoutineRequest
+) =>
+    http<string>(WORKOUT_ROUTES.saveAsRoutine(workoutId), {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const createWorkoutFromRoutine = (
+    accessToken: string,
+    routineId: string,
+    data: CreateWorkoutFromRoutineRequest
+) =>
+    http<string>(WORKOUT_ROUTES.fromRoutine(routineId), {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const deleteWorkoutRoutine = (accessToken: string, routineId: string) =>
+    http<void>(WORKOUT_ROUTES.routineById(routineId), {
+        method: 'DELETE',
         accessToken,
     });
 
