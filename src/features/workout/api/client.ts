@@ -2,16 +2,25 @@ import { http } from '@/shared/lib/http';
 import { WORKOUT_ROUTES } from './routes';
 import {
     CompleteWorkoutRequest,
+    CreateCyclingWorkoutRequest,
+    CreateGymWorkoutRequest,
+    CreateRunningWorkoutRequest,
+    CreateSwimmingWorkoutRequest,
     CreateWorkoutFromRoutineRequest,
+    CreateYogaWorkoutRequest,
+    CyclingWorkout,
     Exercise,
     ExerciseCategory,
     ExerciseQuery,
     PersonalRecord,
+    RunningWorkout,
     SaveWorkoutRoutineRequest,
+    SwimmingWorkout,
     UpdateWorkoutRequest,
     Workout,
     WorkoutFilter,
     WorkoutRoutine,
+    YogaWorkout,
 } from '../types';
 
 function toWorkoutQuery(filter?: WorkoutFilter) {
@@ -38,6 +47,41 @@ export const getWorkouts = (accessToken: string, filter?: WorkoutFilter) =>
 export const getWorkoutById = (accessToken: string, workoutId: string) =>
     http<Workout>(WORKOUT_ROUTES.byId(workoutId), {
         accessToken,
+    });
+
+export const createGymWorkout = (accessToken: string, data: CreateGymWorkoutRequest) =>
+    http<string>(WORKOUT_ROUTES.createGym, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const createRunningWorkout = (accessToken: string, data: CreateRunningWorkoutRequest) =>
+    http<RunningWorkout>(WORKOUT_ROUTES.createRunning, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const createCyclingWorkout = (accessToken: string, data: CreateCyclingWorkoutRequest) =>
+    http<CyclingWorkout>(WORKOUT_ROUTES.createCycling, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const createSwimmingWorkout = (accessToken: string, data: CreateSwimmingWorkoutRequest) =>
+    http<SwimmingWorkout>(WORKOUT_ROUTES.createSwimming, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const createYogaWorkout = (accessToken: string, data: CreateYogaWorkoutRequest) =>
+    http<YogaWorkout>(WORKOUT_ROUTES.createYoga, {
+        method: 'POST',
+        accessToken,
+        json: data,
     });
 
 export const completeWorkout = (accessToken: string, workoutId: string, data: CompleteWorkoutRequest) =>
