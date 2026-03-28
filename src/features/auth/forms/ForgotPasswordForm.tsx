@@ -8,6 +8,7 @@ import { useForgotPassword } from '../hooks/useForgotPassword';
 import { Button, Input } from '@/shared/ui';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
 export function ForgotPasswordForm() {
     const [success, setSuccess] = useState(false);
@@ -33,7 +34,7 @@ export function ForgotPasswordForm() {
                 <div>
                     <h2 className="text-xl font-bold">Check your email</h2>
                     <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        We've sent a password reset link to your email address.
+                        We&apos;ve sent a password reset link to your email address.
                     </p>
                 </div>
                 <Link href="/sign-in">
@@ -50,7 +51,7 @@ export function ForgotPasswordForm() {
             <div className="space-y-2 text-center">
                 <h1 className="text-2xl font-bold tracking-tight">Forgot Password?</h1>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Enter your email address and we'll send you a link to reset your password.
+                    Enter your email address and we&apos;ll send you a link to reset your password.
                 </p>
             </div>
 
@@ -65,7 +66,7 @@ export function ForgotPasswordForm() {
 
                 {error && (
                     <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
-                        {(error as any)?.message || 'Something went wrong'}
+                        {getErrorMessage(error, 'Something went wrong')}
                     </div>
                 )}
 

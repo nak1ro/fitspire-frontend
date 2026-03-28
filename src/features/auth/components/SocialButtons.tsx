@@ -2,7 +2,6 @@
 
 import { signIn } from 'next-auth/react';
 import { Button } from '@/shared/ui';
-import { Github } from 'lucide-react';
 
 export function SocialButtons() {
     const handleGoogleSignIn = () => {

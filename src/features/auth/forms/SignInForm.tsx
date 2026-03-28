@@ -43,7 +43,7 @@ export function SignInForm() {
                 router.push(callbackUrl);
                 router.refresh();
             }
-        } catch (e) {
+        } catch {
             setError('An unexpected error occurred');
         } finally {
             setLoading(false);

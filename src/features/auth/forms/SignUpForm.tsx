@@ -9,6 +9,7 @@ import { Button, Input } from '@/shared/ui';
 import { Typography } from '@/shared/ui/Typography';
 import { SocialButtons } from '../components/SocialButtons';
 import Link from 'next/link';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
 export function SignUpForm() {
     const router = useRouter();
@@ -63,7 +64,7 @@ export function SignUpForm() {
 
                 {error && (
                     <div className="p-3 text-sm text-error bg-error/10 border border-error/20 rounded-lg">
-                        {(error as any)?.message || 'Registration failed'}
+                        {getErrorMessage(error, 'Registration failed')}
                     </div>
                 )}
 
