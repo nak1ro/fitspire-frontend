@@ -2,17 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import { getWorkoutById, getWorkouts } from '../api/client';
 import { WorkoutFilter } from '../types';
 import { workoutQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 export function useWorkouts(filter?: WorkoutFilter) {
     const { accessToken } = useAuthSession();

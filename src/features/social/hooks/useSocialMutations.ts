@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import {
     commentOnPost,
     createPost,
@@ -13,14 +14,6 @@ import {
 } from '../api/client';
 import { CommentRequest, CreatePostRequest, UpdatePostRequest } from '../types';
 import { socialQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 async function invalidateSocialReads(queryClient: ReturnType<typeof useQueryClient>) {
     await Promise.all([

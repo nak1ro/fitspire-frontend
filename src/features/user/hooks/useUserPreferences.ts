@@ -2,17 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import { getUserPreferences, updateUserPreferences } from '../api/client';
 import { UpdateUserPreferencesRequest } from '../types';
 import { userQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 export function useUserPreferences() {
     const { accessToken } = useAuthSession();

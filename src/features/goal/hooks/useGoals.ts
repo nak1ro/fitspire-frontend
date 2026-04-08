@@ -2,17 +2,10 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import { createGoal, getGoalTypes, getGoals, updateGoalProgress } from '../api/client';
 import { CreateGoalRequest, UpdateGoalProgressRequest } from '../types';
 import { goalQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 export function useGoals() {
     const { accessToken } = useAuthSession();

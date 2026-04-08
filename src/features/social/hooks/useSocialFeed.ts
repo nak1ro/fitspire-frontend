@@ -2,17 +2,10 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import { getFeed, getUserPosts } from '../api/client';
 import { FeedPagination } from '../types';
 import { socialQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 export function useSocialFeed(pagination?: FeedPagination) {
     const { accessToken } = useAuthSession();

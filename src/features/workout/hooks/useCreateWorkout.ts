@@ -2,6 +2,7 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
+import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
 import {
     createCyclingWorkout,
     createGymWorkout,
@@ -18,14 +19,6 @@ import {
     Workout,
 } from '../types';
 import { workoutQueryKeys } from './queryKeys';
-
-function requireAccessToken(accessToken: string | null) {
-    if (!accessToken) {
-        throw new Error('Authentication required');
-    }
-
-    return accessToken;
-}
 
 async function invalidateWorkoutLists(queryClient: ReturnType<typeof useQueryClient>) {
     await queryClient.invalidateQueries({ queryKey: workoutQueryKeys.lists() });
