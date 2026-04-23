@@ -2,38 +2,68 @@
 
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { SignUpData, signUpSchema } from '../schemas/sign-up.schema';
 import { useEmailSignUp } from '../hooks/useEmailSignUp';
-import { Button, Input } from '@/shared/ui';
+import { Button, Input, Alert, Divider } from '@/shared/ui';
 import { Typography } from '@/shared/ui/Typography';
 import { SocialButtons } from '../components/SocialButtons';
-import Link from 'next/link';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
 export function SignUpForm() {
     const router = useRouter();
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<SignUpData>({
+    const { register, handleSubmit, formState: { errors } } = useForm<SignUpData>({
         resolver: zodResolver(signUpSchema),
     });
 
-    const { mutate, isPending, error } = useEmailSignUp(() => {
-        // On success, redirect to login or auto-login
-        router.push('/sign-in?registered=true');
-    });
+    const { mutateAsync, isPending, error } = useEmailSignUp();
+
+    const onSubmit = async (data: SignUpData) => {
+        try {
+            await mutateAsync({
+                ...data,
+                displayName: data.displayName?.trim() || null,
+            });
+
+            // Auto-login immediately after successful registration
+            const result = await signIn('credentials', {
+                login: data.email,
+                password: data.password,
+                redirect: false,
+            });
+
+            if (result?.ok) {
+                router.push('/feed');
+            } else {
+                // Registration succeeded but session creation failed — fall back to sign-in
+                router.push('/sign-in?registered=true');
+            }
+        } catch {
+            // error is captured in mutation state, displayed via Alert below
+        }
+    };
 
     return (
-        <div className="flex flex-col gap-6 w-full">
-            <form onSubmit={handleSubmit((data) => mutate(data))} className="space-y-4">
+        <div className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                <Input
+                    label="Display name"
+                    type="text"
+                    placeholder="Jane Doe"
+                    autoComplete="name"
+                    hint="How your name appears in the feed (optional)"
+                    error={errors.displayName?.message}
+                    {...register('displayName')}
+                />
+
                 <Input
                     label="Username"
                     type="text"
-                    placeholder="johndoe"
+                    placeholder="janedoe"
+                    autoComplete="username"
                     error={errors.userName?.message}
                     {...register('userName')}
                 />
@@ -42,6 +72,7 @@ export function SignUpForm() {
                     label="Email"
                     type="email"
                     placeholder="your@email.com"
+                    autoComplete="email"
                     error={errors.email?.message}
                     {...register('email')}
                 />
@@ -50,52 +81,44 @@ export function SignUpForm() {
                     label="Password"
                     type="password"
                     placeholder="••••••••"
+                    autoComplete="new-password"
                     error={errors.password?.message}
                     {...register('password')}
                 />
 
                 <Input
-                    label="Confirm Password"
+                    label="Confirm password"
                     type="password"
                     placeholder="••••••••"
+                    autoComplete="new-password"
                     error={errors.confirmPassword?.message}
                     {...register('confirmPassword')}
                 />
 
                 {error && (
-                    <div className="p-3 text-sm text-error bg-error/10 border border-error/20 rounded-lg">
-                        {getErrorMessage(error, 'Registration failed')}
-                    </div>
+                    <Alert variant="error">
+                        {getErrorMessage(error, 'Registration failed. Please try again.')}
+                    </Alert>
                 )}
 
-                <Button type="submit" variant="gradient" loading={isPending} fullWidth>
-                    Create Account
+                <Button type="submit" loading={isPending} fullWidth>
+                    Create account
                 </Button>
             </form>
 
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-surface-200 dark:border-surface-700" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white dark:bg-surface-800 px-2 text-surface-400">
-                        Or continue with
-                    </span>
-                </div>
-            </div>
+            <Divider label="or" />
 
             <SocialButtons />
 
-            <div className="text-center">
-                <Typography variant="body-sm" color="muted">
-                    Already have an account?{' '}
-                    <Link href="/sign-in">
-                        <Typography as="span" variant="body-sm" weight="semibold" className="text-primary-600 hover:text-primary-500 transition-colors cursor-pointer">
-                            Sign in
-                        </Typography>
-                    </Link>
-                </Typography>
-            </div>
+            <Typography variant="body-sm" color="muted" className="text-center">
+                Already have an account?{' '}
+                <Link
+                    href="/sign-in"
+                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
+                >
+                    Sign in
+                </Link>
+            </Typography>
         </div>
     );
 }

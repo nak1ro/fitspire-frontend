@@ -1,45 +1,50 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import Link from 'next/link';
+import { Mail } from 'lucide-react';
 import { ForgotPasswordData, forgotPasswordSchema } from '../schemas/forgot-password.schema';
 import { useForgotPassword } from '../hooks/useForgotPassword';
-import { Button, Input } from '@/shared/ui';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+import { Button, Input, Alert } from '@/shared/ui';
+import { Typography } from '@/shared/ui/Typography';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
 export function ForgotPasswordForm() {
-    const [success, setSuccess] = useState(false);
+    const [sentTo, setSentTo] = useState<string | null>(null);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<ForgotPasswordData>({
+    const { register, handleSubmit, getValues, formState: { errors } } = useForm<ForgotPasswordData>({
         resolver: zodResolver(forgotPasswordSchema),
     });
 
     const { mutate, isPending, error } = useForgotPassword(() => {
-        setSuccess(true);
+        setSentTo(getValues('email'));
     });
 
-    if (success) {
+    // In-place success swap
+    if (sentTo) {
         return (
-            <div className="max-w-sm mx-auto text-center space-y-6">
-                <div className="rounded-full bg-green-100 p-3 w-12 h-12 mx-auto flex items-center justify-center">
-                    <span className="text-2xl">📧</span>
+            <div className="space-y-6 text-center py-2">
+                <div
+                    className="mx-auto w-12 h-12 rounded-2xl flex items-center justify-center"
+                    style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
+                >
+                    <Mail className="h-5 w-5 text-primary-500" aria-hidden="true" />
                 </div>
-                <div>
-                    <h2 className="text-xl font-bold">Check your email</h2>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                        We&apos;ve sent a password reset link to your email address.
-                    </p>
+
+                <div className="space-y-1.5">
+                    <Typography variant="h4">Check your inbox</Typography>
+                    <Typography variant="body-sm" color="muted">
+                        We sent a reset link to{' '}
+                        <span className="font-medium text-foreground">{sentTo}</span>.
+                        {' '}It expires in 15 minutes.
+                    </Typography>
                 </div>
+
                 <Link href="/sign-in">
-                    <Button variant="secondary" fullWidth>
-                        Back to Sign In
+                    <Button variant="ghost" fullWidth>
+                        Back to sign in
                     </Button>
                 </Link>
             </div>
@@ -47,41 +52,37 @@ export function ForgotPasswordForm() {
     }
 
     return (
-        <div className="flex flex-col gap-6 w-full max-w-sm mx-auto">
-            <div className="space-y-2 text-center">
-                <h1 className="text-2xl font-bold tracking-tight">Forgot Password?</h1>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Enter your email address and we&apos;ll send you a link to reset your password.
-                </p>
-            </div>
-
+        <div className="space-y-5">
             <form onSubmit={handleSubmit((data) => mutate(data))} className="space-y-4">
                 <Input
                     label="Email"
                     type="email"
                     placeholder="your@email.com"
+                    autoComplete="email"
                     error={errors.email?.message}
                     {...register('email')}
                 />
 
                 {error && (
-                    <div className="p-3 text-sm text-red-500 bg-red-50 rounded-lg">
-                        {getErrorMessage(error, 'Something went wrong')}
-                    </div>
+                    <Alert variant="error">
+                        {getErrorMessage(error, 'Something went wrong. Please try again.')}
+                    </Alert>
                 )}
 
                 <Button type="submit" loading={isPending} fullWidth>
-                    Send Reset Link
+                    Send reset link
                 </Button>
             </form>
 
-            <Link
-                href="/sign-in"
-                className="flex items-center justify-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
-            >
-                <ArrowLeft size={16} />
-                Back to Sign In
-            </Link>
+            <Typography variant="body-sm" color="muted" className="text-center">
+                Remember your password?{' '}
+                <Link
+                    href="/sign-in"
+                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
+                >
+                    Sign in
+                </Link>
+            </Typography>
         </div>
     );
 }

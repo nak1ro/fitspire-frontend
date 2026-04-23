@@ -1,17 +1,18 @@
-import { SignUpForm } from '@/features/auth/forms/SignUpForm';
 import { Metadata } from 'next';
 import { AuthLayout } from '@/features/auth/components/AuthLayout';
+import { SignUpForm } from '@/features/auth/forms/SignUpForm';
 
 export const metadata: Metadata = {
     title: 'Create Account | Fitspire',
-    description: 'Create a new account',
+    description: 'Join Fitspire and start your fitness journey',
 };
 
 export default function SignUpPage() {
     return (
         <AuthLayout
-            title="Create an account"
-            subtitle="Enter your details below to create your account"
+            eyebrow="Get started"
+            title="Create your account"
+            subtitle="Join thousands tracking their fitness journey."
         >
             <SignUpForm />
         </AuthLayout>

@@ -1,28 +1,25 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import Link from 'next/link';
 import { SignInData, signInSchema } from '../schemas/sign-in.schema';
-import { Button, Input } from '@/shared/ui';
+import { Button, Input, Alert, Divider } from '@/shared/ui';
 import { Typography } from '@/shared/ui/Typography';
 import { SocialButtons } from '../components/SocialButtons';
-import Link from 'next/link';
 
 export function SignInForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get('callbackUrl') || '/feed';
+    const registered = searchParams.get('registered') === 'true';
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<SignInData>({
+    const { register, handleSubmit, formState: { errors } } = useForm<SignInData>({
         resolver: zodResolver(signInSchema),
     });
 
@@ -38,80 +35,75 @@ export function SignInForm() {
             });
 
             if (result?.error) {
-                setError('Invalid login or password');
+                setError('Invalid email, username or password.');
             } else {
                 router.push(callbackUrl);
                 router.refresh();
             }
         } catch {
-            setError('An unexpected error occurred');
+            setError('Something went wrong. Please try again.');
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex flex-col gap-6 w-full">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <div className="space-y-5">
+            {registered && (
+                <Alert variant="info">
+                    Account created — sign in to get started.
+                </Alert>
+            )}
+
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <Input
-                    label="Email or Username"
+                    label="Email or username"
                     type="text"
                     placeholder="your@email.com"
+                    autoComplete="username"
                     error={errors.login?.message}
                     {...register('login')}
                 />
 
-                <div className="space-y-2">
+                <div className="space-y-1.5">
                     <Input
                         label="Password"
                         type="password"
                         placeholder="••••••••"
+                        autoComplete="current-password"
                         error={errors.password?.message}
                         {...register('password')}
                     />
                     <div className="flex justify-end">
-                        <Link href="/forgot-password">
-                            <Typography variant="caption" weight="medium" className="text-primary-600 hover:text-primary-500 transition-colors">
-                                Forgot password?
-                            </Typography>
+                        <Link
+                            href="/forgot-password"
+                            className="text-xs font-medium text-primary-500 hover:opacity-70 transition-opacity"
+                        >
+                            Forgot password?
                         </Link>
                     </div>
                 </div>
 
-                {error && (
-                    <div className="p-3 text-sm text-error bg-error/10 border border-error/20 rounded-lg">
-                        {error}
-                    </div>
-                )}
+                {error && <Alert variant="error">{error}</Alert>}
 
-                <Button type="submit" variant="gradient" loading={loading} fullWidth>
-                    Sign In
+                <Button type="submit" loading={loading} fullWidth>
+                    Sign in
                 </Button>
             </form>
 
-            <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-surface-200 dark:border-surface-700" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white dark:bg-surface-800 px-2 text-surface-400">
-                        Or continue with
-                    </span>
-                </div>
-            </div>
+            <Divider label="or" />
 
-            <SocialButtons />
+            <SocialButtons callbackUrl={callbackUrl} />
 
-            <div className="text-center">
-                <Typography variant="body-sm" color="muted">
-                    Don&apos;t have an account?{' '}
-                    <Link href="/sign-up">
-                        <Typography as="span" variant="body-sm" weight="semibold" className="text-primary-600 hover:text-primary-500 transition-colors cursor-pointer">
-                            Sign up
-                        </Typography>
-                    </Link>
-                </Typography>
-            </div>
+            <Typography variant="body-sm" color="muted" className="text-center">
+                Don&apos;t have an account?{' '}
+                <Link
+                    href="/sign-up"
+                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
+                >
+                    Sign up
+                </Link>
+            </Typography>
         </div>
     );
 }
