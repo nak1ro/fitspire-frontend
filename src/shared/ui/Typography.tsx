@@ -1,78 +1,94 @@
 import { HTMLAttributes, Ref, forwardRef } from 'react';
 import { cn } from '../lib/cn';
 
-type TypographyElement = 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'span' | 'div';
-type TypographyVariant = 'h1' | 'h2' | 'h3' | 'h4' | 'body-lg' | 'body' | 'body-sm' | 'caption';
+type TypographyVariant =
+    | 'display'
+    | 'h1' | 'h2' | 'h3' | 'h4'
+    | 'body-lg' | 'body' | 'body-sm' | 'caption'
+    | 'eyebrow';
+
+type TypographyColor = 'default' | 'muted' | 'subtle' | 'primary' | 'inverse' | 'error' | 'success';
+type TypographyWeight = 'light' | 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold';
+type TypographyElement = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span' | 'div' | 'label';
 
 interface TypographyProps extends HTMLAttributes<HTMLElement> {
     variant?: TypographyVariant;
-    weight?: 'normal' | 'medium' | 'semibold' | 'bold';
-    color?: 'primary' | 'secondary' | 'muted' | 'inverse' | 'error' | 'success';
+    color?: TypographyColor;
+    weight?: TypographyWeight;
     as?: TypographyElement;
 }
 
-function isHeadingVariant(variant: TypographyVariant): variant is Extract<TypographyVariant, 'h1' | 'h2' | 'h3' | 'h4'> {
-    return variant === 'h1' || variant === 'h2' || variant === 'h3' || variant === 'h4';
-}
+const defaultElements: Record<TypographyVariant, TypographyElement> = {
+    display:   'h1',
+    h1:        'h1',
+    h2:        'h2',
+    h3:        'h3',
+    h4:        'h4',
+    'body-lg': 'p',
+    body:      'p',
+    'body-sm': 'p',
+    caption:   'p',
+    eyebrow:   'p',
+};
+
+const variantClasses: Record<TypographyVariant, string> = {
+    display:   'text-5xl font-bold tracking-tight leading-none',
+    h1:        'text-4xl font-bold tracking-tight leading-tight',
+    h2:        'text-3xl font-semibold leading-snug',
+    h3:        'text-2xl font-semibold leading-snug',
+    h4:        'text-xl font-medium leading-snug',
+    'body-lg': 'text-lg leading-relaxed',
+    body:      'text-base leading-relaxed',
+    'body-sm': 'text-sm leading-relaxed',
+    caption:   'text-xs leading-normal',
+    eyebrow:   'text-xs font-semibold tracking-widest uppercase',
+};
+
+const colorClasses: Record<TypographyColor, string> = {
+    default: 'text-foreground',
+    muted:   'text-surface-600',
+    subtle:  'text-surface-400',
+    primary: 'text-primary-500',
+    inverse: 'text-white',
+    error:   'text-error',
+    success: 'text-success',
+};
+
+const weightClasses: Record<TypographyWeight, string> = {
+    light:     'font-light',
+    normal:    'font-normal',
+    medium:    'font-medium',
+    semibold:  'font-semibold',
+    bold:      'font-bold',
+    extrabold: 'font-extrabold',
+};
 
 export const Typography = forwardRef<HTMLElement, TypographyProps>(
-    ({ className, variant = 'body', weight = 'normal', color = 'primary', as, children, ...props }, ref) => {
+    ({ className, variant = 'body', color = 'default', weight, as, children, ...props }, ref) => {
 
-        const Component = as ?? (isHeadingVariant(variant) ? variant : 'p');
+        const Component = as ?? defaultElements[variant];
+        const resolvedColor = variant === 'eyebrow' && color === 'default' ? 'primary' : color;
 
-        const variants = {
-            h1: 'font-heading text-4xl leading-tight',
-            h2: 'font-heading text-3xl leading-snug',
-            h3: 'font-heading text-2xl leading-snug',
-            h4: 'font-heading text-xl leading-snug',
-            'body-lg': 'font-sans text-lg leading-relaxed',
-            body: 'font-sans text-base leading-relaxed',
-            'body-sm': 'font-sans text-sm leading-relaxed',
-            caption: 'font-sans text-xs leading-normal',
-        };
+        const classes = cn(
+            variantClasses[variant],
+            colorClasses[resolvedColor],
+            weight && weightClasses[weight],
+            className
+        );
 
-        const weights = {
-            normal: 'font-normal',
-            medium: 'font-medium',
-            semibold: 'font-semibold',
-            bold: 'font-bold',
-        };
-
-        const colors = {
-            primary: 'text-foreground',
-            secondary: 'text-surface-600 dark:text-surface-400',
-            muted: 'text-surface-400 dark:text-surface-500',
-            inverse: 'text-white',
-            error: 'text-error',
-            success: 'text-success',
-        };
-
-        const componentProps = {
-            className: cn(
-                variants[variant],
-                weights[weight],
-                colors[color],
-                className
-            ),
-            ...props,
-        };
+        const elementProps = { className: classes, ...props };
 
         switch (Component) {
-            case 'h1':
-                return <h1 ref={ref as Ref<HTMLHeadingElement>} {...componentProps}>{children}</h1>;
-            case 'h2':
-                return <h2 ref={ref as Ref<HTMLHeadingElement>} {...componentProps}>{children}</h2>;
-            case 'h3':
-                return <h3 ref={ref as Ref<HTMLHeadingElement>} {...componentProps}>{children}</h3>;
-            case 'h4':
-                return <h4 ref={ref as Ref<HTMLHeadingElement>} {...componentProps}>{children}</h4>;
-            case 'span':
-                return <span ref={ref as Ref<HTMLSpanElement>} {...componentProps}>{children}</span>;
-            case 'div':
-                return <div ref={ref as Ref<HTMLDivElement>} {...componentProps}>{children}</div>;
-            case 'p':
-            default:
-                return <p ref={ref as Ref<HTMLParagraphElement>} {...componentProps}>{children}</p>;
+            case 'h1':    return <h1    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h1>;
+            case 'h2':    return <h2    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h2>;
+            case 'h3':    return <h3    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h3>;
+            case 'h4':    return <h4    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h4>;
+            case 'h5':    return <h5    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h5>;
+            case 'h6':    return <h6    ref={ref as Ref<HTMLHeadingElement>}   {...elementProps}>{children}</h6>;
+            case 'span':  return <span  ref={ref as Ref<HTMLSpanElement>}      {...elementProps}>{children}</span>;
+            case 'div':   return <div   ref={ref as Ref<HTMLDivElement>}       {...elementProps}>{children}</div>;
+            case 'label': return <label ref={ref as Ref<HTMLLabelElement>}     {...elementProps}>{children}</label>;
+            default:      return <p     ref={ref as Ref<HTMLParagraphElement>} {...elementProps}>{children}</p>;
         }
     }
 );

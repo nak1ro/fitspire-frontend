@@ -2,34 +2,37 @@ import { HTMLAttributes, forwardRef } from 'react';
 import { cn } from '../lib/cn';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
-    variant?: 'solid' | 'glass';
+    variant?: 'flat' | 'elevated' | 'outlined';
     padding?: 'none' | 'sm' | 'md' | 'lg';
 }
 
+const shadows = {
+    flat:     undefined,
+    elevated: '0 4px 12px rgba(28,21,16,0.08)',
+    outlined: undefined,
+} as const;
+
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-    ({ className, variant = 'solid', padding = 'md', ...props }, ref) => {
+    ({ className, variant = 'elevated', padding = 'md', style, ...props }, ref) => {
 
         const variants = {
-            solid: 'bg-white shadow-sm border border-surface-200 dark:bg-surface-800 dark:border-surface-700',
-            glass: 'bg-white/10 backdrop-blur-md shadow-lg border border-white/20 dark:bg-black/40 dark:border-white/10',
+            flat:     'bg-surface',
+            elevated: 'bg-surface',
+            outlined: 'bg-background border border-surface-200',
         };
 
         const paddings = {
             none: '',
-            sm: 'p-3',
-            md: 'p-6',
-            lg: 'p-8',
+            sm:   'p-4',
+            md:   'p-5',
+            lg:   'p-6',
         };
 
         return (
             <div
                 ref={ref}
-                className={cn(
-                    'rounded-xl',
-                    variants[variant],
-                    paddings[padding],
-                    className
-                )}
+                className={cn('rounded-2xl', variants[variant], paddings[padding], className)}
+                style={shadows[variant] ? { boxShadow: shadows[variant], ...style } : style}
                 {...props}
             />
         );

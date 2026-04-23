@@ -4,31 +4,44 @@ import { cn } from '../lib/cn';
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
+    hint?: string;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-    ({ className, label, error, ...props }, ref) => {
+    ({ className, label, error, hint, id, ...props }, ref) => {
+        const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-');
+
         return (
-            <div className="w-full">
+            <div className="w-full space-y-1.5">
                 {label && (
-                    <label className="mb-1.5 block text-sm font-medium text-surface-700 dark:text-surface-300">
+                    <label
+                        htmlFor={inputId}
+                        className="block text-sm font-medium text-surface-700"
+                    >
                         {label}
                     </label>
                 )}
                 <input
                     ref={ref}
+                    id={inputId}
                     className={cn(
-                        'flex h-12 w-full rounded-xl border border-surface-200 bg-surface-50 px-4 py-2 text-sm text-foreground placeholder:text-surface-400 transition-all duration-200',
-                        'focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500',
+                        'flex h-11 w-full rounded-xl border px-4 text-sm text-foreground',
+                        'bg-surface-50 placeholder:text-surface-400',
+                        'transition-colors duration-150',
+                        'focus:outline-none focus:bg-primary-50 focus:border-primary-500',
                         'disabled:cursor-not-allowed disabled:opacity-50',
-                        'dark:border-surface-700 dark:bg-surface-900 dark:text-white',
-                        error && 'border-error focus:ring-error/20 focus:border-error',
+                        error
+                            ? 'border-error focus:border-error focus:bg-red-50'
+                            : 'border-surface-200',
                         className
                     )}
                     {...props}
                 />
                 {error && (
-                    <p className="mt-1 text-sm text-red-500">{error}</p>
+                    <p className="text-xs text-error">{error}</p>
+                )}
+                {hint && !error && (
+                    <p className="text-xs text-surface-400">{hint}</p>
                 )}
             </div>
         );
