@@ -31,7 +31,7 @@ const steps: Step[] = [
 
 export function HowItWorksSection() {
     return (
-        <section className="relative bg-surface py-24 px-6 overflow-hidden">
+        <section className="relative bg-surface py-24 px-6 overflow-hidden border-t border-surface-200">
 
             {/* Ambient orbs */}
             <div
@@ -69,7 +69,7 @@ export function HowItWorksSection() {
                                         className="hidden md:block absolute leading-none font-black select-none pointer-events-none"
                                         style={{
                                             fontSize: '9rem',
-                                            color: 'rgba(194,109,56,0.11)',
+                                            color: 'rgba(194,109,56,0.18)',
                                             zIndex: 0,
                                             top: '-1.75rem',
                                             ...(isRight ? { left: '-1.75rem' } : { right: '-1.75rem' }),
@@ -97,12 +97,7 @@ export function HowItWorksSection() {
                                                 <step.Icon className="h-6 w-6 text-primary-500" aria-hidden="true" />
                                             </div>
                                             <div className="space-y-1.5">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-xs font-bold text-primary-500 tabular-nums">
-                                                        {step.number}
-                                                    </span>
-                                                    <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
-                                                </div>
+                                                <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
                                                 <p className="text-sm text-surface-600 leading-relaxed">{step.description}</p>
                                             </div>
                                         </div>

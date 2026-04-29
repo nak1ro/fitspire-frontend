@@ -2,7 +2,7 @@ import { FadeIn } from '@/shared/ui/FadeIn';
 
 export function ManifestoSection() {
     return (
-        <section className="relative py-28 px-6 bg-background overflow-hidden">
+        <section className="relative py-28 px-6 bg-background border-t border-surface-200">
 
             {/* Warm radial wash */}
             <div
@@ -28,7 +28,7 @@ export function ManifestoSection() {
             {/* Giant decorative opening quote — anchored to content left edge */}
             <div
                 aria-hidden="true"
-                className="absolute -top-8 select-none pointer-events-none font-bold"
+                className="absolute top-2 select-none pointer-events-none font-bold"
                 style={{
                     left: 'max(24px, calc(50% - 512px))',
                     fontSize: 'clamp(10rem, 20vw, 20rem)',

@@ -89,7 +89,7 @@ const statChips = ['Free to join', 'Workout tracking', 'Live challenges', 'Commu
 
 export function HeroSection() {
     return (
-        <section className="relative min-h-[calc(100vh-4rem)] flex items-center px-6 py-16 overflow-hidden">
+        <section className="relative min-h-[calc(100vh-4rem)] flex items-center px-6 overflow-hidden">
 
             {/* Layer 1: CSS line grid */}
             <div

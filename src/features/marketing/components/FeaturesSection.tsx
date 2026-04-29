@@ -161,9 +161,9 @@ interface FeatureCardProps {
 
 function FeatureCard({ Icon, title, description, visual }: FeatureCardProps) {
     return (
-        <div className="h-full rounded-2xl border border-surface-200 bg-background overflow-hidden">
-            <div className="h-[3px]" style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, #FDF6EF)' }} />
-            <div className="p-5 lg:p-6">
+        <div className="h-full flex flex-col rounded-2xl border border-surface-200 bg-background overflow-hidden">
+            <div className="h-[3px] shrink-0" style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, #FDF6EF)' }} />
+            <div className="flex-1 flex flex-col p-5 lg:p-6">
                 <div className="flex items-start gap-3">
                     <div
                         className="inline-flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
@@ -176,7 +176,9 @@ function FeatureCard({ Icon, title, description, visual }: FeatureCardProps) {
                         <p className="text-xs text-surface-600 leading-relaxed mt-1">{description}</p>
                     </div>
                 </div>
-                {visual}
+                <div className="mt-auto">
+                    {visual}
+                </div>
             </div>
         </div>
     );
@@ -186,7 +188,7 @@ function FeatureCard({ Icon, title, description, visual }: FeatureCardProps) {
 
 export function FeaturesSection() {
     return (
-        <section className="bg-surface py-24 px-6">
+        <section className="bg-surface py-24 px-6 border-t border-surface-200">
             <div className="mx-auto max-w-6xl space-y-14">
 
                 <FadeIn className="text-center">

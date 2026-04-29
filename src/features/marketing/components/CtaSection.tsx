@@ -10,11 +10,11 @@ function WaveformDecoration({ mirrored }: { mirrored?: boolean }) {
     return (
         <div
             aria-hidden="true"
-            className="absolute hidden xl:flex items-end gap-[3px] h-20 pointer-events-none"
+            className="absolute hidden 2xl:flex items-end gap-[3px] h-20 pointer-events-none"
             style={{
                 top: '50%',
                 transform: `translateY(-50%)${mirrored ? ' scaleX(-1)' : ''}`,
-                ...(mirrored ? { right: '2.5rem' } : { left: '2.5rem' }),
+                ...(mirrored ? { right: '4rem' } : { left: '4rem' }),
             }}
         >
             {WAVEFORM_HEIGHTS.map((h, i) => (
@@ -23,7 +23,7 @@ function WaveformDecoration({ mirrored }: { mirrored?: boolean }) {
                     className="w-1.5 rounded-full animate-pulse"
                     style={{
                         height: `${h}%`,
-                        background: `rgba(194,109,56,${0.12 + (h / 100) * 0.28})`,
+                        background: `rgba(194,109,56,${0.05 + (h / 100) * 0.13})`,
                         animationDelay: `${i * 80}ms`,
                         animationDuration: `${1100 + i * 60}ms`,
                     }}
@@ -35,7 +35,7 @@ function WaveformDecoration({ mirrored }: { mirrored?: boolean }) {
 
 export function CtaSection() {
     return (
-        <section className="relative py-32 px-6 overflow-hidden bg-background">
+        <section className="relative py-32 px-6 overflow-hidden bg-background border-t border-surface-200">
 
             {/* CSS line grid */}
             <div
