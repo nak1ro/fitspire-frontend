@@ -9,7 +9,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
     return (
         <SessionProvider>
             <ReactQueryProvider>
-                <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+                <ThemeProvider attribute="class" defaultTheme="light">
                     {children}
                 </ThemeProvider>
             </ReactQueryProvider>

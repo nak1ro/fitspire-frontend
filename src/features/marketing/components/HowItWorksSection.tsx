@@ -23,7 +23,6 @@ export function HowItWorksSection() {
         <section className="bg-surface py-24 px-6">
             <div className="mx-auto max-w-6xl space-y-16">
 
-                {/* Header */}
                 <FadeIn className="text-center">
                     <p className="text-xs font-semibold tracking-widest uppercase text-primary-500 mb-3">
                         How it works
@@ -33,15 +32,14 @@ export function HowItWorksSection() {
                     </h2>
                 </FadeIn>
 
-                {/* Steps */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     {steps.map((step, i) => (
                         <FadeIn key={step.number} delay={i * 120}>
-                            <div className="space-y-4">
+                            <div className="h-full rounded-2xl border border-surface-200 bg-background p-6 lg:p-8 space-y-4">
                                 <span
                                     aria-hidden="true"
-                                    className="block text-7xl lg:text-8xl font-extrabold tracking-tighter leading-none select-none text-primary-500"
-                                    style={{ opacity: 0.18 }}
+                                    className="block text-6xl font-extrabold tracking-tighter leading-none select-none text-primary-400"
+                                    style={{ opacity: 0.22 }}
                                 >
                                     {step.number}
                                 </span>
