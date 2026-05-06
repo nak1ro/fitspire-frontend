@@ -2,6 +2,33 @@ import { Users, Dumbbell, Trophy, TrendingUp, type LucideIcon } from 'lucide-rea
 import { FadeIn } from '@/shared/ui/FadeIn';
 import React from 'react';
 
+// ─── Per-card color palette ────────────────────────────────────────────────────
+
+const COLORS = {
+    feed: {
+        iconBg: 'rgba(194,109,56,0.08)',
+        iconFg: '#C26D38',
+        bar: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)',
+    },
+    workout: {
+        iconBg: 'rgba(74,124,95,0.08)',
+        iconFg: '#4A7C5F',
+        bar: 'linear-gradient(to right, #4A7C5F, #7AB895, transparent)',
+    },
+    challenges: {
+        iconBg: 'rgba(184,134,11,0.08)',
+        iconFg: '#B8860B',
+        bar: 'linear-gradient(to right, #B8860B, #D4A843, transparent)',
+    },
+    progress: {
+        iconBg: 'rgba(58,122,138,0.08)',
+        iconFg: '#3A7A8A',
+        bar: 'linear-gradient(to right, #3A7A8A, #6AAABB, transparent)',
+    },
+} as const;
+
+type ColorKey = keyof typeof COLORS;
+
 // ─── Mockup visuals ────────────────────────────────────────────────────────────
 
 function FeedMockup() {
@@ -14,8 +41,8 @@ function FeedMockup() {
             {posts.map(post => (
                 <div key={post.name} className="flex items-center gap-2.5 rounded-xl border border-surface-100 bg-surface px-3 py-2.5">
                     <div
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-primary-600 shrink-0"
-                        style={{ backgroundColor: 'rgba(194,109,56,0.10)' }}
+                        className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
+                        style={{ backgroundColor: 'rgba(194,109,56,0.10)', color: '#C26D38' }}
                     >
                         {post.initials}
                     </div>
@@ -64,7 +91,10 @@ function ChallengeMockup() {
                 <p className="flex-1 text-xs font-bold text-foreground leading-snug">
                     30-Day Push-Up Challenge
                 </p>
-                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full border border-primary-200 bg-primary-50 text-primary-600 uppercase tracking-wide shrink-0">
+                <span
+                    className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shrink-0 border"
+                    style={{ background: 'rgba(184,134,11,0.08)', color: '#B8860B', borderColor: 'rgba(184,134,11,0.25)' }}
+                >
                     Active
                 </span>
             </div>
@@ -72,8 +102,8 @@ function ChallengeMockup() {
                 {['YO', 'MK', 'JR'].map(init => (
                     <div
                         key={init}
-                        className="w-6 h-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold text-primary-600"
-                        style={{ backgroundColor: 'rgba(194,109,56,0.10)' }}
+                        className="w-6 h-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold"
+                        style={{ backgroundColor: 'rgba(184,134,11,0.10)', color: '#B8860B' }}
                     >
                         {init}
                     </div>
@@ -90,7 +120,7 @@ function ChallengeMockup() {
                 <div className="h-2 rounded-full bg-background overflow-hidden">
                     <div
                         className="h-full rounded-full"
-                        style={{ width: '60%', background: 'linear-gradient(to right, #C26D38, #EDAC76)' }}
+                        style={{ width: '60%', background: 'linear-gradient(to right, #B8860B, #D4A843)' }}
                     />
                 </div>
             </div>
@@ -118,27 +148,27 @@ function ProgressMockup() {
                 <p className="text-[10px] font-semibold uppercase tracking-wide text-surface-500">Bench 1RM</p>
                 <p className="text-sm font-bold text-foreground">
                     92 kg{' '}
-                    <span className="text-xs font-medium" style={{ color: '#4A7C5F' }}>↑ +22 kg</span>
+                    <span className="text-xs font-medium" style={{ color: '#3A7A8A' }}>↑ +22 kg</span>
                 </p>
             </div>
             <div className="rounded-xl bg-surface p-3 overflow-hidden">
                 <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="none" style={{ height: H }}>
                     <defs>
-                        <linearGradient id="fitspire-spark-fill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="rgba(194,109,56,0.22)" />
-                            <stop offset="100%" stopColor="rgba(194,109,56,0)" />
+                        <linearGradient id="fitspire-progress-fill" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="rgba(58,122,138,0.22)" />
+                            <stop offset="100%" stopColor="rgba(58,122,138,0)" />
                         </linearGradient>
                     </defs>
-                    <polygon points={areaStr} fill="url(#fitspire-spark-fill)" />
+                    <polygon points={areaStr} fill="url(#fitspire-progress-fill)" />
                     <polyline
                         points={polylineStr}
                         fill="none"
-                        stroke="#C26D38"
+                        stroke="#3A7A8A"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
                     />
-                    <circle cx={lastX} cy={lastY} r="3.5" fill="#C26D38" />
+                    <circle cx={lastX} cy={lastY} r="3.5" fill="#3A7A8A" />
                 </svg>
             </div>
             <div className="flex justify-between px-0.5">
@@ -157,19 +187,21 @@ interface FeatureCardProps {
     title: string;
     description: string;
     visual: React.ReactNode;
+    colorKey: ColorKey;
 }
 
-function FeatureCard({ Icon, title, description, visual }: FeatureCardProps) {
+function FeatureCard({ Icon, title, description, visual, colorKey }: FeatureCardProps) {
+    const color = COLORS[colorKey];
     return (
         <div className="h-full flex flex-col rounded-2xl border border-surface-200 bg-background overflow-hidden">
-            <div className="h-[3px] shrink-0" style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, #FDF6EF)' }} />
+            <div className="h-[3px] shrink-0" style={{ background: color.bar }} />
             <div className="flex-1 flex flex-col p-5 lg:p-6">
                 <div className="flex items-start gap-3">
                     <div
                         className="inline-flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
-                        style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
+                        style={{ backgroundColor: color.iconBg }}
                     >
-                        <Icon className="h-5 w-5 text-primary-500" aria-hidden="true" />
+                        <Icon className="h-5 w-5" style={{ color: color.iconFg }} aria-hidden="true" />
                     </div>
                     <div className="min-w-0">
                         <h3 className="text-base font-semibold text-foreground leading-snug">{title}</h3>
@@ -209,6 +241,7 @@ export function FeaturesSection() {
                                 title="Social Feed"
                                 description="See every PR, milestone, and session from your community. Cheer them on or let your numbers do the talking."
                                 visual={<FeedMockup />}
+                                colorKey="feed"
                             />
                         </div>
 
@@ -218,6 +251,7 @@ export function FeaturesSection() {
                                 title="Workout Logging"
                                 description="Log sets, reps, and weights in seconds. Your full history, always one tap away."
                                 visual={<WorkoutMockup />}
+                                colorKey="workout"
                             />
                         </div>
 
@@ -227,6 +261,7 @@ export function FeaturesSection() {
                                 title="Challenges"
                                 description="Create a challenge, set the goal, invite friends — and see who rises to it."
                                 visual={<ChallengeMockup />}
+                                colorKey="challenges"
                             />
                         </div>
 
@@ -236,6 +271,7 @@ export function FeaturesSection() {
                                 title="Progress Tracking"
                                 description="Watch your numbers climb over weeks and months. Every session adds another point to your story."
                                 visual={<ProgressMockup />}
+                                colorKey="progress"
                             />
                         </div>
 

@@ -1,6 +1,13 @@
 import { http } from '@/shared/lib/http';
 import { AUTH_ROUTES } from './routes';
-import { SignUpRequest, AuthResponse, ForgotPasswordRequest, VerifyEmailRequest, RegisterRequest } from '../types';
+import {
+    SignUpRequest,
+    AuthResponse,
+    ForgotPasswordRequest,
+    VerifyEmailRequest,
+    RegisterRequest,
+    ResetPasswordRequest,
+} from '../types';
 
 /**
  * Auth Client API
@@ -32,6 +39,12 @@ export const forgotPassword = (data: ForgotPasswordRequest) =>
 
 export const verifyEmail = (data: VerifyEmailRequest) =>
     http<void>(AUTH_ROUTES.confirmEmail, {
+        method: 'POST',
+        json: data
+    });
+
+export const resetPassword = (data: ResetPasswordRequest) =>
+    http<void>(AUTH_ROUTES.resetPassword, {
         method: 'POST',
         json: data
     });

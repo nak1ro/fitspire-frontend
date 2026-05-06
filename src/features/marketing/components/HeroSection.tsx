@@ -110,7 +110,7 @@ export function HeroSection() {
                 style={{
                     width: 640, height: 640,
                     top: -220, left: -180,
-                    background: 'rgba(194,109,56,0.09)',
+                    background: 'rgba(194,109,56,0.15)',
                     filter: 'blur(90px)',
                 }}
             />
@@ -120,7 +120,7 @@ export function HeroSection() {
                 style={{
                     width: 440, height: 440,
                     bottom: -120, right: -100,
-                    background: 'rgba(194,109,56,0.06)',
+                    background: 'rgba(194,109,56,0.10)',
                     filter: 'blur(80px)',
                 }}
             />
