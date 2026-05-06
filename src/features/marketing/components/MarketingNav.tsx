@@ -8,16 +8,25 @@ export function MarketingNav() {
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
-        const handler = () => setScrolled(window.scrollY > 12);
+        const handler = () => setScrolled(window.scrollY > 16);
         window.addEventListener('scroll', handler, { passive: true });
         return () => window.removeEventListener('scroll', handler);
     }, []);
 
     return (
         <header
-            className={`fixed top-0 inset-x-0 z-40 h-16 bg-background transition-all duration-300 ${
-                scrolled ? 'border-b border-surface-200 shadow-[0_1px_12px_rgba(28,21,16,0.06)]' : ''
-            }`}
+            className="fixed top-0 inset-x-0 z-40 h-16 transition-all duration-300"
+            style={{
+                background: 'rgba(255, 251, 247, 0.82)',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                borderBottom: scrolled
+                    ? '1px solid rgba(235, 233, 228, 0.65)'
+                    : '1px solid transparent',
+                boxShadow: scrolled
+                    ? '0 2px 20px rgba(28, 21, 16, 0.07)'
+                    : 'none',
+            }}
         >
             <div className="mx-auto max-w-6xl h-full flex items-center justify-between px-6">
 

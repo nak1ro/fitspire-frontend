@@ -31,7 +31,7 @@ const steps: Step[] = [
 
 export function HowItWorksSection() {
     return (
-        <section className="relative bg-surface py-24 px-6 overflow-hidden border-t border-surface-200">
+        <section className="relative bg-surface py-24 px-6 border-t border-surface-200 overflow-hidden">
 
             {/* Ambient orbs */}
             <div
@@ -56,58 +56,60 @@ export function HowItWorksSection() {
                     </h2>
                 </FadeIn>
 
-                <div className="space-y-6 md:space-y-10">
-                    {steps.map((step, i) => {
-                        const isRight = i % 2 === 1;
-                        return (
-                            <FadeIn key={step.number} delay={i * 140}>
-                                <div className={`relative md:max-w-lg ${isRight ? 'md:ml-auto' : 'md:mr-auto'}`}>
+                <FadeIn>
+                    <div className="relative grid grid-cols-1 md:grid-cols-3 gap-5">
 
-                                    {/* Ghost step number — peeks out behind the card on the outer side */}
+                        {/* Dashed connector — runs between the step number rows on desktop */}
+                        <div
+                            aria-hidden="true"
+                            className="hidden md:block absolute z-0 h-[2px]"
+                            style={{
+                                top: '47px',
+                                left: 'calc(33.33% + 10px)',
+                                right: 'calc(33.33% + 10px)',
+                                backgroundImage: 'repeating-linear-gradient(to right, rgba(194,109,56,0.30) 0px, rgba(194,109,56,0.30) 8px, transparent 8px, transparent 16px)',
+                            }}
+                        />
+
+                        {steps.map((step, i) => (
+                            <div key={step.number} className="relative z-10">
+                                <div className="h-full rounded-2xl border border-surface-200 bg-background overflow-hidden"
+                                    style={{ boxShadow: '0 2px 16px rgba(28,21,16,0.05)' }}
+                                >
+                                    {/* Amber top accent */}
                                     <div
-                                        aria-hidden="true"
-                                        className="hidden md:block absolute leading-none font-black select-none pointer-events-none"
-                                        style={{
-                                            fontSize: '9rem',
-                                            color: 'rgba(194,109,56,0.18)',
-                                            zIndex: 0,
-                                            top: '-1.75rem',
-                                            ...(isRight ? { left: '-1.75rem' } : { right: '-1.75rem' }),
-                                        }}
-                                    >
-                                        {step.number}
-                                    </div>
+                                        className="h-[3px]"
+                                        style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
+                                    />
 
-                                    {/* Card */}
-                                    <div
-                                        className="relative rounded-2xl border border-surface-200 bg-background p-6 lg:p-8"
-                                        style={{ boxShadow: '0 4px 24px rgba(28,21,16,0.06)', zIndex: 1 }}
-                                    >
-                                        {/* Amber top accent */}
-                                        <div
-                                            className="absolute inset-x-0 top-0 h-[3px] rounded-t-2xl"
-                                            style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
-                                        />
-
-                                        <div className="flex items-start gap-4">
+                                    <div className="p-6 space-y-5">
+                                        {/* Step number + icon row */}
+                                        <div className="flex items-center justify-between">
+                                            <span
+                                                className="text-[2.75rem] font-black leading-none tabular-nums"
+                                                style={{ color: 'rgba(194,109,56,0.30)' }}
+                                            >
+                                                {step.number}
+                                            </span>
                                             <div
-                                                className="inline-flex items-center justify-center w-12 h-12 rounded-2xl shrink-0"
+                                                className="w-11 h-11 rounded-2xl flex items-center justify-center"
                                                 style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
                                             >
-                                                <step.Icon className="h-6 w-6 text-primary-500" aria-hidden="true" />
-                                            </div>
-                                            <div className="space-y-1.5">
-                                                <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
-                                                <p className="text-sm text-surface-600 leading-relaxed">{step.description}</p>
+                                                <step.Icon className="h-5 w-5 text-primary-500" aria-hidden="true" />
                                             </div>
                                         </div>
-                                    </div>
 
+                                        {/* Content */}
+                                        <div className="space-y-2">
+                                            <h3 className="text-lg font-bold text-foreground">{step.title}</h3>
+                                            <p className="text-sm text-surface-600 leading-relaxed">{step.description}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                            </FadeIn>
-                        );
-                    })}
-                </div>
+                            </div>
+                        ))}
+                    </div>
+                </FadeIn>
 
             </div>
         </section>
