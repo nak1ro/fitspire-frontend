@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { signIn } from 'next-auth/react';
@@ -8,18 +9,69 @@ import Link from 'next/link';
 import { SignUpData, signUpSchema } from '../schemas/sign-up.schema';
 import { useEmailSignUp } from '../hooks/useEmailSignUp';
 import { Button, Input, Alert, Divider } from '@/shared/ui';
-import { Typography } from '@/shared/ui/Typography';
 import { SocialButtons } from '../components/SocialButtons';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
+// ─── Step indicator ────────────────────────────────────────────────────────────
+
+function StepIndicator({ step }: { step: 1 | 2 }) {
+    return (
+        <div className="flex items-center gap-3 mb-6">
+            {/* Step 1 circle */}
+            <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-200"
+                style={{
+                    background: step >= 1 ? 'linear-gradient(135deg, #C26D38, #EDAC76)' : undefined,
+                    backgroundColor: step >= 1 ? undefined : 'var(--color-surface-200)',
+                    color: step >= 1 ? '#fff' : 'var(--color-surface-500)',
+                }}
+            >
+                {step > 1 ? '✓' : '1'}
+            </div>
+
+            {/* Connector line */}
+            <div className="flex-1 h-px bg-surface-200 overflow-hidden rounded-full">
+                <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{
+                        width: step > 1 ? '100%' : '0%',
+                        background: 'linear-gradient(to right, #C26D38, #EDAC76)',
+                    }}
+                />
+            </div>
+
+            {/* Step 2 circle */}
+            <div
+                className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-200"
+                style={{
+                    background: step >= 2 ? 'linear-gradient(135deg, #C26D38, #EDAC76)' : undefined,
+                    backgroundColor: step >= 2 ? undefined : 'var(--color-surface-200)',
+                    color: step >= 2 ? '#fff' : 'var(--color-surface-500)',
+                }}
+            >
+                2
+            </div>
+        </div>
+    );
+}
+
+// ─── Form ─────────────────────────────────────────────────────────────────────
+
 export function SignUpForm() {
     const router = useRouter();
+    const [step, setStep] = useState<1 | 2>(1);
 
-    const { register, handleSubmit, formState: { errors } } = useForm<SignUpData>({
+    const { register, handleSubmit, trigger, formState: { errors } } = useForm<SignUpData>({
         resolver: zodResolver(signUpSchema),
+        mode: 'onTouched',
     });
 
     const { mutateAsync, isPending, error } = useEmailSignUp();
+
+    const handleContinue = async () => {
+        const valid = await trigger(['displayName', 'userName']);
+        if (valid) setStep(2);
+    };
 
     const onSubmit = async (data: SignUpData) => {
         try {
@@ -28,7 +80,6 @@ export function SignUpForm() {
                 displayName: data.displayName?.trim() || null,
             });
 
-            // Auto-login immediately after successful registration
             const result = await signIn('credentials', {
                 login: data.email,
                 password: data.password,
@@ -38,87 +89,119 @@ export function SignUpForm() {
             if (result?.ok) {
                 router.push('/feed');
             } else {
-                // Registration succeeded but session creation failed — fall back to sign-in
                 router.push('/sign-in?registered=true');
             }
         } catch {
-            // error is captured in mutation state, displayed via Alert below
+            // error captured in mutation state
         }
     };
 
     return (
         <div className="space-y-5">
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                <Input
-                    label="Display name"
-                    type="text"
-                    placeholder="Jane Doe"
-                    autoComplete="name"
-                    hint="How your name appears in the feed (optional)"
-                    error={errors.displayName?.message}
-                    {...register('displayName')}
-                />
 
-                <Input
-                    label="Username"
-                    type="text"
-                    placeholder="janedoe"
-                    autoComplete="username"
-                    error={errors.userName?.message}
-                    {...register('userName')}
-                />
+            <StepIndicator step={step} />
 
-                <Input
-                    label="Email"
-                    type="email"
-                    placeholder="your@email.com"
-                    autoComplete="email"
-                    error={errors.email?.message}
-                    {...register('email')}
-                />
+            {step === 1 && (
+                <div className="space-y-4">
+                    <div className="space-y-1 mb-4">
+                        <h2 className="text-base font-semibold text-foreground">Create your identity</h2>
+                        <p className="text-xs text-surface-500">Pick a username — this is how the community will know you.</p>
+                    </div>
 
-                <Input
-                    label="Password"
-                    type="password"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    error={errors.password?.message}
-                    {...register('password')}
-                />
+                    <Input
+                        label="Display name"
+                        type="text"
+                        placeholder="Jane Doe"
+                        autoComplete="name"
+                        hint="How your name appears in the feed (optional)"
+                        error={errors.displayName?.message}
+                        {...register('displayName')}
+                    />
 
-                <Input
-                    label="Confirm password"
-                    type="password"
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    error={errors.confirmPassword?.message}
-                    {...register('confirmPassword')}
-                />
+                    <Input
+                        label="Username"
+                        type="text"
+                        placeholder="janedoe"
+                        autoComplete="username"
+                        error={errors.userName?.message}
+                        {...register('userName')}
+                    />
 
-                {error && (
-                    <Alert variant="error">
-                        {getErrorMessage(error, 'Registration failed. Please try again.')}
-                    </Alert>
-                )}
+                    <Button type="button" fullWidth onClick={handleContinue}>
+                        Continue
+                    </Button>
 
-                <Button type="submit" loading={isPending} fullWidth>
-                    Create account
-                </Button>
-            </form>
+                    <Divider label="or" />
 
-            <Divider label="or" />
+                    <SocialButtons />
 
-            <SocialButtons />
+                    <p className="text-xs text-surface-500 text-center">
+                        Already have an account?{' '}
+                        <Link
+                            href="/sign-in"
+                            className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
+                        >
+                            Sign in
+                        </Link>
+                    </p>
+                </div>
+            )}
 
-            <Typography variant="body-sm" color="muted" className="text-center">
-                Already have an account?{' '}
-                <Link
-                    href="/sign-in"
-                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
-                >
-                    Sign in
-                </Link>
-            </Typography>
+            {step === 2 && (
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                    <div className="space-y-1 mb-4">
+                        <h2 className="text-base font-semibold text-foreground">Secure your account</h2>
+                        <p className="text-xs text-surface-500">Your email and a strong password — almost there.</p>
+                    </div>
+
+                    <Input
+                        label="Email"
+                        type="email"
+                        placeholder="your@email.com"
+                        autoComplete="email"
+                        error={errors.email?.message}
+                        {...register('email')}
+                    />
+
+                    <Input
+                        label="Password"
+                        type="password"
+                        placeholder="••••••••"
+                        autoComplete="new-password"
+                        error={errors.password?.message}
+                        {...register('password')}
+                    />
+
+                    <Input
+                        label="Confirm password"
+                        type="password"
+                        placeholder="••••••••"
+                        autoComplete="new-password"
+                        error={errors.confirmPassword?.message}
+                        {...register('confirmPassword')}
+                    />
+
+                    {error && (
+                        <Alert variant="error">
+                            {getErrorMessage(error, 'Registration failed. Please try again.')}
+                        </Alert>
+                    )}
+
+                    <Button type="submit" loading={isPending} fullWidth>
+                        Create account
+                    </Button>
+
+                    <p className="text-center">
+                        <button
+                            type="button"
+                            onClick={() => setStep(1)}
+                            className="text-xs text-surface-500 hover:text-foreground transition-colors"
+                        >
+                            ← Back
+                        </button>
+                    </p>
+                </form>
+            )}
         </div>
     );
 }

@@ -1,7 +1,5 @@
 import { ReactNode } from 'react';
 import Link from 'next/link';
-import { Card } from '@/shared/ui/Card';
-import { Typography } from '@/shared/ui/Typography';
 
 interface AuthLayoutProps {
     children: ReactNode;
@@ -12,43 +10,94 @@ interface AuthLayoutProps {
 
 export function AuthLayout({ children, eyebrow, title, subtitle }: AuthLayoutProps) {
     return (
-        <main className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
-            <div className="w-full max-w-[420px]">
+        <main className="relative overflow-hidden min-h-screen bg-background flex flex-col items-center justify-center px-4 py-12">
+
+            {/* CSS line grid */}
+            <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    backgroundImage:
+                        'linear-gradient(rgba(28,21,16,0.04) 1px, transparent 1px), ' +
+                        'linear-gradient(to right, rgba(28,21,16,0.04) 1px, transparent 1px)',
+                    backgroundSize: '72px 72px',
+                }}
+            />
+
+            {/* Ambient orb — top-left */}
+            <div
+                aria-hidden="true"
+                className="absolute pointer-events-none rounded-full"
+                style={{
+                    width: 560, height: 560,
+                    top: -180, left: -160,
+                    background: 'rgba(194,109,56,0.10)',
+                    filter: 'blur(90px)',
+                }}
+            />
+
+            {/* Ambient orb — bottom-right */}
+            <div
+                aria-hidden="true"
+                className="absolute pointer-events-none rounded-full"
+                style={{
+                    width: 400, height: 400,
+                    bottom: -120, right: -100,
+                    background: 'rgba(194,109,56,0.07)',
+                    filter: 'blur(80px)',
+                }}
+            />
+
+            {/* Warm radial wash */}
+            <div
+                aria-hidden="true"
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                    background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(194,109,56,0.05) 0%, transparent 70%)',
+                }}
+            />
+
+            <div className="relative w-full max-w-[420px]">
 
                 {/* Wordmark */}
                 <div className="text-center mb-8">
                     <Link href="/" className="inline-block group">
-                        <Typography
-                            variant="h2"
-                            weight="bold"
-                            className="tracking-tight transition-opacity group-hover:opacity-60"
-                        >
+                        <span className="text-2xl font-bold tracking-tight text-foreground transition-opacity group-hover:opacity-60">
                             Fitspire
-                        </Typography>
+                        </span>
                     </Link>
                 </div>
 
                 {/* Card */}
-                <Card variant="elevated" padding="lg">
-                    {(eyebrow || title || subtitle) && (
-                        <div className="mb-6">
-                            {eyebrow && (
-                                <Typography variant="eyebrow" className="mb-1.5">
-                                    {eyebrow}
-                                </Typography>
-                            )}
-                            {title && (
-                                <Typography variant="h3">{title}</Typography>
-                            )}
-                            {subtitle && (
-                                <Typography variant="body-sm" color="muted" className="mt-1">
-                                    {subtitle}
-                                </Typography>
-                            )}
-                        </div>
-                    )}
-                    {children}
-                </Card>
+                <div
+                    className="rounded-2xl bg-surface overflow-hidden"
+                    style={{ boxShadow: '0 8px 32px rgba(28,21,16,0.10)' }}
+                >
+                    {/* Amber top accent */}
+                    <div
+                        className="h-[3px] shrink-0"
+                        style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
+                    />
+
+                    <div className="p-6">
+                        {(eyebrow || title || subtitle) && (
+                            <div className="mb-6">
+                                {eyebrow && (
+                                    <p className="text-xs font-semibold tracking-widest uppercase text-primary-500 mb-1.5">
+                                        {eyebrow}
+                                    </p>
+                                )}
+                                {title && (
+                                    <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+                                )}
+                                {subtitle && (
+                                    <p className="text-sm text-surface-500 mt-1">{subtitle}</p>
+                                )}
+                            </div>
+                        )}
+                        {children}
+                    </div>
+                </div>
             </div>
         </main>
     );
