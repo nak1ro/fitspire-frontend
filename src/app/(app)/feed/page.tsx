@@ -1,7 +1,9 @@
+import { FeedView } from '@/features/social/components/FeedView';
+
 export default function FeedPage() {
     return (
-        <div className="p-6 max-w-2xl mx-auto">
-            <p className="text-surface-400 text-sm">Feed coming soon.</p>
+        <div className="max-w-xl mx-auto px-4 py-6">
+            <FeedView />
         </div>
     );
 }

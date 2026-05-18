@@ -200,6 +200,13 @@ export interface YogaWorkout extends Workout {
     focusArea?: YogaFocusArea | null;
 }
 
+export type WorkoutDetail =
+    | GymWorkout
+    | RunningWorkout
+    | CyclingWorkout
+    | SwimmingWorkout
+    | YogaWorkout;
+
 export interface WorkoutRoutine {
     id: string;
     name: string;

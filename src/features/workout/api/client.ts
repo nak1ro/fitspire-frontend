@@ -18,6 +18,7 @@ import {
     SwimmingWorkout,
     UpdateWorkoutRequest,
     Workout,
+    WorkoutDetail,
     WorkoutFilter,
     WorkoutRoutine,
     YogaWorkout,
@@ -45,7 +46,7 @@ export const getWorkouts = (accessToken: string, filter?: WorkoutFilter) =>
     });
 
 export const getWorkoutById = (accessToken: string, workoutId: string) =>
-    http<Workout>(WORKOUT_ROUTES.byId(workoutId), {
+    http<WorkoutDetail>(WORKOUT_ROUTES.byId(workoutId), {
         accessToken,
     });
 
