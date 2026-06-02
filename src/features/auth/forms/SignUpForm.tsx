@@ -60,6 +60,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
 export function SignUpForm() {
     const router = useRouter();
     const [step, setStep] = useState<1 | 2>(1);
+    const [isSigningIn, setIsSigningIn] = useState(false);
 
     const { register, handleSubmit, trigger, formState: { errors } } = useForm<SignUpData>({
         resolver: zodResolver(signUpSchema),
@@ -80,6 +81,7 @@ export function SignUpForm() {
                 displayName: data.displayName?.trim() || null,
             });
 
+            setIsSigningIn(true);
             const result = await signIn('credentials', {
                 login: data.email,
                 password: data.password,
@@ -88,10 +90,13 @@ export function SignUpForm() {
 
             if (result?.ok) {
                 router.push('/feed');
+                router.refresh();
             } else {
+                setIsSigningIn(false);
                 router.push('/sign-in?registered=true');
             }
         } catch {
+            setIsSigningIn(false);
             // error captured in mutation state
         }
     };
@@ -187,7 +192,7 @@ export function SignUpForm() {
                         </Alert>
                     )}
 
-                    <Button type="submit" loading={isPending} fullWidth>
+                    <Button type="submit" loading={isPending || isSigningIn} fullWidth>
                         Create account
                     </Button>
 

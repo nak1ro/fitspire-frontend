@@ -12,7 +12,11 @@ const NAV_ITEMS = [
     { href: '/profile',    label: 'Profile',    Icon: User },
 ] as const;
 
-export function Sidebar() {
+interface SidebarProps {
+    onLogWorkout?: () => void;
+}
+
+export function Sidebar({ onLogWorkout }: SidebarProps) {
     const pathname = usePathname();
 
     const isActive = (href: string) =>
@@ -34,6 +38,7 @@ export function Sidebar() {
             {/* Log Workout CTA */}
             <div className="px-3 pt-4 pb-2 shrink-0">
                 <button
+                    onClick={onLogWorkout}
                     className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80"
                     style={{ background: 'linear-gradient(135deg, #C26D38 0%, #EDAC76 100%)' }}
                 >
