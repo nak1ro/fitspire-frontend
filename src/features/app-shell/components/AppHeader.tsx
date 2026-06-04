@@ -1,7 +1,16 @@
 'use client';
 
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Bell, Search } from 'lucide-react';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
+
+function getInitials(displayName: string, userName: string): string {
+    const name = displayName || userName;
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+}
 
 const PAGE_TITLES: Record<string, string> = {
     '/feed':       'Feed',
@@ -22,6 +31,8 @@ function resolveTitle(pathname: string): string {
 export function AppHeader() {
     const pathname = usePathname();
     const title = resolveTitle(pathname);
+    const { data: profile } = useUserProfile();
+    const initials = profile ? getInitials(profile.displayName, profile.userName) : '…';
 
     return (
         <header className="h-14 shrink-0 flex items-center justify-between px-6 bg-background border-b border-surface-200">
@@ -53,15 +64,15 @@ export function AppHeader() {
                     />
                 </button>
 
-                {/* Avatar */}
-                <div
-                    className="ml-1 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold cursor-pointer transition-opacity hover:opacity-80"
+                {/* Avatar — links to profile */}
+                <Link
+                    href="/profile"
+                    className="ml-1 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold transition-opacity hover:opacity-80"
                     style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
-                    role="button"
-                    aria-label="Profile"
+                    aria-label="Go to profile"
                 >
-                    JD
-                </div>
+                    {initials}
+                </Link>
             </div>
         </header>
     );

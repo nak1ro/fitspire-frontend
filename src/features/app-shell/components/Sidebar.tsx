@@ -2,7 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Trophy, User, Settings, Plus, Utensils } from 'lucide-react';
+import { Home, Dumbbell, Trophy, User, Settings, Plus, Utensils, LogOut } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
+
+function getInitials(displayName: string, userName: string): string {
+    const name = displayName || userName;
+    const parts = name.trim().split(/\s+/);
+    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
+    return name.slice(0, 2).toUpperCase();
+}
 
 const NAV_ITEMS = [
     { href: '/feed',       label: 'Feed',       Icon: Home },
@@ -18,6 +27,8 @@ interface SidebarProps {
 
 export function Sidebar({ onLogWorkout }: SidebarProps) {
     const pathname = usePathname();
+    const { data: profile } = useUserProfile();
+    const initials = profile ? getInitials(profile.displayName, profile.userName) : '…';
 
     const isActive = (href: string) =>
         pathname === href || pathname.startsWith(href + '/');
@@ -72,7 +83,7 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 })}
             </nav>
 
-            {/* Bottom section — settings + user */}
+            {/* Bottom section — settings + user + sign out */}
             <div className="shrink-0 border-t border-surface-200 px-3 pt-3 pb-3 space-y-0.5">
                 <Link
                     href="/settings"
@@ -90,21 +101,36 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                     Settings
                 </Link>
 
+                <button
+                    onClick={() => signOut({ callbackUrl: '/' })}
+                    className="w-full flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all text-left"
+                    style={{ color: 'var(--color-surface-500)' }}
+                >
+                    <LogOut className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+                    Sign out
+                </button>
+
                 {/* User chip */}
-                <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl mt-1"
+                <Link
+                    href="/profile"
+                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl mt-1 transition-opacity hover:opacity-80"
                     style={{ backgroundColor: 'rgba(28,21,16,0.03)' }}
                 >
                     <div
                         className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
                         style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
                     >
-                        JD
+                        {initials}
                     </div>
                     <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-foreground truncate leading-tight">Jane Doe</p>
-                        <p className="text-[10px] truncate leading-tight" style={{ color: 'var(--color-surface-400)' }}>@janedoe</p>
+                        <p className="text-xs font-semibold text-foreground truncate leading-tight">
+                            {profile?.displayName ?? '…'}
+                        </p>
+                        <p className="text-[10px] truncate leading-tight" style={{ color: 'var(--color-surface-400)' }}>
+                            @{profile?.userName ?? '…'}
+                        </p>
                     </div>
-                </div>
+                </Link>
             </div>
         </aside>
     );
