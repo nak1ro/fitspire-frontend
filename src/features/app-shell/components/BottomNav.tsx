@@ -27,7 +27,7 @@ export function BottomNav() {
                         key={href}
                         href={href}
                         className="flex-1 flex flex-col items-center justify-center gap-1 h-16 text-[10px] font-medium transition-all"
-                        style={{ color: active ? '#C26D38' : 'var(--color-surface-500)' }}
+                        style={{ color: active ? '#059669' : 'var(--color-surface-500)' }}
                         aria-current={active ? 'page' : undefined}
                     >
                         <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />

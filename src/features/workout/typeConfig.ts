@@ -10,7 +10,7 @@ export interface WorkoutTypeConfig {
 }
 
 export const TYPE_CONFIG: Record<KnownWorkoutType, WorkoutTypeConfig> = {
-    Gym:      { label: 'Gym Workout', Icon: Dumbbell, color: '#C26D38', bg: 'rgba(194,109,56,0.08)',  border: 'rgba(194,109,56,0.20)'  },
+    Gym:      { label: 'Gym Workout', Icon: Dumbbell, color: '#059669', bg: 'rgba(5,150,105,0.08)',  border: 'rgba(5,150,105,0.20)'  },
     Running:  { label: 'Run',         Icon: Activity, color: '#4A7C5F', bg: 'rgba(74,124,95,0.08)',   border: 'rgba(74,124,95,0.20)'   },
     Cycling:  { label: 'Ride',        Icon: Bike,     color: '#3A7A8A', bg: 'rgba(58,122,138,0.08)',  border: 'rgba(58,122,138,0.20)'  },
     Swimming: { label: 'Swim',        Icon: Waves,    color: '#2E6EA6', bg: 'rgba(46,110,166,0.08)',  border: 'rgba(46,110,166,0.20)'  },
@@ -20,9 +20,9 @@ export const TYPE_CONFIG: Record<KnownWorkoutType, WorkoutTypeConfig> = {
 const FALLBACK_CONFIG: WorkoutTypeConfig = {
     label: 'Workout',
     Icon: Dumbbell,
-    color: '#C26D38',
-    bg: 'rgba(194,109,56,0.08)',
-    border: 'rgba(194,109,56,0.20)',
+    color: '#059669',
+    bg: 'rgba(5,150,105,0.08)',
+    border: 'rgba(5,150,105,0.20)',
 };
 
 export function getTypeConfig(type: string): WorkoutTypeConfig {

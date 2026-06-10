@@ -51,7 +51,7 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 <button
                     onClick={onLogWorkout}
                     className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80"
-                    style={{ background: 'linear-gradient(135deg, #C26D38 0%, #EDAC76 100%)' }}
+                    style={{ background: 'linear-gradient(135deg, #059669 0%, #34D399 100%)' }}
                 >
                     <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
                     Log Workout
@@ -68,13 +68,13 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                             href={href}
                             className="flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all"
                             style={{
-                                backgroundColor: active ? 'rgba(194,109,56,0.08)' : undefined,
-                                color: active ? '#C26D38' : 'var(--color-surface-600)',
+                                backgroundColor: active ? 'rgba(5,150,105,0.08)' : undefined,
+                                color: active ? '#059669' : 'var(--color-surface-600)',
                             }}
                         >
                             <Icon
                                 className="h-[18px] w-[18px] shrink-0"
-                                style={{ color: active ? '#C26D38' : 'var(--color-surface-500)' }}
+                                style={{ color: active ? '#059669' : 'var(--color-surface-500)' }}
                                 aria-hidden="true"
                             />
                             {label}
@@ -89,13 +89,13 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                     href="/settings"
                     className="flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all"
                     style={{
-                        backgroundColor: isActive('/settings') ? 'rgba(194,109,56,0.08)' : undefined,
-                        color: isActive('/settings') ? '#C26D38' : 'var(--color-surface-600)',
+                        backgroundColor: isActive('/settings') ? 'rgba(5,150,105,0.08)' : undefined,
+                        color: isActive('/settings') ? '#059669' : 'var(--color-surface-600)',
                     }}
                 >
                     <Settings
                         className="h-[18px] w-[18px] shrink-0"
-                        style={{ color: isActive('/settings') ? '#C26D38' : 'var(--color-surface-500)' }}
+                        style={{ color: isActive('/settings') ? '#059669' : 'var(--color-surface-500)' }}
                         aria-hidden="true"
                     />
                     Settings
@@ -114,11 +114,11 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 <Link
                     href="/profile"
                     className="flex items-center gap-3 px-3 py-2.5 rounded-xl mt-1 transition-opacity hover:opacity-80"
-                    style={{ backgroundColor: 'rgba(28,21,16,0.03)' }}
+                    style={{ backgroundColor: 'rgba(5,150,105,0.04)' }}
                 >
                     <div
                         className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                        style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
+                        style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
                     >
                         {initials}
                     </div>

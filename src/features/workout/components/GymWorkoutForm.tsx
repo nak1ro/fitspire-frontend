@@ -118,9 +118,9 @@ export function GymWorkoutForm({ onSuccess }: Props) {
                             onClick={() => setSplitType(splitType === opt ? '' : opt)}
                             className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
                             style={splitType === opt ? {
-                                backgroundColor: 'rgba(194,109,56,0.08)',
-                                borderColor: '#C26D38',
-                                color: '#C26D38',
+                                backgroundColor: 'rgba(5,150,105,0.08)',
+                                borderColor: '#059669',
+                                color: '#059669',
                             } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                         >
                             {SPLIT_LABELS[opt]}
@@ -142,9 +142,9 @@ export function GymWorkoutForm({ onSuccess }: Props) {
                             onClick={() => setIntensityLevel(intensityLevel === opt ? '' : opt)}
                             className="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
                             style={intensityLevel === opt ? {
-                                backgroundColor: 'rgba(194,109,56,0.08)',
-                                borderColor: '#C26D38',
-                                color: '#C26D38',
+                                backgroundColor: 'rgba(5,150,105,0.08)',
+                                borderColor: '#059669',
+                                color: '#059669',
                             } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                         >
                             {opt}
@@ -271,7 +271,7 @@ export function GymWorkoutForm({ onSuccess }: Props) {
                 onClick={handleSubmit}
                 disabled={isPending}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #C26D38, #EDAC76)' }}
+                style={{ background: 'linear-gradient(135deg, #059669, #EDAC76)' }}
             >
                 {isPending ? 'Logging workout…' : 'Log Workout'}
             </button>

@@ -72,7 +72,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                 {/* Amber accent line */}
                 <div
                     className="h-[3px] shrink-0"
-                    style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
+                    style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }}
                 />
 
                 {/* Header */}
