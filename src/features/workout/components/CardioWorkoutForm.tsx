@@ -93,9 +93,9 @@ function ChipSelect<T extends string>({
                         onClick={() => onChange(value === opt ? '' : opt)}
                         className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
                         style={value === opt ? {
-                            backgroundColor: 'rgba(194,109,56,0.08)',
-                            borderColor: '#C26D38',
-                            color: '#C26D38',
+                            backgroundColor: 'rgba(5,150,105,0.08)',
+                            borderColor: '#059669',
+                            color: '#059669',
                         } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                     >
                         {labelMap?.[opt] ?? opt}
@@ -124,7 +124,7 @@ function Toggle({ label, subtitle, checked, onChange }: {
                 aria-checked={checked}
                 onClick={() => onChange(!checked)}
                 className="relative w-11 h-6 rounded-full transition-colors shrink-0"
-                style={{ backgroundColor: checked ? '#C26D38' : 'var(--color-surface-200)' }}
+                style={{ backgroundColor: checked ? '#059669' : 'var(--color-surface-200)' }}
             >
                 <div
                     className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
@@ -288,9 +288,9 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                                 onClick={() => setSwimMode(mode)}
                                 className="py-2 rounded-xl text-xs font-bold border transition-all"
                                 style={swimMode === mode ? {
-                                    backgroundColor: 'rgba(194,109,56,0.08)',
-                                    borderColor: '#C26D38',
-                                    color: '#C26D38',
+                                    backgroundColor: 'rgba(5,150,105,0.08)',
+                                    borderColor: '#059669',
+                                    color: '#059669',
                                 } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                             >
                                 {mode === 'distance' ? 'Enter metres' : 'Enter laps'}
@@ -358,7 +358,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                 onClick={handleSubmit}
                 disabled={isPending}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #C26D38, #EDAC76)' }}
+                style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
             >
                 {isPending ? 'Logging workout…' : 'Log Workout'}
             </button>

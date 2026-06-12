@@ -28,7 +28,7 @@ export function ForgotPasswordForm() {
             <div className="space-y-6 text-center py-2">
                 <div
                     className="mx-auto w-12 h-12 rounded-2xl flex items-center justify-center"
-                    style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
+                    style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
                 >
                     <Mail className="h-5 w-5 text-primary-500" aria-hidden="true" />
                 </div>

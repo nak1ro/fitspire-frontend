@@ -15,9 +15,9 @@ export function WorkoutTypeFilter({ value, onChange }: Props) {
                 onClick={() => onChange(null)}
                 className="shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all"
                 style={!value ? {
-                    backgroundColor: 'rgba(194,109,56,0.10)',
-                    borderColor: '#C26D38',
-                    color: '#C26D38',
+                    backgroundColor: 'rgba(5,150,105,0.10)',
+                    borderColor: '#059669',
+                    color: '#059669',
                 } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
             >
                 All

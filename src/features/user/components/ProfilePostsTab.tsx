@@ -44,9 +44,9 @@ export function ProfilePostsTab({ userId }: Props) {
         <div className="flex flex-col items-center text-center py-16 px-6 space-y-4">
             <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
+                style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
             >
-                <MessageSquare className="h-7 w-7" style={{ color: '#C26D38' }} aria-hidden="true" />
+                <MessageSquare className="h-7 w-7" style={{ color: '#059669' }} aria-hidden="true" />
             </div>
             <div className="space-y-1.5 max-w-xs">
                 <p className="text-base font-semibold text-foreground">No posts yet</p>

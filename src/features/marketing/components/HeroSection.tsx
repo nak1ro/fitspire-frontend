@@ -41,7 +41,7 @@ function WorkoutCard() {
                     <div className="flex items-center gap-2.5">
                         <div
                             className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-primary-600"
-                            style={{ backgroundColor: 'rgba(194,109,56,0.12)' }}
+                            style={{ backgroundColor: 'rgba(5,150,105,0.12)' }}
                         >
                             LS
                         </div>
@@ -110,7 +110,7 @@ export function HeroSection() {
                 style={{
                     width: 640, height: 640,
                     top: -220, left: -180,
-                    background: 'rgba(194,109,56,0.15)',
+                    background: 'rgba(5,150,105,0.15)',
                     filter: 'blur(90px)',
                 }}
             />
@@ -120,7 +120,7 @@ export function HeroSection() {
                 style={{
                     width: 440, height: 440,
                     bottom: -120, right: -100,
-                    background: 'rgba(194,109,56,0.10)',
+                    background: 'rgba(5,150,105,0.10)',
                     filter: 'blur(80px)',
                 }}
             />

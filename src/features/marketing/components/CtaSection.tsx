@@ -23,7 +23,7 @@ function WaveformDecoration({ mirrored }: { mirrored?: boolean }) {
                     className="w-1.5 rounded-full animate-pulse"
                     style={{
                         height: `${h}%`,
-                        background: `rgba(194,109,56,${0.05 + (h / 100) * 0.13})`,
+                        background: `rgba(5,150,105,${0.05 + (h / 100) * 0.13})`,
                         animationDelay: `${i * 80}ms`,
                         animationDuration: `${1100 + i * 60}ms`,
                     }}
@@ -59,7 +59,7 @@ export function CtaSection() {
                     top: '50%',
                     left: '50%',
                     transform: 'translate(-50%, -50%)',
-                    background: 'rgba(194,109,56,0.08)',
+                    background: 'rgba(5,150,105,0.08)',
                     filter: 'blur(80px)',
                 }}
             />

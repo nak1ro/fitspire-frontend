@@ -9,7 +9,7 @@ export function ManifestoSection() {
                 aria-hidden="true"
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                    background: 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(194,109,56,0.07) 0%, transparent 70%)',
+                    background: 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(5,150,105,0.07) 0%, transparent 70%)',
                 }}
             />
 
@@ -32,7 +32,7 @@ export function ManifestoSection() {
                 style={{
                     left: 'max(24px, calc(50% - 512px))',
                     fontSize: 'clamp(10rem, 20vw, 20rem)',
-                    color: 'rgba(194,109,56,0.10)',
+                    color: 'rgba(5,150,105,0.10)',
                     fontFamily: 'Georgia, serif',
                     lineHeight: 1,
                 }}

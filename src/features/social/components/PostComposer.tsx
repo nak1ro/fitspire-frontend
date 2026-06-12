@@ -30,7 +30,7 @@ export function PostComposer() {
                 {/* Avatar placeholder */}
                 <div
                     className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
-                    style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
+                    style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
                     aria-hidden="true"
                 >
                     Me
@@ -54,7 +54,7 @@ export function PostComposer() {
                         onClick={handlePost}
                         disabled={isPending}
                         className="px-4 py-1.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                        style={{ background: 'linear-gradient(135deg, #C26D38, #EDAC76)' }}
+                        style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
                     >
                         {isPending ? 'Posting…' : 'Post'}
                     </button>

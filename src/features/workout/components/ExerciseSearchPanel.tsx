@@ -43,9 +43,9 @@ export function ExerciseSearchPanel({ onAdd }: Props) {
                         onClick={() => setCategoryId(null)}
                         className="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all"
                         style={!categoryId ? {
-                            backgroundColor: 'rgba(194,109,56,0.08)',
-                            borderColor: '#C26D38',
-                            color: '#C26D38',
+                            backgroundColor: 'rgba(5,150,105,0.08)',
+                            borderColor: '#059669',
+                            color: '#059669',
                         } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                     >
                         All
@@ -57,9 +57,9 @@ export function ExerciseSearchPanel({ onAdd }: Props) {
                             onClick={() => setCategoryId(cat.id === categoryId ? null : cat.id)}
                             className="shrink-0 px-2.5 py-1 rounded-lg text-[11px] font-semibold border transition-all"
                             style={categoryId === cat.id ? {
-                                backgroundColor: 'rgba(194,109,56,0.08)',
-                                borderColor: '#C26D38',
-                                color: '#C26D38',
+                                backgroundColor: 'rgba(5,150,105,0.08)',
+                                borderColor: '#059669',
+                                color: '#059669',
                             } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                         >
                             {cat.name}
@@ -89,7 +89,7 @@ export function ExerciseSearchPanel({ onAdd }: Props) {
                                 <p className="text-[11px] text-surface-400">{ex.categoryName}</p>
                             )}
                         </div>
-                        <Plus className="h-4 w-4 shrink-0" style={{ color: '#C26D38' }} aria-hidden="true" />
+                        <Plus className="h-4 w-4 shrink-0" style={{ color: '#059669' }} aria-hidden="true" />
                     </button>
                 ))}
             </div>

@@ -1,4 +1,5 @@
-import { Pencil } from 'lucide-react';
+import type React from 'react';
+import { Pencil, Dumbbell, Flame, Trophy } from 'lucide-react';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -19,12 +20,20 @@ function getInitials(displayName: string, userName: string): string {
 interface StatPillProps {
     value: number;
     label: string;
+    Icon: React.ElementType;
+    iconColor: string;
+    iconBg: string;
 }
 
-function StatPill({ value, label }: StatPillProps) {
+function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
     return (
-        <div className="flex flex-col items-center gap-0.5">
-            <span className="text-xl font-extrabold text-foreground leading-none tabular-nums">{value}</span>
+        <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: iconBg }}>
+                    <Icon className="h-3.5 w-3.5" style={{ color: iconColor }} aria-hidden="true" />
+                </div>
+                <span className="text-xl font-extrabold text-foreground leading-none tabular-nums">{value}</span>
+            </div>
             <span className="text-[11px] font-medium text-surface-500">{label}</span>
         </div>
     );
@@ -40,7 +49,7 @@ export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit
                 {/* Avatar */}
                 <div
                     className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-extrabold shrink-0"
-                    style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
+                    style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
                     aria-hidden="true"
                 >
                     {initials}
@@ -71,11 +80,11 @@ export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit
             <div
                 className="flex items-center justify-around py-3.5 px-4 rounded-2xl border border-surface-200 bg-surface"
             >
-                <StatPill value={totalWorkouts} label="Workouts" />
+                <StatPill value={totalWorkouts} label="Workouts" Icon={Dumbbell} iconColor="#2563EB" iconBg="rgba(37,99,235,0.10)" />
                 <div className="w-px h-8 bg-surface-200" />
-                <StatPill value={streak} label="Day streak" />
+                <StatPill value={streak} label="Day streak" Icon={Flame} iconColor="#EA580C" iconBg="rgba(234,88,12,0.10)" />
                 <div className="w-px h-8 bg-surface-200" />
-                <StatPill value={totalPRs} label="Records" />
+                <StatPill value={totalPRs} label="Records" Icon={Trophy} iconColor="#7C3AED" iconBg="rgba(124,58,237,0.10)" />
             </div>
         </div>
     );

@@ -40,11 +40,11 @@ const config: Record<AlertVariant, {
         titleColor: '#8A6408',
     },
     info: {
-        bg:         'rgba(194,109,56,0.06)',
-        border:     'rgba(194,109,56,0.20)',
+        bg:         'rgba(5,150,105,0.06)',
+        border:     'rgba(5,150,105,0.20)',
         Icon:       Info,
-        color:      '#A85A28',
-        titleColor: '#7A3F18',
+        color:      '#047857',
+        titleColor: '#065F46',
     },
 };
 

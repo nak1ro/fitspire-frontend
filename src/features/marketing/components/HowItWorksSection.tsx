@@ -37,12 +37,12 @@ export function HowItWorksSection() {
             <div
                 aria-hidden="true"
                 className="absolute pointer-events-none rounded-full"
-                style={{ width: 420, height: 420, top: -80, left: '12%', background: 'rgba(194,109,56,0.06)', filter: 'blur(80px)' }}
+                style={{ width: 420, height: 420, top: -80, left: '12%', background: 'rgba(5,150,105,0.06)', filter: 'blur(80px)' }}
             />
             <div
                 aria-hidden="true"
                 className="absolute pointer-events-none rounded-full"
-                style={{ width: 360, height: 360, bottom: -60, right: '12%', background: 'rgba(194,109,56,0.05)', filter: 'blur(80px)' }}
+                style={{ width: 360, height: 360, bottom: -60, right: '12%', background: 'rgba(5,150,105,0.05)', filter: 'blur(80px)' }}
             />
 
             <div className="relative mx-auto max-w-5xl space-y-16">
@@ -67,7 +67,7 @@ export function HowItWorksSection() {
                                 top: '47px',
                                 left: 'calc(33.33% + 10px)',
                                 right: 'calc(33.33% + 10px)',
-                                backgroundImage: 'repeating-linear-gradient(to right, rgba(194,109,56,0.30) 0px, rgba(194,109,56,0.30) 8px, transparent 8px, transparent 16px)',
+                                backgroundImage: 'repeating-linear-gradient(to right, rgba(5,150,105,0.30) 0px, rgba(5,150,105,0.30) 8px, transparent 8px, transparent 16px)',
                             }}
                         />
 
@@ -79,7 +79,7 @@ export function HowItWorksSection() {
                                     {/* Amber top accent */}
                                     <div
                                         className="h-[3px]"
-                                        style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
+                                        style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }}
                                     />
 
                                     <div className="p-6 space-y-5">
@@ -87,13 +87,13 @@ export function HowItWorksSection() {
                                         <div className="flex items-center justify-between">
                                             <span
                                                 className="text-[2.75rem] font-black leading-none tabular-nums"
-                                                style={{ color: 'rgba(194,109,56,0.30)' }}
+                                                style={{ color: 'rgba(5,150,105,0.30)' }}
                                             >
                                                 {step.number}
                                             </span>
                                             <div
                                                 className="w-11 h-11 rounded-2xl flex items-center justify-center"
-                                                style={{ backgroundColor: 'rgba(194,109,56,0.08)' }}
+                                                style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
                                             >
                                                 <step.Icon className="h-5 w-5 text-primary-500" aria-hidden="true" />
                                             </div>

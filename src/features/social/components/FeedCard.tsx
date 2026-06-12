@@ -42,7 +42,7 @@ function Avatar({ name, avatarUrl, size = 9 }: { name: string; avatarUrl?: strin
     return (
         <div
             className={`w-${size} h-${size} rounded-full flex items-center justify-center text-xs font-bold shrink-0`}
-            style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38', minWidth: `${px/4}rem`, minHeight: `${px/4}rem` }}
+            style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669', minWidth: `${px/4}rem`, minHeight: `${px/4}rem` }}
         >
             {getInitials(name)}
         </div>
@@ -170,14 +170,14 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         <Heart
                             className="h-[18px] w-[18px] transition-transform active:scale-125"
                             style={{
-                                color: liked ? '#C26D38' : 'var(--color-surface-500)',
-                                fill: liked ? '#C26D38' : 'none',
+                                color: liked ? '#059669' : 'var(--color-surface-500)',
+                                fill: liked ? '#059669' : 'none',
                             }}
                             aria-hidden="true"
                         />
                         <span
                             className="text-xs font-medium tabular-nums"
-                            style={{ color: liked ? '#C26D38' : 'var(--color-surface-500)' }}
+                            style={{ color: liked ? '#059669' : 'var(--color-surface-500)' }}
                         >
                             {likesCount}
                         </span>
@@ -226,7 +226,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                     <div className="flex items-center gap-2">
                         <div
                             className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-                            style={{ backgroundColor: 'rgba(194,109,56,0.12)', color: '#C26D38' }}
+                            style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
                         >
                             Me
                         </div>
@@ -246,7 +246,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                                     className="shrink-0 transition-opacity hover:opacity-70 disabled:opacity-40"
                                     aria-label="Send comment"
                                 >
-                                    <Send className="h-4 w-4" style={{ color: '#C26D38' }} aria-hidden="true" />
+                                    <Send className="h-4 w-4" style={{ color: '#059669' }} aria-hidden="true" />
                                 </button>
                             )}
                         </div>

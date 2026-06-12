@@ -31,7 +31,7 @@ export function AuthLayout({ children, eyebrow, title, subtitle }: AuthLayoutPro
                 style={{
                     width: 560, height: 560,
                     top: -180, left: -160,
-                    background: 'rgba(194,109,56,0.10)',
+                    background: 'rgba(5,150,105,0.10)',
                     filter: 'blur(90px)',
                 }}
             />
@@ -43,7 +43,7 @@ export function AuthLayout({ children, eyebrow, title, subtitle }: AuthLayoutPro
                 style={{
                     width: 400, height: 400,
                     bottom: -120, right: -100,
-                    background: 'rgba(194,109,56,0.07)',
+                    background: 'rgba(5,150,105,0.07)',
                     filter: 'blur(80px)',
                 }}
             />
@@ -53,7 +53,7 @@ export function AuthLayout({ children, eyebrow, title, subtitle }: AuthLayoutPro
                 aria-hidden="true"
                 className="absolute inset-0 pointer-events-none"
                 style={{
-                    background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(194,109,56,0.05) 0%, transparent 70%)',
+                    background: 'radial-gradient(ellipse 70% 60% at 50% 50%, rgba(5,150,105,0.05) 0%, transparent 70%)',
                 }}
             />
 
@@ -76,7 +76,7 @@ export function AuthLayout({ children, eyebrow, title, subtitle }: AuthLayoutPro
                     {/* Amber top accent */}
                     <div
                         className="h-[3px] shrink-0"
-                        style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }}
+                        style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }}
                     />
 
                     <div className="p-6">

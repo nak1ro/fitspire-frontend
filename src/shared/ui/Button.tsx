@@ -23,7 +23,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             primary: [
                 'bg-primary-500 text-white',
                 'hover:bg-primary-600 active:bg-primary-700',
-                'shadow-[0_2px_8px_rgba(194,109,56,0.28)]',
+                'shadow-[0_2px_8px_rgba(5,150,105,0.28)]',
             ].join(' '),
             secondary: [
                 'bg-surface-100 text-foreground border border-surface-200',

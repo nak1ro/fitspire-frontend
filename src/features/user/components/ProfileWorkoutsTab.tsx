@@ -30,13 +30,13 @@ function GoalCard({ goal }: { goal: Goal }) {
         ? '#4A7C5F'
         : overdue
         ? '#C0392B'
-        : '#C26D38';
+        : '#059669';
 
     const barGradient = done
         ? 'linear-gradient(to right, #4A7C5F, #7AB895)'
         : overdue
         ? 'linear-gradient(to right, #C0392B, #E57368)'
-        : 'linear-gradient(to right, #C26D38, #EDAC76)';
+        : 'linear-gradient(to right, #059669, #34D399)';
 
     return (
         <div className="rounded-xl border border-surface-200 bg-background p-3.5 space-y-2.5">
@@ -109,7 +109,7 @@ export function ProfileWorkoutsTab({ workouts }: Props) {
                     <Link
                         href="/workouts"
                         className="flex items-center gap-1 text-xs font-semibold transition-opacity hover:opacity-70"
-                        style={{ color: '#C26D38' }}
+                        style={{ color: '#059669' }}
                     >
                         See all
                         <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />

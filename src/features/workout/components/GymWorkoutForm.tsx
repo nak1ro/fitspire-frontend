@@ -271,7 +271,7 @@ export function GymWorkoutForm({ onSuccess }: Props) {
                 onClick={handleSubmit}
                 disabled={isPending}
                 className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #059669, #EDAC76)' }}
+                style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
             >
                 {isPending ? 'Logging workout…' : 'Log Workout'}
             </button>

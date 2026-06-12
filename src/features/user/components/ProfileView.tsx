@@ -64,13 +64,13 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
                         key={tab.id}
                         onClick={() => onChange(tab.id)}
                         className="flex-1 py-3 text-sm font-bold transition-colors relative"
-                        style={{ color: isActive ? '#C26D38' : 'var(--color-surface-500)' }}
+                        style={{ color: isActive ? '#059669' : 'var(--color-surface-500)' }}
                     >
                         {tab.label}
                         {isActive && (
                             <span
                                 className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                                style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76)' }}
+                                style={{ background: 'linear-gradient(to right, #059669, #34D399)' }}
                             />
                         )}
                     </button>

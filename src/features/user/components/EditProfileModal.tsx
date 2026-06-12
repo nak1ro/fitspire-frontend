@@ -47,7 +47,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                 className="relative w-full sm:max-w-md bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden z-10"
                 style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
             >
-                <div className="h-[3px]" style={{ background: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)' }} />
+                <div className="h-[3px]" style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }} />
 
                 {/* Header */}
                 <div className="flex items-center justify-between px-5 py-4 border-b border-surface-200">
@@ -99,7 +99,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                         onClick={handleSubmit}
                         disabled={isPending || !displayName.trim()}
                         className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                        style={{ background: 'linear-gradient(135deg, #C26D38, #EDAC76)' }}
+                        style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
                     >
                         {isPending ? 'Saving…' : 'Save changes'}
                     </button>

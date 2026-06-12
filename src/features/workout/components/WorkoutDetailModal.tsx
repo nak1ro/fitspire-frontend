@@ -224,7 +224,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
 
     const cfg = workout ? getTypeConfig(workout.workoutType) : null;
     const { Icon: TypeIcon, label: typeLabel, color, bg } = cfg ?? {
-        Icon: () => null, label: '', color: '#C26D38', bg: 'rgba(194,109,56,0.08)',
+        Icon: () => null, label: '', color: '#059669', bg: 'rgba(5,150,105,0.08)',
     };
 
     return (

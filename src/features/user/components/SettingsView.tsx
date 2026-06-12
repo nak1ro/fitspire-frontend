@@ -50,7 +50,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
             aria-checked={checked}
             onClick={() => onChange(!checked)}
             className="relative w-11 h-6 rounded-full transition-colors"
-            style={{ backgroundColor: checked ? '#C26D38' : 'var(--color-surface-200)' }}
+            style={{ backgroundColor: checked ? '#059669' : 'var(--color-surface-200)' }}
         >
             <div
                 className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
@@ -82,9 +82,9 @@ function ChipGroup<T extends string>({
                         onClick={() => onChange(opt)}
                         className="px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
                         style={active ? {
-                            backgroundColor: 'rgba(194,109,56,0.08)',
-                            borderColor: '#C26D38',
-                            color: '#C26D38',
+                            backgroundColor: 'rgba(5,150,105,0.08)',
+                            borderColor: '#059669',
+                            color: '#059669',
                         } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
                     >
                         {labelMap?.[opt] ?? opt}

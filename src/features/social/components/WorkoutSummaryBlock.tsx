@@ -16,10 +16,10 @@ const TYPE_CONFIG: Record<string, WorkoutConfig> = {
     gym: {
         label: 'Gym Workout',
         Icon: Dumbbell,
-        color: '#C26D38',
-        border: 'rgba(194,109,56,0.22)',
-        headerBg: 'rgba(194,109,56,0.06)',
-        iconBg: 'rgba(194,109,56,0.10)',
+        color: '#059669',
+        border: 'rgba(5,150,105,0.22)',
+        headerBg: 'rgba(5,150,105,0.06)',
+        iconBg: 'rgba(5,150,105,0.10)',
     },
     running: {
         label: 'Run',

@@ -21,7 +21,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
             <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-200"
                 style={{
-                    background: step >= 1 ? 'linear-gradient(135deg, #C26D38, #EDAC76)' : undefined,
+                    background: step >= 1 ? 'linear-gradient(135deg, #059669, #34D399)' : undefined,
                     backgroundColor: step >= 1 ? undefined : 'var(--color-surface-200)',
                     color: step >= 1 ? '#fff' : 'var(--color-surface-500)',
                 }}
@@ -35,7 +35,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
                     className="h-full rounded-full transition-all duration-300"
                     style={{
                         width: step > 1 ? '100%' : '0%',
-                        background: 'linear-gradient(to right, #C26D38, #EDAC76)',
+                        background: 'linear-gradient(to right, #059669, #34D399)',
                     }}
                 />
             </div>
@@ -44,7 +44,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
             <div
                 className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-200"
                 style={{
-                    background: step >= 2 ? 'linear-gradient(135deg, #C26D38, #EDAC76)' : undefined,
+                    background: step >= 2 ? 'linear-gradient(135deg, #059669, #34D399)' : undefined,
                     backgroundColor: step >= 2 ? undefined : 'var(--color-surface-200)',
                     color: step >= 2 ? '#fff' : 'var(--color-surface-500)',
                 }}

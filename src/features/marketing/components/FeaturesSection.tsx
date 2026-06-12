@@ -6,9 +6,9 @@ import React from 'react';
 
 const COLORS = {
     feed: {
-        iconBg: 'rgba(194,109,56,0.08)',
-        iconFg: '#C26D38',
-        bar: 'linear-gradient(to right, #C26D38, #EDAC76, transparent)',
+        iconBg: 'rgba(5,150,105,0.08)',
+        iconFg: '#059669',
+        bar: 'linear-gradient(to right, #059669, #34D399, transparent)',
     },
     workout: {
         iconBg: 'rgba(74,124,95,0.08)',
@@ -42,7 +42,7 @@ function FeedMockup() {
                 <div key={post.name} className="flex items-center gap-2.5 rounded-xl border border-surface-100 bg-surface px-3 py-2.5">
                     <div
                         className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-                        style={{ backgroundColor: 'rgba(194,109,56,0.10)', color: '#C26D38' }}
+                        style={{ backgroundColor: 'rgba(5,150,105,0.10)', color: '#059669' }}
                     >
                         {post.initials}
                     </div>
