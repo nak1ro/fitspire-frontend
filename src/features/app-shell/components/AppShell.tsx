@@ -21,7 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <main className="flex-1 overflow-y-auto">
                     {children}
                 </main>
-                <BottomNav />
+                <BottomNav onLogWorkout={() => setLogWorkoutOpen(true)} />
             </div>
 
             <LogWorkoutModal open={logWorkoutOpen} onClose={() => setLogWorkoutOpen(false)} />

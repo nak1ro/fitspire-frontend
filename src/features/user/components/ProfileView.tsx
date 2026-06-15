@@ -9,40 +9,7 @@ import { EditProfileModal } from './EditProfileModal';
 import { ProfilePostsTab } from './ProfilePostsTab';
 import { ProfileWorkoutsTab } from './ProfileWorkoutsTab';
 import { ProfileRecordsTab } from './ProfileRecordsTab';
-import type { Workout } from '@/features/workout/types';
-
-// ─── Streak helper (mirrors WorkoutStatsStrip logic) ───────────────────────────
-
-function getCurrentStreak(workouts: Workout[]): number {
-    if (workouts.length === 0) return 0;
-
-    const hasWorkoutOn = (d: Date): boolean => {
-        const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-        return workouts.some(w => {
-            const wd = new Date(w.date);
-            return `${wd.getFullYear()}-${wd.getMonth()}-${wd.getDate()}` === key;
-        });
-    };
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
-
-    const startDate = hasWorkoutOn(today) ? today
-        : hasWorkoutOn(yesterday) ? yesterday
-        : null;
-
-    if (!startDate) return 0;
-
-    let streak = 0;
-    const cursor = new Date(startDate);
-    while (hasWorkoutOn(cursor)) {
-        streak++;
-        cursor.setDate(cursor.getDate() - 1);
-    }
-    return streak;
-}
+import { getCurrentStreak } from '@/shared/lib/streak';
 
 // ─── Tab bar ───────────────────────────────────────────────────────────────────
 

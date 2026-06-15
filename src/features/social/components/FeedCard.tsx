@@ -5,25 +5,12 @@ import { Heart, MessageCircle, Trophy, Send } from 'lucide-react';
 import type { FeedItem } from '../types';
 import { useTogglePostLike, useCommentOnPost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
+import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
 function getInitials(name: string): string {
     return name.slice(0, 2).toUpperCase();
-}
-
-function formatRelativeTime(dateStr: string): string {
-    const date = new Date(dateStr);
-    const diffMs = Date.now() - date.getTime();
-    const diffSecs = Math.floor(diffMs / 1000);
-    if (diffSecs < 60) return 'just now';
-    const diffMins = Math.floor(diffSecs / 60);
-    if (diffMins < 60) return `${diffMins}m`;
-    const diffHours = Math.floor(diffMins / 60);
-    if (diffHours < 24) return `${diffHours}h`;
-    const diffDays = Math.floor(diffHours / 24);
-    if (diffDays < 7) return `${diffDays}d`;
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
 // ─── Avatar ────────────────────────────────────────────────────────────────────

@@ -2,23 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Trophy, User, Settings, Plus, Utensils, LogOut } from 'lucide-react';
-import { signOut } from 'next-auth/react';
-import { useUserProfile } from '@/features/user/hooks/useUserProfile';
-
-function getInitials(displayName: string, userName: string): string {
-    const name = displayName || userName;
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
-}
+import { Home, Dumbbell, Target, Trophy, Settings, Plus, Utensils } from 'lucide-react';
+import { Button } from '@/shared/ui';
+import { cn } from '@/shared/lib/cn';
+import { StreakCard } from './StreakCard';
 
 const NAV_ITEMS = [
     { href: '/feed',       label: 'Feed',       Icon: Home },
     { href: '/workouts',   label: 'Workouts',   Icon: Dumbbell },
+    { href: '/goals',      label: 'Goals',      Icon: Target },
     { href: '/nutrition',  label: 'Nutrition',  Icon: Utensils },
     { href: '/challenges', label: 'Challenges', Icon: Trophy },
-    { href: '/profile',    label: 'Profile',    Icon: User },
 ] as const;
 
 interface SidebarProps {
@@ -27,8 +21,6 @@ interface SidebarProps {
 
 export function Sidebar({ onLogWorkout }: SidebarProps) {
     const pathname = usePathname();
-    const { data: profile } = useUserProfile();
-    const initials = profile ? getInitials(profile.displayName, profile.userName) : '…';
 
     const isActive = (href: string) =>
         pathname === href || pathname.startsWith(href + '/');
@@ -37,7 +29,8 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
         <aside className="hidden lg:flex flex-col w-60 h-full shrink-0 border-r border-surface-200 bg-surface">
 
             {/* Wordmark */}
-            <div className="h-14 flex items-center px-5 border-b border-surface-200 shrink-0">
+            <div className="h-14 flex items-center gap-2 px-5 shrink-0">
+                <Dumbbell className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />
                 <Link
                     href="/feed"
                     className="text-xl font-bold tracking-tight text-foreground hover:opacity-60 transition-opacity"
@@ -46,35 +39,21 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 </Link>
             </div>
 
-            {/* Log Workout CTA */}
-            <div className="px-3 pt-4 pb-2 shrink-0">
-                <button
-                    onClick={onLogWorkout}
-                    className="w-full flex items-center justify-center gap-2 h-10 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 active:opacity-80"
-                    style={{ background: 'linear-gradient(135deg, #059669 0%, #34D399 100%)' }}
-                >
-                    <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    Log Workout
-                </button>
-            </div>
-
             {/* Primary nav */}
-            <nav className="flex-1 px-3 py-1 space-y-0.5 overflow-y-auto" aria-label="Main navigation">
+            <nav className="shrink-0 px-3 pt-3 pb-6 space-y-1.5" aria-label="Main navigation">
                 {NAV_ITEMS.map(({ href, label, Icon }) => {
                     const active = isActive(href);
                     return (
                         <Link
                             key={href}
                             href={href}
-                            className="flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all"
-                            style={{
-                                backgroundColor: active ? 'rgba(5,150,105,0.08)' : undefined,
-                                color: active ? '#059669' : 'var(--color-surface-600)',
-                            }}
+                            className={cn(
+                                'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all',
+                                active ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
+                            )}
                         >
                             <Icon
-                                className="h-[18px] w-[18px] shrink-0"
-                                style={{ color: active ? '#059669' : 'var(--color-surface-500)' }}
+                                className={cn('h-[18px] w-[18px] shrink-0', active ? 'text-primary-500' : 'text-surface-500')}
                                 aria-hidden="true"
                             />
                             {label}
@@ -83,53 +62,33 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 })}
             </nav>
 
-            {/* Bottom section — settings + user + sign out */}
-            <div className="shrink-0 border-t border-surface-200 px-3 pt-3 pb-3 space-y-0.5">
+            {/* Log Workout CTA */}
+            <div className="px-3 pt-4 pb-2 shrink-0">
+                <Button onClick={onLogWorkout} fullWidth className="gap-2">
+                    <Plus className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    Log Workout
+                </Button>
+            </div>
+
+            {/* Spacer — pushes streak card + settings to the bottom */}
+            <div className="flex-1" />
+
+            {/* Bottom section — streak card + settings */}
+            <div className="shrink-0 px-3 pt-1 pb-4 space-y-5">
+                <StreakCard />
+
                 <Link
                     href="/settings"
-                    className="flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all"
-                    style={{
-                        backgroundColor: isActive('/settings') ? 'rgba(5,150,105,0.08)' : undefined,
-                        color: isActive('/settings') ? '#059669' : 'var(--color-surface-600)',
-                    }}
+                    className={cn(
+                        'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all',
+                        isActive('/settings') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
+                    )}
                 >
                     <Settings
-                        className="h-[18px] w-[18px] shrink-0"
-                        style={{ color: isActive('/settings') ? '#059669' : 'var(--color-surface-500)' }}
+                        className={cn('h-[18px] w-[18px] shrink-0', isActive('/settings') ? 'text-primary-500' : 'text-surface-500')}
                         aria-hidden="true"
                     />
                     Settings
-                </Link>
-
-                <button
-                    onClick={() => signOut({ callbackUrl: '/' })}
-                    className="w-full flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all text-left"
-                    style={{ color: 'var(--color-surface-500)' }}
-                >
-                    <LogOut className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
-                    Sign out
-                </button>
-
-                {/* User chip */}
-                <Link
-                    href="/profile"
-                    className="flex items-center gap-3 px-3 py-2.5 rounded-xl mt-1 transition-opacity hover:opacity-80"
-                    style={{ backgroundColor: 'rgba(5,150,105,0.04)' }}
-                >
-                    <div
-                        className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold shrink-0"
-                        style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
-                    >
-                        {initials}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                        <p className="text-xs font-semibold text-foreground truncate leading-tight">
-                            {profile?.displayName ?? '…'}
-                        </p>
-                        <p className="text-[10px] truncate leading-tight" style={{ color: 'var(--color-surface-400)' }}>
-                            @{profile?.userName ?? '…'}
-                        </p>
-                    </div>
                 </Link>
             </div>
         </aside>
