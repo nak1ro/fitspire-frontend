@@ -47,10 +47,8 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                 className="relative w-full sm:max-w-md bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden z-10"
                 style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
             >
-                <div className="h-[3px]" style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }} />
-
                 {/* Header */}
-                <div className="flex items-center justify-between px-5 py-4 border-b border-surface-200">
+                <div className="flex items-center justify-between px-5 pt-4 pb-1">
                     <h2 className="text-base font-bold text-foreground">Edit profile</h2>
                     <button
                         onClick={onClose}
@@ -62,7 +60,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                 </div>
 
                 {/* Form */}
-                <div className="p-5 space-y-4">
+                <div className="px-5 pb-5 pt-1 space-y-4">
                     <div className="space-y-1.5">
                         <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
                             Display name

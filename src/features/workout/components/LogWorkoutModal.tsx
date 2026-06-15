@@ -66,17 +66,11 @@ export function LogWorkoutModal({ open, onClose }: Props) {
 
             {/* Modal panel — bottom-sheet on mobile, centered card on desktop */}
             <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
+                className="relative w-full sm:max-w-xl max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
                 style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
             >
-                {/* Amber accent line */}
-                <div
-                    className="h-[3px] shrink-0"
-                    style={{ background: 'linear-gradient(to right, #059669, #34D399, transparent)' }}
-                />
-
                 {/* Header */}
-                <div className="flex items-center gap-2 px-5 py-4 border-b border-surface-200 shrink-0">
+                <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
                     {step === 'form' && (
                         <button
                             onClick={() => { setStep('type'); setSelectedType(null); }}
@@ -97,7 +91,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                 </div>
 
                 {/* Scrollable body */}
-                <div className="flex-1 overflow-y-auto p-5">
+                <div className="flex-1 overflow-y-auto px-5 pb-5 pt-1">
                     {step === 'type' && (
                         <WorkoutTypeStep onSelect={handleTypeSelect} />
                     )}

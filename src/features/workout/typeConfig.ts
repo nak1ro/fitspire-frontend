@@ -1,25 +1,29 @@
-import { Activity, Bike, Dumbbell, Waves, Zap, type LucideIcon } from 'lucide-react';
+import { Activity, Bike, Dumbbell, Waves, Zap, Weight, Footprints, Route, Droplet, Heart, type LucideIcon } from 'lucide-react';
 import type { KnownWorkoutType } from './types';
 
 export interface WorkoutTypeConfig {
     label: string;
     Icon: LucideIcon;
+    /** Secondary icon for the fanned dual-chip illustration — a different,
+     *  complementary glyph, not a repeat of Icon. */
+    SecondaryIcon: LucideIcon;
     color: string;
     bg: string;
     border: string;
 }
 
 export const TYPE_CONFIG: Record<KnownWorkoutType, WorkoutTypeConfig> = {
-    Gym:      { label: 'Gym Workout', Icon: Dumbbell, color: '#059669', bg: 'rgba(5,150,105,0.08)',  border: 'rgba(5,150,105,0.20)'  },
-    Running:  { label: 'Run',         Icon: Activity, color: '#4A7C5F', bg: 'rgba(74,124,95,0.08)',   border: 'rgba(74,124,95,0.20)'   },
-    Cycling:  { label: 'Ride',        Icon: Bike,     color: '#3A7A8A', bg: 'rgba(58,122,138,0.08)',  border: 'rgba(58,122,138,0.20)'  },
-    Swimming: { label: 'Swim',        Icon: Waves,    color: '#2E6EA6', bg: 'rgba(46,110,166,0.08)',  border: 'rgba(46,110,166,0.20)'  },
-    Yoga:     { label: 'Yoga',        Icon: Zap,      color: '#7B5EA7', bg: 'rgba(123,94,167,0.08)',  border: 'rgba(123,94,167,0.20)'  },
+    Gym:      { label: 'Gym Workout', Icon: Dumbbell, SecondaryIcon: Weight,     color: '#059669', bg: 'rgba(5,150,105,0.08)',  border: 'rgba(5,150,105,0.20)'  },
+    Running:  { label: 'Run',         Icon: Activity, SecondaryIcon: Footprints, color: '#4A7C5F', bg: 'rgba(74,124,95,0.08)',   border: 'rgba(74,124,95,0.20)'   },
+    Cycling:  { label: 'Ride',        Icon: Bike,     SecondaryIcon: Route,      color: '#3A7A8A', bg: 'rgba(58,122,138,0.08)',  border: 'rgba(58,122,138,0.20)'  },
+    Swimming: { label: 'Swim',        Icon: Waves,    SecondaryIcon: Droplet,    color: '#2E6EA6', bg: 'rgba(46,110,166,0.08)',  border: 'rgba(46,110,166,0.20)'  },
+    Yoga:     { label: 'Yoga',        Icon: Zap,      SecondaryIcon: Heart,      color: '#7B5EA7', bg: 'rgba(123,94,167,0.08)',  border: 'rgba(123,94,167,0.20)'  },
 };
 
 const FALLBACK_CONFIG: WorkoutTypeConfig = {
     label: 'Workout',
     Icon: Dumbbell,
+    SecondaryIcon: Weight,
     color: '#059669',
     bg: 'rgba(5,150,105,0.08)',
     border: 'rgba(5,150,105,0.20)',
