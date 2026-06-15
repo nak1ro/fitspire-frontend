@@ -1,20 +1,14 @@
-import { Metadata } from 'next';
-import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { ForgotPasswordForm } from '@/features/auth/forms/ForgotPasswordForm';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: 'Reset Password | Fitspire',
-    description: 'Reset your Fitspire password',
-};
+interface Props {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function ForgotPasswordPage() {
-    return (
-        <AuthLayout
-            eyebrow="Account recovery"
-            title="Forgot your password?"
-            subtitle="Enter your email and we'll send you a reset link."
-        >
-            <ForgotPasswordForm />
-        </AuthLayout>
-    );
+export default async function ForgotPasswordRedirect({ searchParams }: Props) {
+    const params = new URLSearchParams();
+    params.set('mode', 'forgot-password');
+    for (const [key, value] of Object.entries(await searchParams)) {
+        if (typeof value === 'string') params.set(key, value);
+    }
+    redirect(`/auth?${params.toString()}`);
 }

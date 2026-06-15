@@ -7,9 +7,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { SignInData, signInSchema } from '../schemas/sign-in.schema';
-import { Button, Input, Alert, Divider } from '@/shared/ui';
-import { Typography } from '@/shared/ui/Typography';
-import { SocialButtons } from '../components/SocialButtons';
+import { Button, Input, Alert, Divider, OAuthButton } from '@/shared/ui';
 
 export function SignInForm() {
     const router = useRouter();
@@ -76,7 +74,7 @@ export function SignInForm() {
                     />
                     <div className="flex justify-end">
                         <Link
-                            href="/forgot-password"
+                            href="/auth?mode=forgot-password"
                             className="text-xs font-medium text-primary-500 hover:opacity-70 transition-opacity"
                         >
                             Forgot password?
@@ -93,17 +91,7 @@ export function SignInForm() {
 
             <Divider label="or" />
 
-            <SocialButtons callbackUrl={callbackUrl} />
-
-            <Typography variant="body-sm" color="muted" className="text-center">
-                Don&apos;t have an account?{' '}
-                <Link
-                    href="/sign-up"
-                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
-                >
-                    Sign up
-                </Link>
-            </Typography>
+            <OAuthButton provider="google" mode="signin" callbackUrl={callbackUrl} />
         </div>
     );
 }

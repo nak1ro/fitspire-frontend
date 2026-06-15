@@ -25,13 +25,13 @@ export function MarketingFooter() {
                             </p>
                             <nav className="space-y-3">
                                 <Link
-                                    href="/sign-up"
+                                    href="/auth?mode=signup"
                                     className="block text-sm text-surface-600 hover:text-foreground transition-colors"
                                 >
                                     Sign up
                                 </Link>
                                 <Link
-                                    href="/sign-in"
+                                    href="/auth?mode=login"
                                     className="block text-sm text-surface-600 hover:text-foreground transition-colors"
                                 >
                                     Sign in

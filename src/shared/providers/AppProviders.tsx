@@ -9,7 +9,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
     return (
         <SessionProvider>
             <ReactQueryProvider>
-                <ThemeProvider attribute="class" defaultTheme="light" storageKey="fitspire-theme">
+                <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="fitspire-theme">
                     {children}
                 </ThemeProvider>
             </ReactQueryProvider>

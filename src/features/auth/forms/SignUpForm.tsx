@@ -8,8 +8,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SignUpData, signUpSchema } from '../schemas/sign-up.schema';
 import { useEmailSignUp } from '../hooks/useEmailSignUp';
-import { Button, Input, Alert, Divider } from '@/shared/ui';
-import { SocialButtons } from '../components/SocialButtons';
+import { Button, Input, Alert, Divider, OAuthButton } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
 // ─── Step indicator ────────────────────────────────────────────────────────────
@@ -24,6 +23,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
                     background: step >= 1 ? 'linear-gradient(135deg, #059669, #34D399)' : undefined,
                     backgroundColor: step >= 1 ? undefined : 'var(--color-surface-200)',
                     color: step >= 1 ? '#fff' : 'var(--color-surface-500)',
+                    boxShadow: step >= 1 ? 'var(--shadow-chip)' : undefined,
                 }}
             >
                 {step > 1 ? '✓' : '1'}
@@ -47,6 +47,7 @@ function StepIndicator({ step }: { step: 1 | 2 }) {
                     background: step >= 2 ? 'linear-gradient(135deg, #059669, #34D399)' : undefined,
                     backgroundColor: step >= 2 ? undefined : 'var(--color-surface-200)',
                     color: step >= 2 ? '#fff' : 'var(--color-surface-500)',
+                    boxShadow: step >= 2 ? 'var(--shadow-chip)' : undefined,
                 }}
             >
                 2
@@ -93,7 +94,7 @@ export function SignUpForm() {
                 router.refresh();
             } else {
                 setIsSigningIn(false);
-                router.push('/sign-in?registered=true');
+                router.push('/auth?mode=login&registered=true');
             }
         } catch {
             setIsSigningIn(false);
@@ -138,12 +139,12 @@ export function SignUpForm() {
 
                     <Divider label="or" />
 
-                    <SocialButtons />
+                    <OAuthButton provider="google" mode="signup" />
 
                     <p className="text-xs text-surface-500 text-center">
                         Already have an account?{' '}
                         <Link
-                            href="/sign-in"
+                            href="/auth?mode=login"
                             className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
                         >
                             Sign in

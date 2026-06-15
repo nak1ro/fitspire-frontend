@@ -23,7 +23,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             primary: [
                 'bg-primary-500 text-white',
                 'hover:bg-primary-600 active:bg-primary-700',
-                'shadow-[0_2px_8px_rgba(5,150,105,0.28)]',
+                'hover:shadow-float',
             ].join(' '),
             secondary: [
                 'bg-surface-100 text-foreground border border-surface-200',
@@ -40,6 +40,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         };
 
         const sizes = {
+            // Tightened to read as a pill/toolbar button (matches ScribeRocket's
+            // ViewerV2Toolbar PILL_BASE: h-8, rounded-lg).
             sm: 'h-8 px-3 text-sm rounded-lg gap-1.5',
             md: 'h-11 px-5 text-sm rounded-xl gap-2',
             lg: 'h-12 px-6 text-base rounded-xl gap-2',

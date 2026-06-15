@@ -1,23 +1,14 @@
-import { Suspense } from 'react';
-import { Metadata } from 'next';
-import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { SignInForm } from '@/features/auth/forms/SignInForm';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: 'Sign In | Fitspire',
-    description: 'Sign in to your Fitspire account',
-};
+interface Props {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function SignInPage() {
-    return (
-        <AuthLayout
-            eyebrow="Welcome back"
-            title="Sign in"
-            subtitle="Good to have you back."
-        >
-            <Suspense fallback={<div className="h-64" />}>
-                <SignInForm />
-            </Suspense>
-        </AuthLayout>
-    );
+export default async function SignInRedirect({ searchParams }: Props) {
+    const params = new URLSearchParams();
+    params.set('mode', 'login');
+    for (const [key, value] of Object.entries(await searchParams)) {
+        if (typeof value === 'string') params.set(key, value);
+    }
+    redirect(`/auth?${params.toString()}`);
 }

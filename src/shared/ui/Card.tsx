@@ -4,16 +4,19 @@ import { cn } from '../lib/cn';
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
     variant?: 'flat' | 'elevated' | 'outlined';
     padding?: 'none' | 'sm' | 'md' | 'lg';
+    /** Opt-in floating-card hover motion (lift + shadow deepen) — not automatic
+     *  on every elevated card, since Card is also used for static content. */
+    interactive?: boolean;
 }
 
 const shadows = {
     flat:     undefined,
-    elevated: '0 4px 12px rgba(28,21,16,0.08)',
+    elevated: 'var(--shadow-card)',
     outlined: undefined,
 } as const;
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-    ({ className, variant = 'elevated', padding = 'md', style, ...props }, ref) => {
+    ({ className, variant = 'elevated', padding = 'md', interactive = false, style, ...props }, ref) => {
 
         const variants = {
             flat:     'bg-surface',
@@ -31,7 +34,13 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         return (
             <div
                 ref={ref}
-                className={cn('rounded-2xl', variants[variant], paddings[padding], className)}
+                className={cn(
+                    'rounded-2xl',
+                    variants[variant],
+                    paddings[padding],
+                    interactive && 'hover-card cursor-pointer',
+                    className
+                )}
                 style={shadows[variant] ? { boxShadow: shadows[variant], ...style } : style}
                 {...props}
             />

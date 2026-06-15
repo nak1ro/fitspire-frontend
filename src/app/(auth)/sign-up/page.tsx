@@ -1,20 +1,14 @@
-import { Metadata } from 'next';
-import { AuthLayout } from '@/features/auth/components/AuthLayout';
-import { SignUpForm } from '@/features/auth/forms/SignUpForm';
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: 'Create Account | Fitspire',
-    description: 'Join Fitspire and start your fitness journey',
-};
+interface Props {
+    searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
 
-export default function SignUpPage() {
-    return (
-        <AuthLayout
-            eyebrow="Get started"
-            title="Create your account"
-            subtitle="Join thousands tracking their fitness journey."
-        >
-            <SignUpForm />
-        </AuthLayout>
-    );
+export default async function SignUpRedirect({ searchParams }: Props) {
+    const params = new URLSearchParams();
+    params.set('mode', 'signup');
+    for (const [key, value] of Object.entries(await searchParams)) {
+        if (typeof value === 'string') params.set(key, value);
+    }
+    redirect(`/auth?${params.toString()}`);
 }

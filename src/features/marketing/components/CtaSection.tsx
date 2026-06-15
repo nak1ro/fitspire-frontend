@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Button } from '@/shared/ui';
+import { Button, EyebrowBadge, IconChip } from '@/shared/ui';
 import { FadeIn } from '@/shared/ui/FadeIn';
 import { Check } from 'lucide-react';
 
@@ -37,18 +37,6 @@ export function CtaSection() {
     return (
         <section className="relative py-32 px-6 overflow-hidden bg-background border-t border-surface-200">
 
-            {/* CSS line grid */}
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(rgba(28,21,16,0.03) 1px, transparent 1px), ' +
-                        'linear-gradient(to right, rgba(28,21,16,0.03) 1px, transparent 1px)',
-                    backgroundSize: '72px 72px',
-                }}
-            />
-
             {/* Centered blur orb */}
             <div
                 aria-hidden="true"
@@ -70,9 +58,7 @@ export function CtaSection() {
 
             <FadeIn className="relative mx-auto max-w-2xl text-center space-y-8">
 
-                <p className="text-xs font-semibold tracking-widest uppercase text-primary-500">
-                    Ready when you are
-                </p>
+                <EyebrowBadge className="justify-center">Ready when you are</EyebrowBadge>
 
                 <h2 className="text-5xl sm:text-6xl font-bold tracking-tight text-foreground leading-[1.05]">
                     Your first PR
@@ -86,7 +72,7 @@ export function CtaSection() {
                 </p>
 
                 <div className="flex justify-center">
-                    <Link href="/sign-up">
+                    <Link href="/auth?mode=signup">
                         <Button size="lg">Get started free</Button>
                     </Link>
                 </div>
@@ -94,7 +80,7 @@ export function CtaSection() {
                 <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
                     {trustItems.map(item => (
                         <div key={item} className="flex items-center gap-1.5 text-sm text-surface-500">
-                            <Check className="h-3.5 w-3.5 text-primary-500 shrink-0" aria-hidden="true" />
+                            <IconChip icon={Check} size="sm" variant="success" />
                             {item}
                         </div>
                     ))}

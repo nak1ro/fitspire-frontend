@@ -1,5 +1,6 @@
 import { Users, Dumbbell, Trophy, TrendingUp, type LucideIcon } from 'lucide-react';
 import { FadeIn } from '@/shared/ui/FadeIn';
+import { IconChip, EyebrowBadge } from '@/shared/ui';
 import React from 'react';
 
 // ─── Per-card color palette ────────────────────────────────────────────────────
@@ -193,16 +194,14 @@ interface FeatureCardProps {
 function FeatureCard({ Icon, title, description, visual, colorKey }: FeatureCardProps) {
     const color = COLORS[colorKey];
     return (
-        <div className="h-full flex flex-col rounded-2xl border border-surface-200 bg-background overflow-hidden">
+        <div
+            className="h-full flex flex-col rounded-2xl border border-surface-200 bg-background overflow-hidden hover-card"
+            style={{ boxShadow: 'var(--shadow-card)' }}
+        >
             <div className="h-[3px] shrink-0" style={{ background: color.bar }} />
             <div className="flex-1 flex flex-col p-5 lg:p-6">
                 <div className="flex items-start gap-3">
-                    <div
-                        className="inline-flex items-center justify-center w-10 h-10 rounded-xl shrink-0"
-                        style={{ backgroundColor: color.iconBg }}
-                    >
-                        <Icon className="h-5 w-5" style={{ color: color.iconFg }} aria-hidden="true" />
-                    </div>
+                    <IconChip icon={Icon} bg={color.iconBg} color={color.iconFg} />
                     <div className="min-w-0">
                         <h3 className="text-base font-semibold text-foreground leading-snug">{title}</h3>
                         <p className="text-xs text-surface-600 leading-relaxed mt-1">{description}</p>
@@ -224,9 +223,7 @@ export function FeaturesSection() {
             <div className="mx-auto max-w-6xl space-y-14">
 
                 <FadeIn className="text-center">
-                    <p className="text-xs font-semibold tracking-widest uppercase text-primary-500 mb-3">
-                        Everything you need
-                    </p>
+                    <EyebrowBadge className="justify-center mb-3">Everything you need</EyebrowBadge>
                     <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
                         Built for the way you train
                     </h2>

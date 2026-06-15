@@ -1,4 +1,5 @@
 import { FadeIn } from '@/shared/ui/FadeIn';
+import { EyebrowBadge } from '@/shared/ui';
 
 export function ManifestoSection() {
     return (
@@ -10,18 +11,6 @@ export function ManifestoSection() {
                 className="absolute inset-0 pointer-events-none"
                 style={{
                     background: 'radial-gradient(ellipse 80% 80% at 50% 50%, rgba(5,150,105,0.07) 0%, transparent 70%)',
-                }}
-            />
-
-            {/* CSS line grid */}
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(rgba(28,21,16,0.03) 1px, transparent 1px), ' +
-                        'linear-gradient(to right, rgba(28,21,16,0.03) 1px, transparent 1px)',
-                    backgroundSize: '72px 72px',
                 }}
             />
 
@@ -45,9 +34,7 @@ export function ManifestoSection() {
                 {/* Amber rule + eyebrow */}
                 <div className="flex items-center gap-4">
                     <div className="h-px w-10 rounded-full bg-primary-400" aria-hidden="true" />
-                    <p className="text-xs font-semibold tracking-widest uppercase text-primary-500">
-                        Our belief
-                    </p>
+                    <EyebrowBadge>Our belief</EyebrowBadge>
                 </div>
 
                 {/* Quote */}

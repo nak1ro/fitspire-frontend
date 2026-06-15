@@ -2,8 +2,8 @@
 
 :root {
   /* === Page backgrounds === */
-  --color-background: #FFFBF7;
-  --color-foreground: #1C1510;
+  --color-background: #FFFFFF;
+  --color-foreground: #0B0F19;
 
   /* === Primary — Emerald === */
   --color-primary-50:  #ECFDF5;
@@ -18,22 +18,22 @@
   --color-primary-900: #022C22;
   --color-primary-950: #011C17;
 
-  /* === Surface — Warm Stone (replaces cold Slate) === */
-  --color-surface-50:  #FAFAF8;
-  --color-surface-100: #F5F4F1;
-  --color-surface-200: #EBE9E4;
-  --color-surface-300: #D8D5CE;
-  --color-surface-400: #B8B2A8;
-  --color-surface-500: #948E84;
-  --color-surface-600: #7A6E65;
-  --color-surface-700: #5E5550;
-  --color-surface-800: #3D3733;
-  --color-surface-900: #1E1A18;
-  --color-surface-950: #100E0C;
+  /* === Surface — Cool Neutral (ScribeRocket-matched) === */
+  --color-surface-50:  #F8FAFC;
+  --color-surface-100: #F1F5F9;
+  --color-surface-200: #E2E8F0;
+  --color-surface-300: #CBD5E1;
+  --color-surface-400: #94A3B8;
+  --color-surface-500: #64748B;
+  --color-surface-600: #475569;
+  --color-surface-700: #334155;
+  --color-surface-800: #1E293B;
+  --color-surface-900: #0F172A;
+  --color-surface-950: #020617;
 
   /* === Semantic surface === */
-  --color-surface:       #FFF5ED;
-  --color-surface-glass: rgba(255, 251, 247, 0.85);
+  --color-surface:       #F8FAFC;
+  --color-surface-glass: rgba(255, 255, 255, 0.85);
 
   /* === Status — muted, warm-tinted === */
   --color-success: #4A7C5F;
@@ -66,6 +66,12 @@
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-out:    cubic-bezier(0.0, 0, 0.2, 1);
+
+  /* === Shadows === */
+  --shadow-card:  0 1px 3px rgba(0, 0, 0, 0.04);
+  --shadow-chip:  0 1px 2px rgba(0, 0, 0, 0.025), 0 2px 6px rgba(0, 0, 0, 0.035);
+  --shadow-float: 0 1px 2px rgba(0, 0, 0, 0.04), 0 3px 8px rgba(0, 0, 0, 0.06);
+  --shadow-panel: 0 2px 4px rgba(0, 0, 0, 0.06), 0 12px 24px rgba(0, 0, 0, 0.1);
 }
 
 html.dark {
@@ -73,6 +79,19 @@ html.dark {
   --color-foreground:    #F0FAF5;
   --color-surface:       #0D1E19;
   --color-surface-glass: rgba(9, 19, 16, 0.85);
+
+  /* === Surface — Warm Stone, inverted for dark mode === */
+  --color-surface-50:  #100E0C;
+  --color-surface-100: #1E1A18;
+  --color-surface-200: #3D3733;
+  --color-surface-300: #5E5550;
+  --color-surface-400: #7A6E65;
+  --color-surface-500: #948E84;
+  --color-surface-600: #B8B2A8;
+  --color-surface-700: #D8D5CE;
+  --color-surface-800: #EBE9E4;
+  --color-surface-900: #F5F4F1;
+  --color-surface-950: #FAFAF8;
 }
 
 @theme inline {
@@ -127,6 +146,11 @@ html.dark {
   --radius-2xl:  var(--radius-2xl);
   --radius-full: var(--radius-full);
 
+  --shadow-card:  var(--shadow-card);
+  --shadow-chip:  var(--shadow-chip);
+  --shadow-float: var(--shadow-float);
+  --shadow-panel: var(--shadow-panel);
+
   /* Both font utilities map to Plus Jakarta Sans */
   --font-sans:    var(--font-sans);
   --font-heading: var(--font-sans);
@@ -142,4 +166,14 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Floating-card hover motion — lift + shadow deepen */
+.hover-card {
+  transition: transform 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth);
+}
+
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-float);
 }

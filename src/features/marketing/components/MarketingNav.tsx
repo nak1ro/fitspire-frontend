@@ -1,31 +1,16 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/shared/ui';
 
 export function MarketingNav() {
-    const [scrolled, setScrolled] = useState(false);
-
-    useEffect(() => {
-        const handler = () => setScrolled(window.scrollY > 16);
-        window.addEventListener('scroll', handler, { passive: true });
-        return () => window.removeEventListener('scroll', handler);
-    }, []);
-
     return (
         <header
-            className="fixed top-0 inset-x-0 z-40 h-16 transition-all duration-300"
+            className="fixed top-0 inset-x-0 z-40 h-16"
             style={{
                 background: 'rgba(255, 251, 247, 0.82)',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
-                borderBottom: scrolled
-                    ? '1px solid rgba(235, 233, 228, 0.65)'
-                    : '1px solid transparent',
-                boxShadow: scrolled
-                    ? '0 2px 20px rgba(28, 21, 16, 0.07)'
-                    : 'none',
+                borderBottom: '1px solid var(--color-surface-200)',
+                boxShadow: 'var(--shadow-float)',
             }}
         >
             <div className="mx-auto max-w-6xl h-full flex items-center justify-between px-6">
@@ -37,10 +22,10 @@ export function MarketingNav() {
                 </Link>
 
                 <nav className="flex items-center gap-2" aria-label="Main navigation">
-                    <Link href="/sign-in">
+                    <Link href="/auth?mode=login">
                         <Button variant="ghost" size="sm">Sign in</Button>
                     </Link>
-                    <Link href="/sign-up">
+                    <Link href="/auth?mode=signup">
                         <Button size="sm">Get started</Button>
                     </Link>
                 </nav>

@@ -32,7 +32,7 @@ export function ConfirmEmailStatus() {
                     This email confirmation link is missing required information.
                 </Alert>
 
-                <Link href="/sign-in">
+                <Link href="/auth?mode=login">
                     <Button variant="ghost" fullWidth>
                         Back to sign in
                     </Button>
@@ -48,7 +48,7 @@ export function ConfirmEmailStatus() {
                     Your account is ready. You can now sign in.
                 </Alert>
 
-                <Link href="/sign-in">
+                <Link href="/auth?mode=login">
                     <Button fullWidth>
                         Continue to sign in
                     </Button>
@@ -72,7 +72,7 @@ export function ConfirmEmailStatus() {
             )}
 
             {error && (
-                <Link href="/sign-in">
+                <Link href="/auth?mode=login">
                     <Button variant="ghost" fullWidth>
                         Back to sign in
                     </Button>

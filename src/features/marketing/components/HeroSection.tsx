@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { Button } from '@/shared/ui';
+import { Button, EyebrowBadge } from '@/shared/ui';
 
 function NotificationPill({ children, style }: { children: React.ReactNode; style?: React.CSSProperties }) {
     return (
         <div
             className="absolute flex items-center gap-2 whitespace-nowrap rounded-full border border-surface-200 bg-background px-3.5 py-2 text-sm font-medium text-foreground"
-            style={{ boxShadow: '0 4px 20px rgba(28,21,16,0.10)', ...style }}
+            style={{ boxShadow: 'var(--shadow-float)', ...style }}
         >
             {children}
         </div>
@@ -29,10 +29,13 @@ function WorkoutCard() {
             />
 
             {/* Main card */}
+            {/* Note: no .hover-card class here — its :hover transform would be
+                shadowed by this element's own inline `transform` (the tilt),
+                since inline styles always win over stylesheet rules. */}
             <div
                 className="relative rounded-2xl border border-surface-200 bg-background p-5 space-y-4"
                 style={{
-                    boxShadow: '0 24px 48px -8px rgba(28,21,16,0.14), 0 8px 20px -4px rgba(28,21,16,0.08)',
+                    boxShadow: 'var(--shadow-panel)',
                     transform: 'rotate(1.5deg)',
                 }}
             >
@@ -91,19 +94,7 @@ export function HeroSection() {
     return (
         <section className="relative min-h-[calc(100vh-4rem)] flex items-center px-6 overflow-hidden">
 
-            {/* Layer 1: CSS line grid */}
-            <div
-                aria-hidden="true"
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(rgba(28,21,16,0.04) 1px, transparent 1px), ' +
-                        'linear-gradient(to right, rgba(28,21,16,0.04) 1px, transparent 1px)',
-                    backgroundSize: '72px 72px',
-                }}
-            />
-
-            {/* Layer 2: Ambient blur orbs */}
+            {/* Ambient blur orbs */}
             <div
                 aria-hidden="true"
                 className="absolute pointer-events-none rounded-full"
@@ -131,12 +122,7 @@ export function HeroSection() {
                 <div className="space-y-7">
 
                     {/* Pill label */}
-                    <div>
-                        <span className="inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 px-4 py-1.5 text-xs font-semibold tracking-widest uppercase text-primary-600">
-                            <span className="h-1.5 w-1.5 rounded-full bg-primary-500" aria-hidden="true" />
-                            Social fitness platform
-                        </span>
-                    </div>
+                    <EyebrowBadge pill>Social fitness platform</EyebrowBadge>
 
                     {/* Headline */}
                     <h1 className="text-6xl lg:text-7xl font-bold tracking-tight leading-[1.05] text-foreground">
@@ -156,7 +142,7 @@ export function HeroSection() {
                         {statChips.map(chip => (
                             <span
                                 key={chip}
-                                className="inline-flex items-center rounded-full border border-surface-200 bg-surface px-3 py-1.5 text-xs font-medium text-surface-600"
+                                className="inline-flex items-center rounded-full border border-surface-200 bg-surface px-3 py-1.5 text-xs font-medium text-surface-600 shadow-chip"
                             >
                                 {chip}
                             </span>
@@ -165,10 +151,10 @@ export function HeroSection() {
 
                     {/* CTAs */}
                     <div className="flex items-center gap-3 flex-wrap">
-                        <Link href="/sign-up">
+                        <Link href="/auth?mode=signup">
                             <Button size="lg">Get started free</Button>
                         </Link>
-                        <Link href="/sign-in">
+                        <Link href="/auth?mode=login">
                             <Button variant="ghost" size="lg">Sign in</Button>
                         </Link>
                     </div>

@@ -33,7 +33,7 @@ export function ResetPasswordForm() {
                     This password reset link is missing required information.
                 </Alert>
 
-                <Link href="/forgot-password">
+                <Link href="/auth?mode=forgot-password">
                     <Button variant="ghost" fullWidth>
                         Request a new link
                     </Button>
@@ -49,7 +49,7 @@ export function ResetPasswordForm() {
                     You can now sign in with your new password.
                 </Alert>
 
-                <Link href="/sign-in">
+                <Link href="/auth?mode=login">
                     <Button fullWidth>
                         Continue to sign in
                     </Button>
@@ -102,7 +102,7 @@ export function ResetPasswordForm() {
             <Typography variant="body-sm" color="muted" className="text-center">
                 Need another link?{' '}
                 <Link
-                    href="/forgot-password"
+                    href="/auth?mode=forgot-password"
                     className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
                 >
                     Request again

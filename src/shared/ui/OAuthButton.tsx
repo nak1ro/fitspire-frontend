@@ -1,7 +1,7 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { Button } from '@/shared/ui';
+import { Button } from './Button';
 
 function GoogleIcon() {
     return (
@@ -14,21 +14,35 @@ function GoogleIcon() {
     );
 }
 
-interface SocialButtonsProps {
+const PROVIDER_ICONS = {
+    google: GoogleIcon,
+} as const;
+
+const PROVIDER_LABELS = {
+    google: 'Google',
+} as const;
+
+interface OAuthButtonProps {
+    provider: keyof typeof PROVIDER_ICONS;
+    mode?: 'signin' | 'signup';
     callbackUrl?: string;
 }
 
-export function SocialButtons({ callbackUrl = '/feed' }: SocialButtonsProps) {
+export function OAuthButton({ provider, mode = 'signin', callbackUrl = '/feed' }: OAuthButtonProps) {
+    const Icon = PROVIDER_ICONS[provider];
+    const label = PROVIDER_LABELS[provider];
+    const verb = mode === 'signup' ? 'Sign up' : 'Continue';
+
     return (
         <Button
             type="button"
             variant="secondary"
             fullWidth
-            onClick={() => signIn('google', { callbackUrl })}
+            onClick={() => signIn(provider, { callbackUrl })}
             className="gap-2.5"
         >
-            <GoogleIcon />
-            Continue with Google
+            <Icon />
+            {verb} with {label}
         </Button>
     );
 }

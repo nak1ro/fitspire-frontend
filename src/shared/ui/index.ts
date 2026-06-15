@@ -5,3 +5,6 @@ export * from './Typography';
 export * from './Badge';
 export * from './Alert';
 export * from './Divider';
+export * from './IconChip';
+export * from './EyebrowBadge';
+export * from './OAuthButton';

@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Mail } from 'lucide-react';
 import { ForgotPasswordData, forgotPasswordSchema } from '../schemas/forgot-password.schema';
 import { useForgotPassword } from '../hooks/useForgotPassword';
-import { Button, Input, Alert } from '@/shared/ui';
+import { Button, Input, Alert, IconChip } from '@/shared/ui';
 import { Typography } from '@/shared/ui/Typography';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 
@@ -26,12 +26,7 @@ export function ForgotPasswordForm() {
     if (sentTo) {
         return (
             <div className="space-y-6 text-center py-2">
-                <div
-                    className="mx-auto w-12 h-12 rounded-2xl flex items-center justify-center"
-                    style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
-                >
-                    <Mail className="h-5 w-5 text-primary-500" aria-hidden="true" />
-                </div>
+                <IconChip icon={Mail} size="lg" className="mx-auto" />
 
                 <div className="space-y-1.5">
                     <Typography variant="h4">Check your inbox</Typography>
@@ -42,7 +37,7 @@ export function ForgotPasswordForm() {
                     </Typography>
                 </div>
 
-                <Link href="/sign-in">
+                <Link href="/auth?mode=login">
                     <Button variant="ghost" fullWidth>
                         Back to sign in
                     </Button>
@@ -73,16 +68,6 @@ export function ForgotPasswordForm() {
                     Send reset link
                 </Button>
             </form>
-
-            <Typography variant="body-sm" color="muted" className="text-center">
-                Remember your password?{' '}
-                <Link
-                    href="/sign-in"
-                    className="font-semibold text-primary-500 hover:opacity-70 transition-opacity"
-                >
-                    Sign in
-                </Link>
-            </Typography>
         </div>
     );
 }

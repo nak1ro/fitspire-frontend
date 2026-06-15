@@ -34,3 +34,11 @@ export const KNOWN_TYPES = Object.keys(TYPE_CONFIG) as KnownWorkoutType[];
 export const TYPE_SHORT_LABELS: Record<KnownWorkoutType, string> = {
     Gym: 'Gym', Running: 'Run', Cycling: 'Ride', Swimming: 'Swim', Yoga: 'Yoga',
 };
+
+export const TYPE_SUBTITLES: Record<KnownWorkoutType, string> = {
+    Gym: 'Strength & weights',
+    Running: 'Outdoor or treadmill',
+    Cycling: 'Road, MTB, or indoor',
+    Swimming: 'Pool or open water',
+    Yoga: 'Stretch & mindfulness',
+};

@@ -1,5 +1,6 @@
 import { UserPlus, Dumbbell, Trophy, type LucideIcon } from 'lucide-react';
 import { FadeIn } from '@/shared/ui/FadeIn';
+import { EyebrowBadge, IconChip } from '@/shared/ui';
 
 interface Step {
     number: string;
@@ -48,9 +49,7 @@ export function HowItWorksSection() {
             <div className="relative mx-auto max-w-5xl space-y-16">
 
                 <FadeIn className="text-center">
-                    <p className="text-xs font-semibold tracking-widest uppercase text-primary-500 mb-3">
-                        How it works
-                    </p>
+                    <EyebrowBadge className="mb-3">How it works</EyebrowBadge>
                     <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-foreground">
                         Up and running in minutes
                     </h2>
@@ -73,8 +72,8 @@ export function HowItWorksSection() {
 
                         {steps.map((step, i) => (
                             <div key={step.number} className="relative z-10">
-                                <div className="h-full rounded-2xl border border-surface-200 bg-background overflow-hidden"
-                                    style={{ boxShadow: '0 2px 16px rgba(28,21,16,0.05)' }}
+                                <div className="h-full rounded-2xl border border-surface-200 bg-background overflow-hidden hover-card"
+                                    style={{ boxShadow: 'var(--shadow-card)' }}
                                 >
                                     {/* Amber top accent */}
                                     <div
@@ -91,12 +90,7 @@ export function HowItWorksSection() {
                                             >
                                                 {step.number}
                                             </span>
-                                            <div
-                                                className="w-11 h-11 rounded-2xl flex items-center justify-center"
-                                                style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
-                                            >
-                                                <step.Icon className="h-5 w-5 text-primary-500" aria-hidden="true" />
-                                            </div>
+                                            <IconChip icon={step.Icon} size="lg" />
                                         </div>
 
                                         {/* Content */}
