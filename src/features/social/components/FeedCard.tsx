@@ -1,63 +1,24 @@
 'use client';
 
 import { useState } from 'react';
-import { Heart, MessageCircle, Trophy, Send } from 'lucide-react';
+import { Heart, MessageCircle, Send, Trophy } from 'lucide-react';
+import { Avatar, Card, IconChip } from '@/shared/ui';
 import type { FeedItem } from '../types';
 import { useTogglePostLike, useCommentOnPost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function getInitials(name: string): string {
-    return name.slice(0, 2).toUpperCase();
-}
-
-// ─── Avatar ────────────────────────────────────────────────────────────────────
-
-function Avatar({ name, avatarUrl, size = 9 }: { name: string; avatarUrl?: string | null; size?: number }) {
-    const px = size * 4; // Tailwind rem → px approximation for inline
-    if (avatarUrl) {
-        return (
-            <img
-                src={avatarUrl}
-                alt={name}
-                className={`w-${size} h-${size} rounded-full object-cover shrink-0`}
-            />
-        );
-    }
-    return (
-        <div
-            className={`w-${size} h-${size} rounded-full flex items-center justify-center text-xs font-bold shrink-0`}
-            style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669', minWidth: `${px/4}rem`, minHeight: `${px/4}rem` }}
-        >
-            {getInitials(name)}
-        </div>
-    );
-}
-
 // ─── Goal block ────────────────────────────────────────────────────────────────
 
 function GoalAchievedBlock({ content }: { content?: string | null }) {
     return (
-        <div
-            className="rounded-xl border mt-3 overflow-hidden"
-            style={{ borderColor: 'rgba(184,134,11,0.22)' }}
-        >
-            <div
-                className="flex items-center gap-2.5 px-3.5 py-3"
-                style={{ background: 'rgba(184,134,11,0.06)' }}
-            >
-                <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: 'rgba(184,134,11,0.10)' }}
-                >
-                    <Trophy className="h-4 w-4" style={{ color: '#B8860B' }} aria-hidden="true" />
-                </div>
+        <div className="rounded-xl border border-warning/25 mt-3 overflow-hidden">
+            <div className="flex items-center gap-2.5 px-3.5 py-3 bg-warning/5">
+                <IconChip icon={Trophy} size="sm" variant="warning" />
                 <div className="min-w-0">
-                    <p className="text-sm font-bold" style={{ color: '#B8860B' }}>Goal Achieved!</p>
+                    <p className="text-sm font-bold text-warning">Goal Achieved!</p>
                     {content && (
-                        <p className="text-xs mt-0.5" style={{ color: 'rgba(184,134,11,0.70)' }}>{content}</p>
+                        <p className="text-xs mt-0.5 text-warning/70">{content}</p>
                     )}
                 </div>
             </div>
@@ -70,7 +31,7 @@ function GoalAchievedBlock({ content }: { content?: string | null }) {
 function CommentRow({ userName, avatarUrl, content }: { userName: string; avatarUrl?: string | null; content: string }) {
     return (
         <div className="flex items-start gap-2">
-            <Avatar name={userName} avatarUrl={avatarUrl} size={6} />
+            <Avatar displayName={userName} userName={userName} avatarUrl={avatarUrl} size="xs" />
             <div className="min-w-0 rounded-xl bg-background px-3 py-2 flex-1">
                 <span className="text-xs font-semibold text-foreground">{userName} </span>
                 <span className="text-xs text-surface-600">{content}</span>
@@ -111,11 +72,11 @@ export function FeedCard({ item }: { item: FeedItem }) {
     };
 
     return (
-        <article className="rounded-2xl border border-surface-200 bg-surface overflow-hidden">
+        <Card padding="none" className="overflow-hidden">
 
             {/* Header */}
             <div className="flex items-center gap-3 px-4 pt-4 pb-0">
-                <Avatar name={item.userName} avatarUrl={item.userAvatarUrl} size={9} />
+                <Avatar displayName={item.userName} userName={item.userName} avatarUrl={item.userAvatarUrl} size="md" />
                 <div className="min-w-0 flex-1">
                     <p className="text-sm font-semibold text-foreground leading-tight">{item.userName}</p>
                     <p className="text-[11px] text-surface-400 leading-tight mt-0.5">
@@ -155,17 +116,10 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         aria-label={liked ? 'Unlike post' : 'Like post'}
                     >
                         <Heart
-                            className="h-[18px] w-[18px] transition-transform active:scale-125"
-                            style={{
-                                color: liked ? '#059669' : 'var(--color-surface-500)',
-                                fill: liked ? '#059669' : 'none',
-                            }}
+                            className={liked ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
                             aria-hidden="true"
                         />
-                        <span
-                            className="text-xs font-medium tabular-nums"
-                            style={{ color: liked ? '#059669' : 'var(--color-surface-500)' }}
-                        >
+                        <span className={liked ? 'text-xs font-medium tabular-nums text-primary-500' : 'text-xs font-medium tabular-nums text-surface-500'}>
                             {likesCount}
                         </span>
                     </button>
@@ -176,11 +130,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         className="flex items-center gap-1.5 transition-all hover:opacity-70"
                         aria-label="Comment on post"
                     >
-                        <MessageCircle
-                            className="h-[18px] w-[18px]"
-                            style={{ color: 'var(--color-surface-500)' }}
-                            aria-hidden="true"
-                        />
+                        <MessageCircle className="h-[18px] w-[18px] text-surface-500" aria-hidden="true" />
                         <span className="text-xs font-medium text-surface-500 tabular-nums">
                             {item.commentsCount}
                         </span>
@@ -199,11 +149,6 @@ export function FeedCard({ item }: { item: FeedItem }) {
                             content={c.content}
                         />
                     ))}
-                    {item.commentsCount > item.recentComments.length && (
-                        <button className="text-xs font-medium text-primary-500 hover:opacity-70 transition-opacity pl-8">
-                            View all {item.commentsCount} comments
-                        </button>
-                    )}
                 </div>
             )}
 
@@ -211,12 +156,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
             {showCommentBox && (
                 <div className="px-4 pt-3 pb-0">
                     <div className="flex items-center gap-2">
-                        <div
-                            className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0"
-                            style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
-                        >
-                            Me
-                        </div>
+                        <div className="w-6 h-6 shrink-0" aria-hidden="true" />
                         <div className="flex-1 flex items-center gap-2 rounded-xl bg-background border border-surface-200 px-3 py-2">
                             <input
                                 type="text"
@@ -233,7 +173,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                                     className="shrink-0 transition-opacity hover:opacity-70 disabled:opacity-40"
                                     aria-label="Send comment"
                                 >
-                                    <Send className="h-4 w-4" style={{ color: '#059669' }} aria-hidden="true" />
+                                    <Send className="h-4 w-4 text-primary-500" aria-hidden="true" />
                                 </button>
                             )}
                         </div>
@@ -243,6 +183,6 @@ export function FeedCard({ item }: { item: FeedItem }) {
 
             {/* Bottom padding */}
             <div className="h-4" />
-        </article>
+        </Card>
     );
 }

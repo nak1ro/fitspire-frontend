@@ -1,5 +1,6 @@
 import type React from 'react';
 import { Pencil, Dumbbell, Flame, Trophy } from 'lucide-react';
+import { Avatar } from '@/shared/ui';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -8,13 +9,6 @@ interface Props {
     streak: number;
     totalPRs: number;
     onEdit: () => void;
-}
-
-function getInitials(displayName: string, userName: string): string {
-    const name = displayName || userName;
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
 }
 
 interface StatPillProps {
@@ -40,20 +34,16 @@ function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
 }
 
 export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit }: Props) {
-    const initials = getInitials(profile.displayName, profile.userName);
-
     return (
         <div className="pb-5 mb-1">
             {/* Top row: avatar + edit button */}
             <div className="flex items-start justify-between mb-4">
-                {/* Avatar */}
-                <div
-                    className="w-20 h-20 rounded-2xl flex items-center justify-center text-2xl font-extrabold shrink-0"
-                    style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
-                    aria-hidden="true"
-                >
-                    {initials}
-                </div>
+                <Avatar
+                    displayName={profile.displayName}
+                    userName={profile.userName}
+                    avatarUrl={profile.profilePictureUrl}
+                    size="xl"
+                />
 
                 {/* Edit button */}
                 <button

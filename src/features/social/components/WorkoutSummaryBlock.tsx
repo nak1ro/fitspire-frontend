@@ -1,59 +1,8 @@
-import { Dumbbell, Activity, Bike, Waves, Zap, Timer, Flame, type LucideIcon } from 'lucide-react';
+import { Dumbbell, Activity, Timer, Flame, ListChecks, CheckCircle2, type LucideIcon } from 'lucide-react';
+import { IconChip } from '@/shared/ui';
+import { TYPE_CONFIG } from '@/features/workout/typeConfig';
+import type { KnownWorkoutType } from '@/features/workout/types';
 import type { WorkoutSummary } from '../types';
-
-// ─── Per-type config ───────────────────────────────────────────────────────────
-
-type WorkoutConfig = {
-    label: string;
-    Icon: LucideIcon;
-    color: string;
-    border: string;
-    headerBg: string;
-    iconBg: string;
-};
-
-const TYPE_CONFIG: Record<string, WorkoutConfig> = {
-    gym: {
-        label: 'Gym Workout',
-        Icon: Dumbbell,
-        color: '#059669',
-        border: 'rgba(5,150,105,0.22)',
-        headerBg: 'rgba(5,150,105,0.06)',
-        iconBg: 'rgba(5,150,105,0.10)',
-    },
-    running: {
-        label: 'Run',
-        Icon: Activity,
-        color: '#4A7C5F',
-        border: 'rgba(74,124,95,0.22)',
-        headerBg: 'rgba(74,124,95,0.06)',
-        iconBg: 'rgba(74,124,95,0.10)',
-    },
-    cycling: {
-        label: 'Ride',
-        Icon: Bike,
-        color: '#3A7A8A',
-        border: 'rgba(58,122,138,0.22)',
-        headerBg: 'rgba(58,122,138,0.06)',
-        iconBg: 'rgba(58,122,138,0.10)',
-    },
-    swimming: {
-        label: 'Swim',
-        Icon: Waves,
-        color: '#2E6EA6',
-        border: 'rgba(46,110,166,0.22)',
-        headerBg: 'rgba(46,110,166,0.06)',
-        iconBg: 'rgba(46,110,166,0.10)',
-    },
-    yoga: {
-        label: 'Yoga',
-        Icon: Zap,
-        color: '#7B5EA7',
-        border: 'rgba(123,94,167,0.22)',
-        headerBg: 'rgba(123,94,167,0.06)',
-        iconBg: 'rgba(123,94,167,0.10)',
-    },
-};
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -75,17 +24,27 @@ function formatVolume(kg?: number | null): string | null {
     return kg >= 1000 ? `${(kg / 1000).toFixed(1)}t` : `${Math.round(kg)} kg`;
 }
 
+// Backend workout types are lowercase in the feed payload (e.g. "running"),
+// while the shared TYPE_CONFIG is keyed by the capitalized KnownWorkoutType.
+function resolveType(workoutType: string): KnownWorkoutType {
+    const capitalized = workoutType.charAt(0).toUpperCase() + workoutType.slice(1).toLowerCase();
+    return (capitalized in TYPE_CONFIG ? capitalized : 'Gym') as KnownWorkoutType;
+}
+
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function WorkoutSummaryBlock({ summary }: { summary: WorkoutSummary }) {
-    const key = summary.workoutType.toLowerCase();
-    const cfg = TYPE_CONFIG[key] ?? TYPE_CONFIG.gym;
-    const { label, Icon, color, border, headerBg, iconBg } = cfg;
+    const type = resolveType(summary.workoutType);
+    const { label, Icon, color, bg } = TYPE_CONFIG[type];
 
     const stats: Array<{ Icon: LucideIcon; value: string }> = [];
 
     const duration = formatDuration(summary.durationMinutes);
     if (duration) stats.push({ Icon: Timer, value: duration });
+
+    if (summary.exerciseCount) {
+        stats.push({ Icon: ListChecks, value: `${summary.exerciseCount} exercise${summary.exerciseCount === 1 ? '' : 's'}` });
+    }
 
     const distance = formatDistance(summary.distanceKm);
     if (distance) stats.push({ Icon: Activity, value: distance });
@@ -98,27 +57,14 @@ export function WorkoutSummaryBlock({ summary }: { summary: WorkoutSummary }) {
     }
 
     return (
-        <div
-            className="rounded-xl overflow-hidden border mt-3"
-            style={{ borderColor: border }}
-        >
+        <div className="rounded-xl overflow-hidden border border-surface-200 mt-3 shadow-chip">
             {/* Type header */}
-            <div
-                className="flex items-center gap-2.5 px-3.5 py-2.5"
-                style={{ background: headerBg }}
-            >
-                <div
-                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-                    style={{ background: iconBg }}
-                >
-                    <Icon className="h-4 w-4" style={{ color }} aria-hidden="true" />
-                </div>
+            <div className={`flex items-center gap-2.5 px-3.5 bg-surface-50 ${stats.length > 0 ? 'py-2.5' : 'py-3.5'}`}>
+                <IconChip icon={Icon} size="sm" color={color} bg={bg} />
                 <span className="text-sm font-bold" style={{ color }}>{label}</span>
-                <span
-                    className="ml-auto text-[11px] font-semibold"
-                    style={{ color, opacity: 0.6 }}
-                >
-                    Completed ✓
+                <span className="ml-auto flex items-center gap-1 text-xs font-semibold text-surface-400">
+                    <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    Completed
                 </span>
             </div>
 

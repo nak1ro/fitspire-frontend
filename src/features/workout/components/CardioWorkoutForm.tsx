@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Alert } from '@/shared/ui';
+import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import {
     useCreateCyclingWorkout,
@@ -9,6 +9,10 @@ import {
     useCreateSwimmingWorkout,
     useCreateYogaWorkout,
 } from '../hooks/useCreateWorkout';
+import { FormSection } from './form/FormSection';
+import { NumField } from './form/NumField';
+import { ChipSelect } from './form/ChipSelect';
+import { Toggle } from './form/Toggle';
 import type {
     KnownWorkoutType,
     SwimmingStroke,
@@ -24,115 +28,6 @@ type CardioType = Exclude<KnownWorkoutType, 'Gym'>;
 interface Props {
     type: CardioType;
     onSuccess: () => void;
-}
-
-// ─── Sub-components ────────────────────────────────────────────────────────────
-
-function NumField({
-    label,
-    value,
-    onChange,
-    unit,
-    required,
-    step = 1,
-    min = 0,
-}: {
-    label: string;
-    value: string;
-    onChange: (v: string) => void;
-    unit?: string;
-    required?: boolean;
-    step?: number;
-    min?: number;
-}) {
-    return (
-        <div className="space-y-1.5">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                {label}
-                {!required && <span className="normal-case font-normal ml-1">(optional)</span>}
-            </label>
-            <div className="flex items-center gap-2">
-                <input
-                    type="number"
-                    min={min}
-                    step={step}
-                    value={value}
-                    onChange={e => onChange(e.target.value)}
-                    placeholder="—"
-                    className="flex-1 text-sm font-medium bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors text-foreground"
-                />
-                {unit && <span className="text-sm text-surface-400 shrink-0">{unit}</span>}
-            </div>
-        </div>
-    );
-}
-
-function ChipSelect<T extends string>({
-    label,
-    options,
-    value,
-    onChange,
-    labelMap,
-}: {
-    label: string;
-    options: readonly T[];
-    value: T | '';
-    onChange: (v: T | '') => void;
-    labelMap?: Partial<Record<T, string>>;
-}) {
-    return (
-        <div className="space-y-2">
-            <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                {label} <span className="normal-case font-normal">(optional)</span>
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-                {options.map(opt => (
-                    <button
-                        key={opt}
-                        type="button"
-                        onClick={() => onChange(value === opt ? '' : opt)}
-                        className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
-                        style={value === opt ? {
-                            backgroundColor: 'rgba(5,150,105,0.08)',
-                            borderColor: '#059669',
-                            color: '#059669',
-                        } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
-                    >
-                        {labelMap?.[opt] ?? opt}
-                    </button>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-function Toggle({ label, subtitle, checked, onChange }: {
-    label: string;
-    subtitle?: string;
-    checked: boolean;
-    onChange: (v: boolean) => void;
-}) {
-    return (
-        <div className="flex items-center justify-between py-0.5">
-            <div>
-                <p className="text-sm font-medium text-foreground">{label}</p>
-                {subtitle && <p className="text-xs text-surface-400">{subtitle}</p>}
-            </div>
-            <button
-                type="button"
-                role="switch"
-                aria-checked={checked}
-                onClick={() => onChange(!checked)}
-                className="relative w-11 h-6 rounded-full transition-colors shrink-0"
-                style={{ backgroundColor: checked ? '#059669' : 'var(--color-surface-200)' }}
-            >
-                <div
-                    className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
-                    style={{ transform: checked ? 'translateX(21px)' : 'translateX(4px)' }}
-                />
-            </button>
-        </div>
-    );
 }
 
 // ─── Constant options ──────────────────────────────────────────────────────────
@@ -261,41 +156,45 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
         <div className="space-y-5">
 
             {/* Running-specific */}
-            {type === 'Running' && <>
-                <NumField label="Distance" value={runDistance} onChange={setRunDistance} unit="km" required step={0.1} />
-                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" />
-                <NumField label="Elevation gain" value={runElevation} onChange={setRunElevation} unit="m" />
-                <NumField label="Steps" value={runSteps} onChange={setRunSteps} step={100} />
-            </>}
+            {type === 'Running' && (
+                <FormSection title="Details">
+                    <NumField label="Distance" value={runDistance} onChange={setRunDistance} unit="km" required step={0.1} />
+                    <NumField label="Elevation gain" value={runElevation} onChange={setRunElevation} unit="m" />
+                    <NumField label="Steps" value={runSteps} onChange={setRunSteps} step={100} />
+                </FormSection>
+            )}
 
             {/* Cycling-specific */}
-            {type === 'Cycling' && <>
-                <NumField label="Distance" value={cycleDistance} onChange={setCycleDistance} unit="km" required step={0.1} />
-                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" />
-                <NumField label="Elevation gain" value={cycleElevation} onChange={setCycleElevation} unit="m" />
-                <Toggle label="Indoor ride" checked={isIndoor} onChange={setIsIndoor} />
-            </>}
+            {type === 'Cycling' && (
+                <FormSection title="Details">
+                    <NumField label="Distance" value={cycleDistance} onChange={setCycleDistance} unit="km" required step={0.1} />
+                    <NumField label="Elevation gain" value={cycleElevation} onChange={setCycleElevation} unit="m" />
+                    <Toggle label="Indoor ride" checked={isIndoor} onChange={setIsIndoor} />
+                </FormSection>
+            )}
 
             {/* Swimming-specific */}
-            {type === 'Swimming' && <>
-                <div className="space-y-3">
-                    <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">Distance</label>
-                    <div className="grid grid-cols-2 gap-2">
-                        {(['distance', 'laps'] as const).map(mode => (
-                            <button
-                                key={mode}
-                                type="button"
-                                onClick={() => setSwimMode(mode)}
-                                className="py-2 rounded-xl text-xs font-bold border transition-all"
-                                style={swimMode === mode ? {
-                                    backgroundColor: 'rgba(5,150,105,0.08)',
-                                    borderColor: '#059669',
-                                    color: '#059669',
-                                } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
-                            >
-                                {mode === 'distance' ? 'Enter metres' : 'Enter laps'}
-                            </button>
-                        ))}
+            {type === 'Swimming' && (
+                <FormSection title="Details">
+                    <div className="space-y-2">
+                        <label className="block text-sm font-medium text-surface-700">Distance</label>
+                        <div className="grid grid-cols-2 gap-2">
+                            {(['distance', 'laps'] as const).map(mode => (
+                                <button
+                                    key={mode}
+                                    type="button"
+                                    onClick={() => setSwimMode(mode)}
+                                    className={
+                                        'py-2 rounded-xl text-sm font-bold border transition-all ' +
+                                        (swimMode === mode
+                                            ? 'bg-primary-50 border-primary-500 text-primary-600'
+                                            : 'border-surface-200 text-surface-500 hover:bg-surface-100')
+                                    }
+                                >
+                                    {mode === 'distance' ? 'Enter metres' : 'Enter laps'}
+                                </button>
+                            ))}
+                        </div>
                     </div>
                     {swimMode === 'distance'
                         ? <NumField label="Distance" value={swimDistance} onChange={setSwimDistance} unit="m" required step={10} />
@@ -304,44 +203,48 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                             <NumField label="Pool length" value={swimPoolLength} onChange={setSwimPoolLength} unit="m" required step={5} />
                         </div>
                     }
-                </div>
-                <ChipSelect label="Stroke" options={STROKE_OPTIONS} value={swimStroke} onChange={setSwimStroke} />
-                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" />
-            </>}
+                    <ChipSelect label="Stroke" options={STROKE_OPTIONS} value={swimStroke} onChange={setSwimStroke} />
+                </FormSection>
+            )}
 
             {/* Yoga-specific */}
-            {type === 'Yoga' && <>
-                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" step={5} />
-                <ChipSelect label="Style" options={YOGA_STYLES} value={yogaStyle} onChange={setYogaStyle} />
-                <ChipSelect label="Intensity" options={YOGA_INTENSITIES} value={yogaIntensity} onChange={setYogaIntensity} />
-                <ChipSelect label="Focus area" options={YOGA_FOCUS} value={yogaFocus} onChange={setYogaFocus} labelMap={FOCUS_LABELS} />
-            </>}
+            {type === 'Yoga' && (
+                <FormSection title="Details">
+                    <ChipSelect label="Style" options={YOGA_STYLES} value={yogaStyle} onChange={setYogaStyle} />
+                    <ChipSelect label="Intensity" options={YOGA_INTENSITIES} value={yogaIntensity} onChange={setYogaIntensity} equalWidth />
+                    <ChipSelect label="Focus area" options={YOGA_FOCUS} value={yogaFocus} onChange={setYogaFocus} labelMap={FOCUS_LABELS} />
+                </FormSection>
+            )}
 
-            {/* Shared fields */}
-            <NumField label="Calories burned" value={calories} onChange={setCalories} unit="kcal" step={10} />
+            <FormSection title="Stats">
+                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" step={type === 'Yoga' ? 5 : 1} />
+                <NumField label="Calories burned" value={calories} onChange={setCalories} unit="kcal" step={10} />
+                <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-surface-700">Date</label>
+                    <input
+                        type="date"
+                        value={date}
+                        max={today()}
+                        onChange={e => setDate(e.target.value)}
+                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:bg-primary-50 focus:border-primary-500"
+                    />
+                </div>
+            </FormSection>
 
             <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">Date</label>
-                <input
-                    type="date"
-                    value={date}
-                    max={today()}
-                    onChange={e => setDate(e.target.value)}
-                    className="w-full text-sm font-medium bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors text-foreground"
-                />
-            </div>
-
-            <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                    Notes <span className="normal-case font-normal">(optional)</span>
+                <label className="block text-sm font-medium text-surface-700">
+                    {isPrivate ? 'Notes' : 'Caption'} <span className="text-surface-400 font-normal">(optional)</span>
                 </label>
                 <textarea
                     value={notes}
                     onChange={e => setNotes(e.target.value)}
                     placeholder="How did it go?"
                     rows={2}
-                    className="w-full text-sm bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400"
+                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
                 />
+                <p className="text-[11px] text-surface-400">
+                    {isPrivate ? 'Visible only to you.' : "Shown on your post — leave blank to use a default caption."}
+                </p>
             </div>
 
             <Toggle
@@ -353,15 +256,9 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
 
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
-            <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending}
-                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
-            >
-                {isPending ? 'Logging workout…' : 'Log Workout'}
-            </button>
+            <Button onClick={handleSubmit} loading={isPending} fullWidth>
+                Log Workout
+            </Button>
         </div>
     );
 }

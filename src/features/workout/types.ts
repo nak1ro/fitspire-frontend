@@ -124,6 +124,8 @@ export interface CreateYogaWorkoutRequest {
 
 export interface CompleteWorkoutRequest {
     durationMinutes?: number | null;
+    notes?: string | null;
+    isPrivate?: boolean | null;
 }
 
 export interface UpdateWorkoutRequest {

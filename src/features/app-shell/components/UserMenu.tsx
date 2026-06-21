@@ -4,23 +4,17 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { User, Settings, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-
-function getInitials(displayName: string, userName: string): string {
-    const name = displayName || userName;
-    const parts = name.trim().split(/\s+/);
-    if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-    return name.slice(0, 2).toUpperCase();
-}
+import { Avatar } from '@/shared/ui';
 
 interface UserMenuProps {
     displayName?: string;
     userName?: string;
+    avatarUrl?: string | null;
 }
 
-export function UserMenu({ displayName, userName }: UserMenuProps) {
+export function UserMenu({ displayName, userName, avatarUrl }: UserMenuProps) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
-    const initials = displayName && userName ? getInitials(displayName, userName) : '...';
 
     useEffect(() => {
         if (!open) return;
@@ -39,9 +33,9 @@ export function UserMenu({ displayName, userName }: UserMenuProps) {
                 aria-expanded={open}
                 aria-haspopup="true"
                 aria-label="User menu"
-                className="ml-1 w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold transition-opacity hover:opacity-80 bg-primary-100 text-primary-600"
+                className="ml-1 transition-opacity hover:opacity-80"
             >
-                {initials}
+                <Avatar displayName={displayName ?? ''} userName={userName ?? '...'} avatarUrl={avatarUrl} size="sm" />
             </button>
 
             {open && (

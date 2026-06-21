@@ -46,7 +46,7 @@ export function AppHeader() {
 
                 <NotificationsBell />
 
-                <UserMenu displayName={profile?.displayName} userName={profile?.userName} />
+                <UserMenu displayName={profile?.displayName} userName={profile?.userName} avatarUrl={profile?.profilePictureUrl} />
             </div>
         </header>
     );

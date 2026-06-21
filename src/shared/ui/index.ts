@@ -8,3 +8,4 @@ export * from './Divider';
 export * from './IconChip';
 export * from './EyebrowBadge';
 export * from './OAuthButton';
+export * from './Avatar';

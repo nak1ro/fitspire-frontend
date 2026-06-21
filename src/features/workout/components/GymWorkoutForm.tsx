@@ -1,17 +1,22 @@
 'use client';
 
 import { useState } from 'react';
-import { Trash2, Plus, ChevronUp } from 'lucide-react';
-import { Alert } from '@/shared/ui';
+import { Plus, ChevronUp } from 'lucide-react';
+import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useCreateGymWorkout } from '../hooks/useCreateWorkout';
 import { useCompleteWorkout } from '../hooks/useWorkoutMutations';
 import { ExerciseSearchPanel } from './ExerciseSearchPanel';
+import { FormSection } from './form/FormSection';
+import { ChipSelect } from './form/ChipSelect';
+import { NumField } from './form/NumField';
+import { Toggle } from './form/Toggle';
+import { ExerciseRow } from './form/ExerciseRow';
 import type { Exercise, WorkoutSplit, WorkoutIntensity } from '../types';
 
 const today = () => new Date().toISOString().split('T')[0];
 
-interface ExerciseRow {
+interface ExerciseRowState {
     rowId: string;
     exerciseId: string;
     exerciseName: string;
@@ -33,12 +38,14 @@ interface Props {
 }
 
 export function GymWorkoutForm({ onSuccess }: Props) {
-    const [exercises, setExercises] = useState<ExerciseRow[]>([]);
+    const [exercises, setExercises] = useState<ExerciseRowState[]>([]);
     const [showSearch, setShowSearch] = useState(false);
     const [splitType, setSplitType] = useState<WorkoutSplit | ''>('');
     const [intensityLevel, setIntensityLevel] = useState<WorkoutIntensity | ''>('');
     const [duration, setDuration] = useState('');
     const [date, setDate] = useState(today());
+    const [notes, setNotes] = useState('');
+    const [isPrivate, setIsPrivate] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
 
     const { mutateAsync: createGym, isPending: creating } = useCreateGymWorkout();
@@ -93,7 +100,11 @@ export function GymWorkoutForm({ onSuccess }: Props) {
 
             await completeGym({
                 workoutId,
-                data: { durationMinutes: duration ? parseFloat(duration) : null },
+                data: {
+                    durationMinutes: duration ? parseFloat(duration) : null,
+                    notes: notes || null,
+                    isPrivate,
+                },
             });
 
             onSuccess();
@@ -105,117 +116,35 @@ export function GymWorkoutForm({ onSuccess }: Props) {
     return (
         <div className="space-y-5">
 
-            {/* Split type */}
-            <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                    Split <span className="normal-case font-normal">(optional)</span>
-                </label>
-                <div className="flex flex-wrap gap-1.5">
-                    {SPLIT_OPTIONS.map(opt => (
-                        <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setSplitType(splitType === opt ? '' : opt)}
-                            className="px-3 py-1.5 rounded-xl text-xs font-semibold border transition-all"
-                            style={splitType === opt ? {
-                                backgroundColor: 'rgba(5,150,105,0.08)',
-                                borderColor: '#059669',
-                                color: '#059669',
-                            } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
-                        >
-                            {SPLIT_LABELS[opt]}
-                        </button>
-                    ))}
-                </div>
-            </div>
+            <FormSection title="Details">
+                <ChipSelect label="Split" options={SPLIT_OPTIONS} value={splitType} onChange={setSplitType} labelMap={SPLIT_LABELS} />
+                <ChipSelect label="Intensity" options={INTENSITY_OPTIONS} value={intensityLevel} onChange={setIntensityLevel} equalWidth />
+            </FormSection>
 
-            {/* Intensity */}
-            <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                    Intensity <span className="normal-case font-normal">(optional)</span>
-                </label>
-                <div className="flex gap-1.5">
-                    {INTENSITY_OPTIONS.map(opt => (
-                        <button
-                            key={opt}
-                            type="button"
-                            onClick={() => setIntensityLevel(intensityLevel === opt ? '' : opt)}
-                            className="flex-1 py-1.5 rounded-xl text-xs font-semibold border transition-all"
-                            style={intensityLevel === opt ? {
-                                backgroundColor: 'rgba(5,150,105,0.08)',
-                                borderColor: '#059669',
-                                color: '#059669',
-                            } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
-                        >
-                            {opt}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Exercises */}
-            <div className="space-y-2">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                    Exercises
-                </label>
-
+            <FormSection title="Exercises">
                 {exercises.length > 0 && (
-                    <div className="space-y-1.5">
-                        <div className="grid grid-cols-[1fr_50px_50px_60px_32px] gap-1.5 px-1 mb-1">
-                            {['Exercise', 'Sets', 'Reps', 'kg', ''].map((h, i) => (
-                                <span
-                                    key={i}
-                                    className="text-[10px] font-semibold uppercase tracking-wider text-surface-400 text-center first:text-left"
-                                >
-                                    {h}
-                                </span>
-                            ))}
-                        </div>
+                    <div className="space-y-2.5">
                         {exercises.map(ex => (
-                            <div key={ex.rowId} className="grid grid-cols-[1fr_50px_50px_60px_32px] gap-1.5 items-center">
-                                <span className="text-xs font-medium text-foreground truncate pr-1 leading-tight">
-                                    {ex.exerciseName}
-                                </span>
-                                {(['sets', 'reps'] as const).map(field => (
-                                    <input
-                                        key={field}
-                                        type="number"
-                                        min={1}
-                                        value={ex[field]}
-                                        onChange={e => updateExercise(ex.rowId, field, e.target.value)}
-                                        className="w-full text-center text-xs font-semibold bg-background border border-surface-200 rounded-lg py-1.5 outline-none transition-colors"
-                                        style={{ colorScheme: 'light' }}
-                                    />
-                                ))}
-                                <input
-                                    type="number"
-                                    min={0}
-                                    step={0.5}
-                                    value={ex.weightKg}
-                                    onChange={e => updateExercise(ex.rowId, 'weightKg', e.target.value)}
-                                    className="w-full text-center text-xs font-semibold bg-background border border-surface-200 rounded-lg py-1.5 outline-none transition-colors"
-                                    style={{ colorScheme: 'light' }}
-                                />
-                                <button
-                                    type="button"
-                                    onClick={() => removeExercise(ex.rowId)}
-                                    className="flex items-center justify-center h-7 w-7 rounded-lg text-surface-400 hover:text-red-500 transition-colors"
-                                    aria-label={`Remove ${ex.exerciseName}`}
-                                >
-                                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                                </button>
-                            </div>
+                            <ExerciseRow
+                                key={ex.rowId}
+                                name={ex.exerciseName}
+                                sets={ex.sets}
+                                reps={ex.reps}
+                                weightKg={ex.weightKg}
+                                onChange={(field, raw) => updateExercise(ex.rowId, field, raw)}
+                                onRemove={() => removeExercise(ex.rowId)}
+                            />
                         ))}
                     </div>
                 )}
 
                 {showSearch ? (
-                    <div className="space-y-2 mt-2">
+                    <div className="space-y-2">
                         <ExerciseSearchPanel onAdd={addExercise} />
                         <button
                             type="button"
                             onClick={() => setShowSearch(false)}
-                            className="w-full flex items-center justify-center gap-1.5 py-2 text-xs font-semibold text-surface-500 hover:text-foreground transition-colors"
+                            className="w-full flex items-center justify-center gap-1.5 py-2 text-sm font-semibold text-surface-500 hover:text-foreground transition-colors"
                         >
                             <ChevronUp className="h-4 w-4" aria-hidden="true" />
                             Close search
@@ -225,56 +154,56 @@ export function GymWorkoutForm({ onSuccess }: Props) {
                     <button
                         type="button"
                         onClick={() => setShowSearch(true)}
-                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-surface-200 text-sm font-semibold text-surface-400 hover:text-surface-600 hover:border-surface-300 transition-all mt-2"
+                        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border-2 border-dashed border-surface-200 text-sm font-semibold text-surface-400 hover:text-surface-600 hover:border-surface-300 transition-all"
                     >
                         <Plus className="h-4 w-4" aria-hidden="true" />
                         Add exercise
                     </button>
                 )}
-            </div>
+            </FormSection>
 
-            {/* Duration */}
-            <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
-                    Duration <span className="normal-case font-normal">(optional)</span>
-                </label>
-                <div className="flex items-center gap-2">
+            <FormSection title="Stats">
+                <NumField label="Duration" value={duration} onChange={setDuration} unit="min" />
+                <div className="space-y-1.5">
+                    <label className="block text-sm font-medium text-surface-700">Date</label>
                     <input
-                        type="number"
-                        min={0}
-                        step={1}
-                        value={duration}
-                        onChange={e => setDuration(e.target.value)}
-                        placeholder="—"
-                        className="flex-1 text-sm font-medium bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors text-foreground"
+                        type="date"
+                        value={date}
+                        max={today()}
+                        onChange={e => setDate(e.target.value)}
+                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:bg-primary-50 focus:border-primary-500"
                     />
-                    <span className="text-sm text-surface-400 shrink-0">min</span>
                 </div>
+            </FormSection>
+
+            <div className="space-y-1.5">
+                <label className="block text-sm font-medium text-surface-700">
+                    {isPrivate ? 'Notes' : 'Caption'} <span className="text-surface-400 font-normal">(optional)</span>
+                </label>
+                <textarea
+                    value={notes}
+                    onChange={e => setNotes(e.target.value)}
+                    placeholder="How did it go?"
+                    rows={2}
+                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                />
+                <p className="text-[11px] text-surface-400">
+                    {isPrivate ? 'Visible only to you.' : "Shown on your post — leave blank to use a default caption."}
+                </p>
             </div>
 
-            {/* Date */}
-            <div className="space-y-1.5">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">Date</label>
-                <input
-                    type="date"
-                    value={date}
-                    max={today()}
-                    onChange={e => setDate(e.target.value)}
-                    className="w-full text-sm font-medium bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors text-foreground"
-                />
-            </div>
+            <Toggle
+                label="Private workout"
+                subtitle="Won't appear in friends' feeds"
+                checked={isPrivate}
+                onChange={setIsPrivate}
+            />
 
             {submitError && <Alert variant="error">{submitError}</Alert>}
 
-            <button
-                type="button"
-                onClick={handleSubmit}
-                disabled={isPending}
-                className="w-full py-3 rounded-xl text-sm font-bold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
-            >
-                {isPending ? 'Logging workout…' : 'Log Workout'}
-            </button>
+            <Button onClick={handleSubmit} loading={isPending} fullWidth>
+                Log Workout
+            </Button>
         </div>
     );
 }

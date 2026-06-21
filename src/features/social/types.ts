@@ -11,6 +11,7 @@ export interface WorkoutSummary {
     distanceKm?: number | null;
     caloriesBurned?: number | null;
     totalVolumeKg?: number | null;
+    exerciseCount?: number | null;
     completedAt?: string | null;
 }
 

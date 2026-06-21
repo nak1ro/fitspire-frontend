@@ -2,11 +2,14 @@
 
 import { useState, useRef } from 'react';
 import { useCreatePost } from '../hooks/useSocialMutations';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
+import { Avatar, Button, Card } from '@/shared/ui';
 
 export function PostComposer() {
     const [content, setContent] = useState('');
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const { mutate, isPending } = useCreatePost();
+    const { data: profile } = useUserProfile();
 
     const handlePost = () => {
         const trimmed = content.trim();
@@ -25,16 +28,15 @@ export function PostComposer() {
     const hasContent = content.trim().length > 0;
 
     return (
-        <div className="rounded-2xl border border-surface-200 bg-surface p-4">
+        <Card padding="md">
             <div className="flex gap-3">
-                {/* Avatar placeholder */}
-                <div
-                    className="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold shrink-0 mt-0.5"
-                    style={{ backgroundColor: 'rgba(5,150,105,0.12)', color: '#059669' }}
-                    aria-hidden="true"
-                >
-                    Me
-                </div>
+                <Avatar
+                    displayName={profile?.displayName ?? ''}
+                    userName={profile?.userName ?? '...'}
+                    avatarUrl={profile?.profilePictureUrl}
+                    size="sm"
+                    className="mt-0.5"
+                />
 
                 <textarea
                     ref={textareaRef}
@@ -50,16 +52,11 @@ export function PostComposer() {
             {hasContent && (
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-surface-100">
                     <span className="text-[11px] text-surface-400">⌘ + Enter to post</span>
-                    <button
-                        onClick={handlePost}
-                        disabled={isPending}
-                        className="px-4 py-1.5 rounded-xl text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-                        style={{ background: 'linear-gradient(135deg, #059669, #34D399)' }}
-                    >
-                        {isPending ? 'Posting…' : 'Post'}
-                    </button>
+                    <Button onClick={handlePost} loading={isPending} size="sm">
+                        Post
+                    </Button>
                 </div>
             )}
-        </div>
+        </Card>
     );
 }
