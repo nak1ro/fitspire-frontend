@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { Dumbbell } from 'lucide-react';
 import { EmptyState } from '@/shared/ui';
 import { useWorkouts } from '../hooks/useWorkouts';
+import { resolveKnownType } from '../typeConfig';
 import { WorkoutStatsStrip } from './WorkoutStatsStrip';
 import { WorkoutTypeFilter } from './WorkoutTypeFilter';
 import { WorkoutCard } from './WorkoutCard';
@@ -53,7 +54,7 @@ export function WorkoutsView() {
     const filteredWorkouts = useMemo(() => {
         if (!workouts) return [];
         if (!selectedType) return workouts;
-        return workouts.filter(w => w.workoutType === selectedType);
+        return workouts.filter(w => resolveKnownType(w.workoutType) === selectedType);
     }, [workouts, selectedType]);
 
     const grouped = useMemo(() => groupByMonth(filteredWorkouts), [filteredWorkouts]);

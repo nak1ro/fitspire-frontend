@@ -1,6 +1,6 @@
 import { Trophy } from 'lucide-react';
 import { EmptyState, IconChip } from '@/shared/ui';
-import { getTypeConfig, KNOWN_TYPES } from '@/features/workout/typeConfig';
+import { getTypeConfig, resolveKnownType, KNOWN_TYPES } from '@/features/workout/typeConfig';
 import type { PersonalRecord } from '@/features/workout/types';
 
 function formatMetric(metric: string): string {
@@ -63,11 +63,14 @@ export function ProfileRecordsTab({ records }: Props) {
         );
     }
 
-    // Group by workout type, preserving the known type order
+    // Group by workout type, preserving the known type order.
+    // The API returns lowercase type strings, so normalize before grouping —
+    // otherwise the known-type sort below never matches.
     const grouped = new Map<string, PersonalRecord[]>();
     for (const r of records) {
-        if (!grouped.has(r.workoutType)) grouped.set(r.workoutType, []);
-        grouped.get(r.workoutType)!.push(r);
+        const key = resolveKnownType(r.workoutType) ?? r.workoutType;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key)!.push(r);
     }
 
     // Sort groups: known types first (in order), then unknown types alphabetically

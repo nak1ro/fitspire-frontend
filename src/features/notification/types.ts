@@ -1,5 +1,14 @@
-export type NotificationType = 'Follow' | 'PostLike' | 'PostComment' | 'GoalCompleted' | string;
-export type NotificationReferenceType = 'user' | 'post' | string;
+export type NotificationType =
+    | 'Follow'
+    | 'PostLike'
+    | 'PostComment'
+    | 'GoalCompleted'
+    | 'FollowRequest'
+    | 'FollowRequestAccepted'
+    | 'CommentLike'
+    | 'CommentReply'
+    | string;
+export type NotificationReferenceType = 'user' | 'post' | 'comment' | string;
 
 export interface NotificationPagination {
     page?: number;

@@ -3,17 +3,44 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
-import { getFeed, getUserPosts } from '../api/client';
+import {
+    getDiscoverFeed,
+    getFollowingFeed,
+    getPost,
+    getUserPosts,
+} from '../api/client';
 import { FeedPagination } from '../types';
 import { socialQueryKeys } from './queryKeys';
 
-export function useSocialFeed(pagination?: FeedPagination) {
+export function useFollowingFeed(pagination?: FeedPagination) {
     const { accessToken } = useAuthSession();
 
     return useQuery({
-        queryKey: socialQueryKeys.feed(pagination),
-        queryFn: () => getFeed(requireAccessToken(accessToken), pagination),
+        queryKey: socialQueryKeys.followingFeed(pagination),
+        queryFn: () => getFollowingFeed(requireAccessToken(accessToken), pagination),
         enabled: Boolean(accessToken),
+    });
+}
+
+export const useSocialFeed = useFollowingFeed;
+
+export function useDiscoverFeed(pagination?: FeedPagination) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.discoverFeed(pagination),
+        queryFn: () => getDiscoverFeed(requireAccessToken(accessToken), pagination),
+        enabled: Boolean(accessToken),
+    });
+}
+
+export function usePost(postId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.post(postId ?? ''),
+        queryFn: () => getPost(requireAccessToken(accessToken), postId ?? ''),
+        enabled: Boolean(accessToken && postId),
     });
 }
 

@@ -3,6 +3,8 @@ export interface FeedPagination {
     pageSize?: number;
 }
 
+export type SocialPagination = FeedPagination;
+
 export interface WorkoutSummary {
     id: string;
     workoutType: string;
@@ -52,6 +54,26 @@ export interface UpdatePostRequest {
 
 export interface CommentRequest {
     content: string;
+    replyToCommentId?: string | null;
+}
+
+export interface UpdateCommentRequest {
+    content: string;
+}
+
+export interface CommentResponse {
+    id: string;
+    userId: string;
+    userName: string;
+    userAvatarUrl?: string | null;
+    content: string;
+    rootCommentId?: string | null;
+    replyToCommentId?: string | null;
+    likesCount: number;
+    isLikedByCurrentUser: boolean;
+    repliesCount: number;
+    createdAt: string;
+    updatedAt?: string | null;
 }
 
 export interface LikeResponse {
@@ -60,4 +82,45 @@ export interface LikeResponse {
 
 export interface FollowResponse {
     isFollowing: boolean;
+    isRequestPending: boolean;
+}
+
+export interface ShareWorkoutRequest {
+    workoutId: string;
+    caption?: string | null;
+}
+
+export interface SocialUserSummary {
+    id: string;
+    userName: string;
+    displayName: string;
+    profilePictureUrl?: string | null;
+}
+
+export type SocialRelationship =
+    | 'self'
+    | 'following'
+    | 'outgoing-request-pending'
+    | 'not-following'
+    | string;
+
+export interface SocialProfileResponse {
+    id: string;
+    userName: string;
+    displayName: string;
+    bio?: string | null;
+    profilePictureUrl?: string | null;
+    isPrivate: boolean;
+    followersCount: number;
+    followingCount: number;
+    relationship: SocialRelationship;
+}
+
+export interface FollowRequestResponse {
+    id: string;
+    userId: string;
+    userName: string;
+    displayName: string;
+    profilePictureUrl?: string | null;
+    requestedAt: string;
 }

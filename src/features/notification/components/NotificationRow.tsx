@@ -1,12 +1,16 @@
-import { UserPlus, Heart, MessageCircle, Bell, type LucideIcon } from 'lucide-react';
+import { UserPlus, Heart, MessageCircle, Bell, UserCheck, Reply, type LucideIcon } from 'lucide-react';
 import { IconChip } from '@/shared/ui';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 import type { AppNotification } from '../types';
 
 const TYPE_ICON: Record<string, LucideIcon> = {
     Follow: UserPlus,
+    FollowRequest: UserPlus,
+    FollowRequestAccepted: UserCheck,
     PostLike: Heart,
     PostComment: MessageCircle,
+    CommentLike: Heart,
+    CommentReply: Reply,
 };
 
 interface NotificationRowProps {
