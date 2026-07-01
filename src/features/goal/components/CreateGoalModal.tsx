@@ -4,7 +4,7 @@ import { useState, useMemo, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button, Input, Alert } from '@/shared/ui';
 import { useGoalTypes, useCreateGoal } from '../hooks/useGoals';
-import type { GoalType, GoalRecurrencePattern } from '../types';
+import type { GoalSchedule, GoalType } from '../types';
 
 interface Props {
     open: boolean;
@@ -69,7 +69,9 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
     const [targetValue, setTargetValue] = useState('');
     const [deadline, setDeadline] = useState('');
     const [isPublic, setIsPublic] = useState(true);
+    const [schedule, setSchedule] = useState<GoalSchedule>(goalType.allowedSchedules[0] ?? 'one-off');
     const { mutate, isPending, error } = useCreateGoal();
+    const isOneOff = schedule === 'one-off';
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -77,10 +79,9 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
             {
                 goalTypeId: goalType.id,
                 targetValue: Number(targetValue),
-                unit: goalType.defaultUnit,
-                deadline: deadline || null,
+                schedule,
+                deadline: isOneOff ? deadline || null : null,
                 isPublic,
-                recurrencePattern: null as GoalRecurrencePattern | null,
             },
             { onSuccess }
         );
@@ -106,11 +107,30 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
             />
 
             <Input
-                label="Deadline (optional)"
+                label={isOneOff ? 'Deadline' : 'Deadline (not used for recurring goals)'}
                 type="date"
+                required={isOneOff}
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
+                disabled={!isOneOff}
             />
+
+            {goalType.allowedSchedules.length > 1 && (
+                <label className="block space-y-1">
+                    <span className="text-sm font-medium text-foreground">Schedule</span>
+                    <select
+                        value={schedule}
+                        onChange={(event) => setSchedule(event.target.value as GoalSchedule)}
+                        className="w-full rounded-xl border border-surface-200 bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500"
+                    >
+                        {goalType.allowedSchedules.map((allowedSchedule) => (
+                            <option key={allowedSchedule} value={allowedSchedule}>
+                                {allowedSchedule === 'one-off' ? 'One-off' : allowedSchedule[0].toUpperCase() + allowedSchedule.slice(1)}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            )}
 
             <label className="flex items-center gap-2.5 cursor-pointer">
                 <input

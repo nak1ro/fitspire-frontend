@@ -12,6 +12,11 @@ import {
     getOutgoingFollowRequests,
     getPostComments,
     getPostLikes,
+    getPublicBadges,
+    getPublicChallengeResults,
+    getPublicFeaturedBadges,
+    getPublicGoalPeriods,
+    getPublicGoals,
     getSocialProfile,
     searchSocialUsers,
 } from '../api/client';
@@ -126,5 +131,55 @@ export function useOutgoingFollowRequests(pagination?: FeedPagination) {
         queryKey: socialQueryKeys.outgoingFollowRequests(pagination),
         queryFn: () => getOutgoingFollowRequests(requireAccessToken(accessToken), pagination),
         enabled: Boolean(accessToken),
+    });
+}
+
+export function usePublicGoals(userId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicGoals(userId ?? ''),
+        queryFn: () => getPublicGoals(requireAccessToken(accessToken), userId ?? ''),
+        enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicGoalPeriods(userId: string | null, pagination?: FeedPagination) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicGoalPeriods(userId ?? '', pagination),
+        queryFn: () => getPublicGoalPeriods(requireAccessToken(accessToken), userId ?? '', pagination),
+        enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicBadges(userId: string | null, category?: string, pagination?: FeedPagination) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicBadges(userId ?? '', category, pagination),
+        queryFn: () => getPublicBadges(requireAccessToken(accessToken), userId ?? '', category, pagination),
+        enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicFeaturedBadges(userId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicFeaturedBadges(userId ?? ''),
+        queryFn: () => getPublicFeaturedBadges(requireAccessToken(accessToken), userId ?? ''),
+        enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicChallengeResults(userId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicChallengeResults(userId ?? ''),
+        queryFn: () => getPublicChallengeResults(requireAccessToken(accessToken), userId ?? ''),
+        enabled: Boolean(accessToken && userId),
     });
 }

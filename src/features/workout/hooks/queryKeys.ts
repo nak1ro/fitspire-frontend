@@ -1,4 +1,4 @@
-import { ExerciseQuery, WorkoutFilter } from '../types';
+import { ExerciseQuery, WorkoutFilter, WorkoutSummaryFilter } from '../types';
 
 export const workoutQueryKeys = {
     all: ['workout'] as const,
@@ -11,4 +11,10 @@ export const workoutQueryKeys = {
     routines: () => [...workoutQueryKeys.all, 'routines'] as const,
     routine: (routineId: string) => [...workoutQueryKeys.routines(), routineId] as const,
     personalRecords: () => [...workoutQueryKeys.all, 'personal-records'] as const,
+    activeSession: () => [...workoutQueryKeys.all, 'active-session'] as const,
+    histories: () => [...workoutQueryKeys.all, 'history'] as const,
+    history: (archived: boolean, page: number, pageSize: number) =>
+        [...workoutQueryKeys.histories(), archived ? 'archived' : 'active', page, pageSize] as const,
+    summaries: () => [...workoutQueryKeys.all, 'summary'] as const,
+    summary: (filter?: WorkoutSummaryFilter) => [...workoutQueryKeys.summaries(), filter ?? {}] as const,
 };

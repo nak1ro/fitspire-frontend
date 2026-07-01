@@ -1,8 +1,8 @@
 import { env } from './env';
 import { ApiError } from '../types';
 
-type QueryValue = string | number | boolean | null | undefined;
-type QueryParams = Record<string, QueryValue | QueryValue[]>;
+export type QueryValue = string | number | boolean | null | undefined;
+export type QueryParams = Record<string, QueryValue | QueryValue[]>;
 
 export interface HttpOptions extends Omit<RequestInit, 'body'> {
     accessToken?: string | null;
@@ -143,5 +143,5 @@ export async function http<T>(endpoint: string, options: HttpOptions = {}): Prom
         return undefined as T;
     }
 
-    return parseBody(response) as Promise<T>;
+    return (await parseBody(response)) as T;
 }

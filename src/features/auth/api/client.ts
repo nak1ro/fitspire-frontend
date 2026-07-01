@@ -7,6 +7,9 @@ import {
     VerifyEmailRequest,
     RegisterRequest,
     ResetPasswordRequest,
+    ChangePasswordRequest,
+    ExternalLoginRequest,
+    LoginRequest,
 } from '../types';
 
 /**
@@ -31,6 +34,18 @@ export const signUp = (data: SignUpRequest) => {
     });
 };
 
+export const login = (data: LoginRequest) =>
+    http<AuthResponse>(AUTH_ROUTES.login, {
+        method: 'POST',
+        json: data,
+    });
+
+export const externalLogin = (data: ExternalLoginRequest) =>
+    http<AuthResponse>(AUTH_ROUTES.externalLogin, {
+        method: 'POST',
+        json: data,
+    });
+
 export const forgotPassword = (data: ForgotPasswordRequest) =>
     http<void>(AUTH_ROUTES.forgotPassword, {
         method: 'POST',
@@ -38,7 +53,7 @@ export const forgotPassword = (data: ForgotPasswordRequest) =>
     });
 
 export const verifyEmail = (data: VerifyEmailRequest) =>
-    http<void>(AUTH_ROUTES.confirmEmail, {
+    http<string>(AUTH_ROUTES.confirmEmail, {
         method: 'POST',
         json: data
     });
@@ -47,4 +62,11 @@ export const resetPassword = (data: ResetPasswordRequest) =>
     http<void>(AUTH_ROUTES.resetPassword, {
         method: 'POST',
         json: data
+    });
+
+export const changePassword = (accessToken: string, data: ChangePasswordRequest) =>
+    http<void>(AUTH_ROUTES.changePassword, {
+        method: 'POST',
+        accessToken,
+        json: data,
     });

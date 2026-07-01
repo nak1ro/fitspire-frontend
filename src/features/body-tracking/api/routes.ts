@@ -1,0 +1,1 @@
+export const BODY_CHECK_IN_ROUTES = { base: '/api/body-check-ins', latest: '/api/body-check-ins/latest', summary: '/api/body-check-ins/summary', detail: (id: string) => `/api/body-check-ins/${id}` } as const;

@@ -10,21 +10,17 @@ import {
     deleteWorkoutRoutine,
     saveWorkoutAsRoutine,
     updateWorkout,
+    updateWorkoutRoutine,
 } from '../api/client';
 import {
     CompleteWorkoutRequest,
     CreateWorkoutFromRoutineRequest,
     SaveWorkoutRoutineRequest,
     UpdateWorkoutRequest,
+    UpdateWorkoutRoutineRequest,
 } from '../types';
 import { workoutQueryKeys } from './queryKeys';
-
-async function invalidateWorkoutReads(queryClient: ReturnType<typeof useQueryClient>) {
-    await Promise.all([
-        queryClient.invalidateQueries({ queryKey: workoutQueryKeys.lists() }),
-        queryClient.invalidateQueries({ queryKey: workoutQueryKeys.personalRecords() }),
-    ]);
-}
+import { invalidateWorkoutDerivedQueries } from './invalidation';
 
 export function useCompleteWorkout() {
     const { accessToken } = useAuthSession();
@@ -34,10 +30,7 @@ export function useCompleteWorkout() {
         mutationFn: ({ workoutId, data }: { workoutId: string; data: CompleteWorkoutRequest }) =>
             completeWorkout(requireAccessToken(accessToken), workoutId, data),
         onSuccess: async (_result, variables) => {
-            await Promise.all([
-                invalidateWorkoutReads(queryClient),
-                queryClient.invalidateQueries({ queryKey: workoutQueryKeys.detail(variables.workoutId) }),
-            ]);
+            await invalidateWorkoutDerivedQueries(queryClient, variables.workoutId);
         },
     });
 }
@@ -50,10 +43,7 @@ export function useUpdateWorkout() {
         mutationFn: ({ workoutId, data }: { workoutId: string; data: UpdateWorkoutRequest }) =>
             updateWorkout(requireAccessToken(accessToken), workoutId, data),
         onSuccess: async (_result, variables) => {
-            await Promise.all([
-                invalidateWorkoutReads(queryClient),
-                queryClient.invalidateQueries({ queryKey: workoutQueryKeys.detail(variables.workoutId) }),
-            ]);
+            await invalidateWorkoutDerivedQueries(queryClient, variables.workoutId);
         },
     });
 }
@@ -66,7 +56,7 @@ export function useDeleteWorkout() {
         mutationFn: (workoutId: string) => deleteWorkout(requireAccessToken(accessToken), workoutId),
         onSuccess: async (_result, workoutId) => {
             queryClient.removeQueries({ queryKey: workoutQueryKeys.detail(workoutId) });
-            await invalidateWorkoutReads(queryClient);
+            await invalidateWorkoutDerivedQueries(queryClient);
         },
     });
 }
@@ -106,6 +96,22 @@ export function useDeleteWorkoutRoutine() {
         onSuccess: async (_result, routineId) => {
             queryClient.removeQueries({ queryKey: workoutQueryKeys.routine(routineId) });
             await queryClient.invalidateQueries({ queryKey: workoutQueryKeys.routines() });
+        },
+    });
+}
+
+export function useUpdateWorkoutRoutine() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ routineId, data }: { routineId: string; data: UpdateWorkoutRoutineRequest }) =>
+            updateWorkoutRoutine(requireAccessToken(accessToken), routineId, data),
+        onSuccess: async (_result, variables) => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: workoutQueryKeys.routine(variables.routineId) }),
+                queryClient.invalidateQueries({ queryKey: workoutQueryKeys.routines() }),
+            ]);
         },
     });
 }

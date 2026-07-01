@@ -34,7 +34,7 @@ function GoalsEmptyState({ onCreate }: { onCreate: () => void }) {
 }
 
 export function GoalsView() {
-    const { data: goals, isLoading } = useGoals();
+    const { data: goalsPage, isLoading } = useGoals();
     const { data: goalTypes } = useGoalTypes();
     const [createOpen, setCreateOpen] = useState(false);
 
@@ -44,14 +44,15 @@ export function GoalsView() {
         return map;
     }, [goalTypes]);
 
-    const activeGoals = (goals ?? []).filter((g) => g.milestonePercent < 100);
-    const completedGoals = (goals ?? []).filter((g) => g.milestonePercent >= 100);
+    const goals = goalsPage?.items ?? [];
+    const activeGoals = goals.filter((g) => g.milestonePercent < 100);
+    const completedGoals = goals.filter((g) => g.milestonePercent >= 100);
 
     return (
         <div>
             <div className="flex items-center justify-between mb-5">
                 <p className="text-sm text-surface-500">
-                    {goals ? `${activeGoals.length} active` : ''}
+                    {goalsPage ? `${activeGoals.length} active` : ''}
                 </p>
                 <Button onClick={() => setCreateOpen(true)} size="sm" className="gap-1.5">
                     <Plus className="h-4 w-4" aria-hidden="true" />
@@ -61,7 +62,7 @@ export function GoalsView() {
 
             {isLoading ? (
                 <GoalsSkeleton />
-            ) : !goals || goals.length === 0 ? (
+            ) : goals.length === 0 ? (
                 <GoalsEmptyState onCreate={() => setCreateOpen(true)} />
             ) : (
                 <div className="space-y-6">

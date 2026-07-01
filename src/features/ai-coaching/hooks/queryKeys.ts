@@ -1,0 +1,1 @@
+import type { WeeklyCoachHistoryFilter } from '../types'; export const aiCoachingQueryKeys = { all: ['ai-coaching'] as const, reports: (filter?: WeeklyCoachHistoryFilter) => [...aiCoachingQueryKeys.all, 'reports', filter ?? {}] as const, report: (id: string) => [...aiCoachingQueryKeys.all, 'report', id] as const };

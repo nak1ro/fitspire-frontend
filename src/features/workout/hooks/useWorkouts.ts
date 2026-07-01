@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
-import { getWorkoutById, getWorkouts } from '../api/client';
-import { WorkoutFilter } from '../types';
+import { getWorkoutById, getWorkoutSummary, getWorkouts } from '../api/client';
+import { WorkoutFilter, WorkoutSummaryFilter } from '../types';
 import { workoutQueryKeys } from './queryKeys';
 
 export function useWorkouts(filter?: WorkoutFilter) {
@@ -24,5 +24,15 @@ export function useWorkout(workoutId: string | null) {
         queryKey: workoutQueryKeys.detail(workoutId ?? ''),
         queryFn: () => getWorkoutById(requireAccessToken(accessToken), workoutId ?? ''),
         enabled: Boolean(accessToken && workoutId),
+    });
+}
+
+export function useWorkoutSummary(filter?: WorkoutSummaryFilter) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: workoutQueryKeys.summary(filter),
+        queryFn: () => getWorkoutSummary(requireAccessToken(accessToken), filter),
+        enabled: Boolean(accessToken),
     });
 }

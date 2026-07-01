@@ -17,16 +17,19 @@ import {
     CreateSwimmingWorkoutRequest,
     CreateYogaWorkoutRequest,
     Workout,
+    LegacyCreateGymWorkoutRequest,
 } from '../types';
 import { workoutQueryKeys } from './queryKeys';
+import { adaptLegacyGymFormRequest } from '../lib/legacyGymFormAdapter';
+import { invalidateWorkoutDerivedQueries } from './invalidation';
 
 async function invalidateWorkoutLists(queryClient: ReturnType<typeof useQueryClient>) {
-    await queryClient.invalidateQueries({ queryKey: workoutQueryKeys.lists() });
+    await invalidateWorkoutDerivedQueries(queryClient);
 }
 
 async function cacheCreatedWorkout(queryClient: ReturnType<typeof useQueryClient>, workout: Workout) {
     queryClient.setQueryData(workoutQueryKeys.detail(workout.id), workout);
-    await invalidateWorkoutLists(queryClient);
+    await invalidateWorkoutDerivedQueries(queryClient, workout.id);
 }
 
 export function useCreateGymWorkout() {
@@ -34,8 +37,13 @@ export function useCreateGymWorkout() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (data: CreateGymWorkoutRequest) =>
-            createGymWorkout(requireAccessToken(accessToken), data),
+        mutationFn: (data: CreateGymWorkoutRequest | LegacyCreateGymWorkoutRequest) =>
+            createGymWorkout(
+                requireAccessToken(accessToken),
+                Array.isArray(data.exercises[0]?.sets)
+                    ? data as CreateGymWorkoutRequest
+                    : adaptLegacyGymFormRequest(data as LegacyCreateGymWorkoutRequest),
+            ),
         onSuccess: async () => {
             await invalidateWorkoutLists(queryClient);
         },

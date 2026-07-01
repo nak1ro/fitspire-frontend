@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
+import { notificationQueryKeys } from '@/features/notification/hooks/queryKeys';
 import {
     acceptFollowRequest,
     cancelFollowRequest,
@@ -16,9 +17,6 @@ import {
     rejectFollowRequest,
     removeFollower,
     shareWorkout,
-    toggleCommentLike,
-    toggleFollowUser,
-    togglePostLike,
     unlikeComment,
     unlikePost,
     unfollowUser,
@@ -48,6 +46,7 @@ async function invalidatePostReads(
     await Promise.all([
         invalidateFeedReads(queryClient),
         queryClient.invalidateQueries({ queryKey: socialQueryKeys.post(postId) }),
+        queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
     ]);
 }
 
@@ -98,17 +97,6 @@ export function useUnlikePost() {
 
     return useMutation({
         mutationFn: (postId: string) => unlikePost(requireAccessToken(accessToken), postId),
-        onSuccess: async (_, postId) => invalidatePostReads(queryClient, postId),
-    });
-}
-
-/** @deprecated Prefer useLikePost/useUnlikePost. */
-export function useTogglePostLike() {
-    const { accessToken } = useAuthSession();
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (postId: string) => togglePostLike(requireAccessToken(accessToken), postId),
         onSuccess: async (_, postId) => invalidatePostReads(queryClient, postId),
     });
 }
@@ -171,18 +159,6 @@ export function useUnlikeComment() {
     });
 }
 
-/** @deprecated Prefer useLikeComment/useUnlikeComment. */
-export function useToggleCommentLike() {
-    const { accessToken } = useAuthSession();
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: ({ postId, commentId }: { postId: string; commentId: string }) =>
-            toggleCommentLike(requireAccessToken(accessToken), postId, commentId),
-        onSuccess: async (_, variables) => invalidatePostReads(queryClient, variables.postId),
-    });
-}
-
 export function useFollowUser() {
     const { accessToken } = useAuthSession();
     const queryClient = useQueryClient();
@@ -195,6 +171,7 @@ export function useFollowUser() {
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.profile(userId) }),
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.profiles() }),
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.followRequests() }),
+                queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
             ]);
         },
     });
@@ -206,23 +183,6 @@ export function useUnfollowUser() {
 
     return useMutation({
         mutationFn: (userId: string) => unfollowUser(requireAccessToken(accessToken), userId),
-        onSuccess: async (_, userId) => {
-            await Promise.all([
-                invalidateFeedReads(queryClient),
-                queryClient.invalidateQueries({ queryKey: socialQueryKeys.profile(userId) }),
-                queryClient.invalidateQueries({ queryKey: socialQueryKeys.profiles() }),
-            ]);
-        },
-    });
-}
-
-/** @deprecated Prefer useFollowUser/useUnfollowUser. */
-export function useToggleFollowUser() {
-    const { accessToken } = useAuthSession();
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (userId: string) => toggleFollowUser(requireAccessToken(accessToken), userId),
         onSuccess: async (_, userId) => {
             await Promise.all([
                 invalidateFeedReads(queryClient),
@@ -264,6 +224,7 @@ export function useAcceptFollowRequest() {
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.followRequests() }),
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.profiles() }),
                 invalidateFeedReads(queryClient),
+                queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
             ]);
         },
     });
@@ -290,6 +251,11 @@ export function useShareWorkout() {
 
     return useMutation({
         mutationFn: (data: ShareWorkoutRequest) => shareWorkout(requireAccessToken(accessToken), data),
-        onSuccess: async () => invalidateFeedReads(queryClient),
+        onSuccess: async () => {
+            await Promise.all([
+                invalidateFeedReads(queryClient),
+                queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
+            ]);
+        },
     });
 }

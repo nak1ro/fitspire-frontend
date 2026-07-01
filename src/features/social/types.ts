@@ -1,3 +1,5 @@
+import { Media } from '@/features/media/types';
+
 export interface FeedPagination {
     page?: number;
     pageSize?: number;
@@ -22,6 +24,7 @@ export interface CommentPreview {
     userId: string;
     userName: string;
     userAvatarUrl?: string | null;
+    userAvatar?: Media | null;
     content: string;
     createdAt: string;
 }
@@ -31,6 +34,8 @@ export interface FeedItem {
     userId: string;
     userName: string;
     userAvatarUrl?: string | null;
+    userAvatar?: Media | null;
+    media: Media[];
     type: string;
     content?: string | null;
     referenceEntityId?: string | null;
@@ -43,13 +48,13 @@ export interface FeedItem {
 }
 
 export interface CreatePostRequest {
-    content: string;
-    imageUrl?: string | null;
+    content?: string | null;
+    mediaAssetIds?: string[] | null;
 }
 
 export interface UpdatePostRequest {
-    content: string;
-    imageUrl?: string | null;
+    content?: string | null;
+    mediaAssetIds?: string[] | null;
 }
 
 export interface CommentRequest {
@@ -66,6 +71,7 @@ export interface CommentResponse {
     userId: string;
     userName: string;
     userAvatarUrl?: string | null;
+    userAvatar?: Media | null;
     content: string;
     rootCommentId?: string | null;
     replyToCommentId?: string | null;
@@ -95,6 +101,7 @@ export interface SocialUserSummary {
     userName: string;
     displayName: string;
     profilePictureUrl?: string | null;
+    profilePicture?: Media | null;
 }
 
 export type SocialRelationship =
@@ -110,6 +117,7 @@ export interface SocialProfileResponse {
     displayName: string;
     bio?: string | null;
     profilePictureUrl?: string | null;
+    profilePicture?: Media | null;
     isPrivate: boolean;
     followersCount: number;
     followingCount: number;
@@ -122,5 +130,60 @@ export interface FollowRequestResponse {
     userName: string;
     displayName: string;
     profilePictureUrl?: string | null;
+    profilePicture?: Media | null;
     requestedAt: string;
+}
+
+export interface PublicGoal {
+    id: string;
+    templateName: string;
+    targetValue: number;
+    currentValue: number;
+    unit: string;
+    status: string;
+    isRecurring: boolean;
+    createdAt: string;
+}
+
+export interface PublicGoalPeriod {
+    goalId: string;
+    templateName: string;
+    startAt: string;
+    endAt: string;
+    targetValue: number;
+    progressValue: number;
+    completedAt: string;
+}
+
+export interface PublicBadgeEvidence {
+    criterionCode?: string | null;
+    threshold?: number | null;
+    achievedValue?: number | null;
+    canonicalUnit?: string | null;
+    summary?: string | null;
+}
+
+export interface PublicBadge {
+    badgeId: string;
+    code: string;
+    name: string;
+    description?: string | null;
+    iconUrl?: string | null;
+    category: string;
+    seriesCode?: string | null;
+    tier: string;
+    awardedAt: string;
+    featuredOrder?: number | null;
+    evidence: PublicBadgeEvidence;
+}
+
+export interface PublicChallengeResult {
+    challengeId: string;
+    challengeTitle: string;
+    mode: string;
+    score: number;
+    rank: number;
+    isFinisher: boolean;
+    isWinner: boolean;
+    finalizedAt: string;
 }

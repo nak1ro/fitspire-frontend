@@ -19,16 +19,18 @@ export const updateUserProfile = (accessToken: string, data: UpdateUserProfileRe
         json: data,
     });
 
-export const updateUserProfilePhoto = (accessToken: string, file: File) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return http<UserProfile>(USER_ROUTES.profilePhoto, {
-        method: 'PATCH',
+export const attachUserProfilePicture = (accessToken: string, mediaAssetId: string) =>
+    http<UserProfile>(USER_ROUTES.profilePhoto, {
+        method: 'PUT',
         accessToken,
-        formData,
+        json: { mediaAssetId },
     });
-};
+
+export const removeUserProfilePicture = (accessToken: string) =>
+    http<UserProfile>(USER_ROUTES.profilePhoto, {
+        method: 'DELETE',
+        accessToken,
+    });
 
 export const getUserPreferences = (accessToken: string) =>
     http<UserPreferences>(USER_ROUTES.preferences, {

@@ -2,6 +2,7 @@ import { http } from '@/shared/lib/http';
 import { WORKOUT_ROUTES } from './routes';
 import {
     CompleteWorkoutRequest,
+    AddGymExerciseRequest,
     CreateCyclingWorkoutRequest,
     CreateGymWorkoutRequest,
     CreateRunningWorkoutRequest,
@@ -12,15 +13,25 @@ import {
     Exercise,
     ExerciseCategory,
     ExerciseQuery,
+    GymSetInputRequest,
     PersonalRecord,
+    ReorderGymItemsRequest,
     RunningWorkout,
     SaveWorkoutRoutineRequest,
     SwimmingWorkout,
     UpdateWorkoutRequest,
+    UpdateGymExerciseRequest,
+    UpdateGymSetRequest,
+    UpdateWorkoutRoutineRequest,
+    SetCompletionRequest,
     Workout,
     WorkoutDetail,
     WorkoutFilter,
     WorkoutRoutine,
+    WorkoutSession,
+    WorkoutPageResponse,
+    WorkoutSummary,
+    WorkoutSummaryFilter,
     YogaWorkout,
 } from '../types';
 
@@ -36,6 +47,13 @@ function toExerciseQuery(query?: ExerciseQuery) {
     return {
         categoryId: query?.categoryId,
         search: query?.search,
+    };
+}
+
+function toWorkoutSummaryQuery(filter?: WorkoutSummaryFilter) {
+    return {
+        from: filter?.from,
+        to: filter?.to,
     };
 }
 
@@ -86,7 +104,7 @@ export const createYogaWorkout = (accessToken: string, data: CreateYogaWorkoutRe
     });
 
 export const completeWorkout = (accessToken: string, workoutId: string, data: CompleteWorkoutRequest) =>
-    http<{ success: boolean }>(WORKOUT_ROUTES.complete(workoutId), {
+    http<{ success: boolean }>(WORKOUT_ROUTES.finish(workoutId), {
         method: 'POST',
         accessToken,
         json: data,
@@ -158,3 +176,60 @@ export const getPersonalRecords = (accessToken: string) =>
     http<PersonalRecord[]>(WORKOUT_ROUTES.personalRecords, {
         accessToken,
     });
+
+export const getActiveWorkoutSession = async (accessToken: string): Promise<WorkoutSession | null> =>
+    (await http<WorkoutSession | undefined>(WORKOUT_ROUTES.activeSession, { accessToken })) ?? null;
+
+export const pauseWorkout = (accessToken: string, workoutId: string) =>
+    http<void>(WORKOUT_ROUTES.pause(workoutId), { method: 'POST', accessToken });
+
+export const resumeWorkout = (accessToken: string, workoutId: string) =>
+    http<void>(WORKOUT_ROUTES.resume(workoutId), { method: 'POST', accessToken });
+
+export const abandonWorkout = (accessToken: string, workoutId: string) =>
+    http<void>(WORKOUT_ROUTES.abandon(workoutId), { method: 'POST', accessToken });
+
+export const restoreWorkout = (accessToken: string, workoutId: string) =>
+    http<void>(WORKOUT_ROUTES.restore(workoutId), { method: 'POST', accessToken });
+
+export const getWorkoutHistory = (accessToken: string, page = 1, pageSize = 20) =>
+    http<WorkoutPageResponse>(WORKOUT_ROUTES.history, { accessToken, query: { page, pageSize } });
+
+export const getArchivedWorkouts = (accessToken: string, page = 1, pageSize = 20) =>
+    http<WorkoutPageResponse>(WORKOUT_ROUTES.archived, { accessToken, query: { page, pageSize } });
+
+export const getWorkoutSummary = (accessToken: string, filter?: WorkoutSummaryFilter) =>
+    http<WorkoutSummary>(WORKOUT_ROUTES.summary, {
+        accessToken,
+        query: toWorkoutSummaryQuery(filter),
+    });
+
+export const updateWorkoutRoutine = (accessToken: string, routineId: string, data: UpdateWorkoutRoutineRequest) =>
+    http<void>(WORKOUT_ROUTES.routineById(routineId), { method: 'PATCH', accessToken, json: data });
+
+export const addGymExercise = (accessToken: string, workoutId: string, data: AddGymExerciseRequest) =>
+    http<void>(WORKOUT_ROUTES.gymExercises(workoutId), { method: 'POST', accessToken, json: data });
+
+export const updateGymExercise = (accessToken: string, workoutId: string, exerciseEntryId: string, data: UpdateGymExerciseRequest) =>
+    http<void>(WORKOUT_ROUTES.gymExercise(workoutId, exerciseEntryId), { method: 'PATCH', accessToken, json: data });
+
+export const deleteGymExercise = (accessToken: string, workoutId: string, exerciseEntryId: string) =>
+    http<void>(WORKOUT_ROUTES.gymExercise(workoutId, exerciseEntryId), { method: 'DELETE', accessToken });
+
+export const reorderGymExercises = (accessToken: string, workoutId: string, data: ReorderGymItemsRequest) =>
+    http<void>(WORKOUT_ROUTES.gymExerciseOrder(workoutId), { method: 'PUT', accessToken, json: data });
+
+export const addGymSet = (accessToken: string, workoutId: string, exerciseEntryId: string, data: GymSetInputRequest) =>
+    http<void>(WORKOUT_ROUTES.gymSets(workoutId, exerciseEntryId), { method: 'POST', accessToken, json: data });
+
+export const updateGymSet = (accessToken: string, workoutId: string, exerciseEntryId: string, setId: string, data: UpdateGymSetRequest) =>
+    http<void>(WORKOUT_ROUTES.gymSet(workoutId, exerciseEntryId, setId), { method: 'PATCH', accessToken, json: data });
+
+export const setGymSetCompletion = (accessToken: string, workoutId: string, exerciseEntryId: string, setId: string, data: SetCompletionRequest) =>
+    http<void>(WORKOUT_ROUTES.gymSetCompletion(workoutId, exerciseEntryId, setId), { method: 'PUT', accessToken, json: data });
+
+export const deleteGymSet = (accessToken: string, workoutId: string, exerciseEntryId: string, setId: string) =>
+    http<void>(WORKOUT_ROUTES.gymSet(workoutId, exerciseEntryId, setId), { method: 'DELETE', accessToken });
+
+export const reorderGymSets = (accessToken: string, workoutId: string, exerciseEntryId: string, data: ReorderGymItemsRequest) =>
+    http<void>(WORKOUT_ROUTES.gymSetOrder(workoutId, exerciseEntryId), { method: 'PUT', accessToken, json: data });

@@ -1,0 +1,2 @@
+import type { BodyCheckInHistoryFilter, DateRangeFilter } from '../types';
+export const bodyCheckInQueryKeys = { all: ['body-check-in'] as const, history: (filter?: BodyCheckInHistoryFilter) => [...bodyCheckInQueryKeys.all, 'history', filter ?? {}] as const, latest: () => [...bodyCheckInQueryKeys.all, 'latest'] as const, summary: (filter?: DateRangeFilter) => [...bodyCheckInQueryKeys.all, 'summary', filter ?? {}] as const, detail: (id: string) => [...bodyCheckInQueryKeys.all, 'detail', id] as const };

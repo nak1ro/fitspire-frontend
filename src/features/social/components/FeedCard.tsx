@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Heart, MessageCircle, Send, Trophy } from 'lucide-react';
 import { Avatar, Card, IconChip } from '@/shared/ui';
 import type { FeedItem } from '../types';
-import { useTogglePostLike, useCommentOnPost } from '../hooks/useSocialMutations';
+import { useLikePost, useUnlikePost, useCommentOnPost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 
@@ -48,14 +48,16 @@ export function FeedCard({ item }: { item: FeedItem }) {
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentText, setCommentText] = useState('');
 
-    const { mutate: toggleLike } = useTogglePostLike();
+    const { mutate: likePost } = useLikePost();
+    const { mutate: unlikePost } = useUnlikePost();
     const { mutate: postComment, isPending: isSendingComment } = useCommentOnPost();
 
     const handleLike = () => {
         const wasLiked = liked;
         setLiked(!wasLiked);
         setLikesCount(c => c + (wasLiked ? -1 : 1));
-        toggleLike(item.id, {
+        const mutateLike = wasLiked ? unlikePost : likePost;
+        mutateLike(item.id, {
             onError: () => {
                 setLiked(wasLiked);
                 setLikesCount(c => c + (wasLiked ? 1 : -1));

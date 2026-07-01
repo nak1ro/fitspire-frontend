@@ -1,0 +1,20 @@
+export const CHALLENGE_ROUTES = {
+    base: '/api/challenges',
+    discover: '/api/challenges/discover',
+    available: '/api/challenges/available',
+    mine: '/api/challenges/mine',
+    incomingInvitations: '/api/challenges/invitations/incoming',
+    challenge: (challengeId: string) => `/api/challenges/${challengeId}`,
+    copy: (challengeId: string) => `/api/challenges/${challengeId}/copy`,
+    join: (challengeId: string) => `/api/challenges/${challengeId}/join`,
+    leave: (challengeId: string) => `/api/challenges/${challengeId}/participants/me`,
+    participant: (challengeId: string, userId: string) =>
+        `/api/challenges/${challengeId}/participants/${userId}`,
+    cancel: (challengeId: string) => `/api/challenges/${challengeId}/cancel`,
+    invitations: (challengeId: string) => `/api/challenges/${challengeId}/invitations`,
+    invitation: (invitationId: string) => `/api/challenges/invitations/${invitationId}`,
+    acceptInvitation: (invitationId: string) => `/api/challenges/invitations/${invitationId}/accept`,
+    rejectInvitation: (invitationId: string) => `/api/challenges/invitations/${invitationId}/reject`,
+    leaderboard: (challengeId: string) => `/api/challenges/${challengeId}/leaderboard`,
+    results: (challengeId: string) => `/api/challenges/${challengeId}/results`,
+} as const;

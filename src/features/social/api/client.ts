@@ -9,6 +9,10 @@ import {
     FollowRequestResponse,
     FollowResponse,
     LikeResponse,
+    PublicBadge,
+    PublicChallengeResult,
+    PublicGoal,
+    PublicGoalPeriod,
     ShareWorkoutRequest,
     SocialProfileResponse,
     SocialUserSummary,
@@ -89,13 +93,6 @@ export const unlikePost = (accessToken: string, postId: string) =>
         accessToken,
     });
 
-/** @deprecated Prefer likePost/unlikePost for retry-safe interactions. */
-export const togglePostLike = (accessToken: string, postId: string) =>
-    http<LikeResponse>(SOCIAL_ROUTES.like(postId), {
-        method: 'POST',
-        accessToken,
-    });
-
 export const getPostLikes = (accessToken: string, postId: string, pagination?: FeedPagination) =>
     http<SocialUserSummary[]>(SOCIAL_ROUTES.postLikes(postId), {
         accessToken,
@@ -156,13 +153,6 @@ export const unlikeComment = (accessToken: string, postId: string, commentId: st
         accessToken,
     });
 
-/** @deprecated Prefer likeComment/unlikeComment for retry-safe interactions. */
-export const toggleCommentLike = (accessToken: string, postId: string, commentId: string) =>
-    http<LikeResponse>(SOCIAL_ROUTES.commentLike(postId, commentId), {
-        method: 'POST',
-        accessToken,
-    });
-
 export const getCommentLikes = (
     accessToken: string,
     postId: string,
@@ -213,13 +203,6 @@ export const removeFollower = (accessToken: string, userId: string) =>
         accessToken,
     });
 
-/** @deprecated Prefer followUser for explicit follow/request behaviour. */
-export const toggleFollowUser = (accessToken: string, targetUserId: string) =>
-    http<FollowResponse>(SOCIAL_ROUTES.follow(targetUserId), {
-        method: 'POST',
-        accessToken,
-    });
-
 export const getIncomingFollowRequests = (accessToken: string, pagination?: FeedPagination) =>
     http<FollowRequestResponse[]>(SOCIAL_ROUTES.followRequestsIncoming, {
         accessToken,
@@ -256,3 +239,28 @@ export const shareWorkout = (accessToken: string, data: ShareWorkoutRequest) =>
         accessToken,
         json: data,
     });
+
+export const getPublicGoals = (accessToken: string, userId: string) =>
+    http<PublicGoal[]>(SOCIAL_ROUTES.publicGoals(userId), { accessToken });
+
+export const getPublicGoalPeriods = (accessToken: string, userId: string, pagination?: FeedPagination) =>
+    http<{ items: PublicGoalPeriod[]; page: number; pageSize: number; totalCount: number }>(
+        SOCIAL_ROUTES.publicGoalPeriods(userId),
+        { accessToken, query: toPaginationQuery(pagination) }
+    );
+
+export const getPublicBadges = (
+    accessToken: string,
+    userId: string,
+    category?: string,
+    pagination?: FeedPagination
+) => http<{ items: PublicBadge[]; page: number; pageSize: number; totalCount: number }>(
+    SOCIAL_ROUTES.publicBadges(userId),
+    { accessToken, query: { category, ...toPaginationQuery(pagination) } }
+);
+
+export const getPublicFeaturedBadges = (accessToken: string, userId: string) =>
+    http<PublicBadge[]>(SOCIAL_ROUTES.publicFeaturedBadges(userId), { accessToken });
+
+export const getPublicChallengeResults = (accessToken: string, userId: string) =>
+    http<PublicChallengeResult[]>(SOCIAL_ROUTES.publicChallengeResults(userId), { accessToken });

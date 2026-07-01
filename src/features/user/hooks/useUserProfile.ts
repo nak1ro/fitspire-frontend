@@ -3,7 +3,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
-import { getUserProfile, updateUserProfile, updateUserProfilePhoto } from '../api/client';
+import {
+    attachUserProfilePicture,
+    getUserProfile,
+    removeUserProfilePicture,
+    updateUserProfile,
+} from '../api/client';
 import { UpdateUserProfileRequest } from '../types';
 import { userQueryKeys } from './queryKeys';
 
@@ -31,14 +36,27 @@ export function useUpdateUserProfile() {
     });
 }
 
-export function useUpdateUserProfilePhoto() {
+export function useAttachUserProfilePicture() {
     const { accessToken } = useAuthSession();
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (file: File) => updateUserProfilePhoto(requireAccessToken(accessToken), file),
+        mutationFn: (mediaAssetId: string) =>
+            attachUserProfilePicture(requireAccessToken(accessToken), mediaAssetId),
         onSuccess: async (profile) => {
             queryClient.setQueryData(userQueryKeys.profile(), profile);
+            await queryClient.invalidateQueries({ queryKey: userQueryKeys.profile() });
+        },
+    });
+}
+
+export function useRemoveUserProfilePicture() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => removeUserProfilePicture(requireAccessToken(accessToken)),
+        onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: userQueryKeys.profile() });
         },
     });

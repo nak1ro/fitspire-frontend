@@ -1,3 +1,5 @@
+import { Media } from '@/features/media/types';
+
 export type PreferredLanguage = 'en' | 'es' | 'ru';
 export type UnitSystem = 'metric' | 'imperial';
 
@@ -7,12 +9,15 @@ export interface UserProfile {
     displayName: string;
     bio?: string | null;
     profilePictureUrl?: string | null;
+    profilePictureMediaId?: string | null;
+    profilePicture?: Media | null;
     isPrivate: boolean;
 }
 
 export interface UpdateUserProfileRequest {
-    displayName: string;
+    displayName?: string;
     bio?: string | null;
+    isPrivate?: boolean;
 }
 
 export interface UserPreferences {
@@ -20,6 +25,7 @@ export interface UserPreferences {
     isDarkModeEnabled: boolean;
     receiveEmailNotifications: boolean;
     unitSystem: UnitSystem;
+    timeZoneId: string;
 }
 
 export interface UpdateUserPreferencesRequest {
@@ -27,4 +33,5 @@ export interface UpdateUserPreferencesRequest {
     isDarkModeEnabled?: boolean;
     receiveEmailNotifications?: boolean;
     unitSystem?: UnitSystem;
+    timeZoneId?: string;
 }

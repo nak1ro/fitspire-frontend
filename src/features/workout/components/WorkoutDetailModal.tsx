@@ -53,6 +53,18 @@ function TypeBadge({ label, color, bg }: { label: string; color: string; bg: str
 
 // ─── Type-specific detail sections ─────────────────────────────────────────────
 
+function getExerciseSetSummary(sets: GymWorkout['exercises'][number]['sets']) {
+    const loggedSets = sets.filter(set => set.isCompleted);
+    const representativeSet = loggedSets[0] ?? sets[0];
+    const maximumWeight = Math.max(0, ...sets.map(set => set.weightKg ?? 0));
+
+    return {
+        count: sets.length,
+        reps: representativeSet?.reps ?? null,
+        maximumWeight,
+    };
+}
+
 function GymDetail({ workout, color, bg }: { workout: GymWorkout; color: string; bg: string }) {
     return (
         <div className="space-y-5">
@@ -85,16 +97,19 @@ function GymDetail({ workout, color, bg }: { workout: GymWorkout; color: string;
                         {workout.exercises
                             .slice()
                             .sort((a, b) => a.orderIndex - b.orderIndex)
-                            .map(ex => (
+                            .map(ex => {
+                                const summary = getExerciseSetSummary(ex.sets);
+                                return (
                                 <div key={ex.id} className="grid grid-cols-[1fr_52px_72px_72px] gap-2 px-3.5 py-3 border-b border-surface-100 last:border-0">
                                     <span className="text-sm font-medium text-foreground truncate">{ex.exerciseName}</span>
-                                    <span className="text-sm font-semibold text-foreground text-center">{ex.sets}</span>
-                                    <span className="text-sm font-semibold text-foreground text-center">{ex.reps}</span>
+                                    <span className="text-sm font-semibold text-foreground text-center">{summary.count}</span>
+                                    <span className="text-sm font-semibold text-foreground text-center">{summary.reps ?? '—'}</span>
                                     <span className="text-sm font-semibold text-foreground text-center">
-                                        {ex.weight > 0 ? `${ex.weight} kg` : '—'}
+                                        {summary.maximumWeight > 0 ? `${summary.maximumWeight} kg` : '—'}
                                     </span>
                                 </div>
-                            ))}
+                                );
+                            })}
                     </Card>
                 </div>
             )}

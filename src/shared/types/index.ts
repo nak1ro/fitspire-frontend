@@ -6,10 +6,14 @@ export interface ApiError {
     errors?: Record<string, string | string[]>;
 }
 
-export interface Pagination {
+export interface PageRequest {
     page: number;
     pageSize: number;
-    total: number;
+}
+
+export interface PageResponse<T> extends PageRequest {
+    items: T[];
+    totalCount: number;
 }
 
 export type Result<T> =

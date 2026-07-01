@@ -7,8 +7,15 @@ export type NotificationType =
     | 'FollowRequestAccepted'
     | 'CommentLike'
     | 'CommentReply'
-    | string;
-export type NotificationReferenceType = 'user' | 'post' | 'comment' | string;
+    | 'GoalPeriodFailed'
+    | 'ChallengeInvitation'
+    | 'ChallengeStarted'
+    | 'ChallengeCancelled'
+    | 'ChallengeCompleted'
+    | 'ChallengeWon'
+    | 'BadgeEarned'
+    | 'ChallengeUpdated';
+export type NotificationReferenceType = 'user' | 'post' | 'comment' | 'goal' | 'challenge' | 'badge';
 
 export interface NotificationPagination {
     page?: number;
