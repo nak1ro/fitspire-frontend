@@ -51,7 +51,7 @@ export function WorkoutStatsStrip({ workouts }: Props) {
     const streak = getCurrentStreak(workouts);
 
     return (
-        <div className="flex rounded-2xl overflow-hidden border border-surface-200 bg-surface mb-4">
+        <div className="flex rounded-2xl overflow-hidden border border-surface-200 bg-surface mb-6">
             <StatItem
                 value={workouts.length}
                 label="Total workouts"

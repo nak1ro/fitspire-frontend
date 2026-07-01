@@ -91,11 +91,11 @@ export function WorkoutsView() {
             )}
 
             {!isLoading && !isError && grouped.map(group => (
-                <div key={group.label} className="mb-6">
-                    <p className="text-xs font-bold uppercase tracking-widest text-surface-400 px-1 mb-2">
+                <div key={group.label} className="mb-8">
+                    <p className="text-xs font-bold uppercase tracking-widest text-surface-400 px-1 mb-3">
                         {group.label}
                     </p>
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         {group.items.map(w => (
                             <WorkoutCard
                                 key={w.id}

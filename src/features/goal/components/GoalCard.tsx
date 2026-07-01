@@ -1,4 +1,6 @@
-import { Card } from '@/shared/ui';
+import { Flame } from 'lucide-react';
+import { Badge, Card, IconChip } from '@/shared/ui';
+import { getCategoryConfig } from '../categoryConfig';
 import type { Goal } from '../types';
 
 function formatDeadline(dateStr: string): string {
@@ -13,42 +15,33 @@ function isOverdue(goal: Goal): boolean {
 
 interface GoalCardProps {
     goal: Goal;
+    category?: string;
 }
 
-export function GoalCard({ goal }: GoalCardProps) {
+export function GoalCard({ goal, category }: GoalCardProps) {
     const pct = Math.min(100, Math.round(goal.milestonePercent));
     const done = pct >= 100;
     const overdue = isOverdue(goal);
+    const { Icon, color, bg } = getCategoryConfig(category);
 
-    const barColor = done
-        ? '#4A7C5F'
+    const barClass = done
+        ? 'bg-success'
         : overdue
-        ? '#C0392B'
-        : '#059669';
+        ? 'bg-error'
+        : 'bg-gradient-primary';
 
-    const barGradient = done
-        ? 'linear-gradient(to right, #4A7C5F, #7AB895)'
-        : overdue
-        ? 'linear-gradient(to right, #C0392B, #E57368)'
-        : 'linear-gradient(to right, #059669, #34D399)';
+    const pctColor = done ? 'text-success' : overdue ? 'text-error' : 'text-primary-600';
 
     return (
-        <Card padding="sm" interactive className="space-y-2.5">
+        <Card padding="sm" interactive className="space-y-3">
             <div className="flex items-start justify-between gap-2">
-                <p className="text-sm font-semibold text-foreground leading-tight">{goal.goalTypeName}</p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                    <IconChip icon={Icon} size="sm" color={color} bg={bg} />
+                    <p className="text-sm font-semibold text-foreground leading-tight truncate">{goal.goalTypeName}</p>
+                </div>
                 <div className="flex items-center gap-1.5 shrink-0">
-                    {done && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg"
-                            style={{ backgroundColor: 'rgba(74,124,95,0.10)', color: '#4A7C5F' }}>
-                            Done
-                        </span>
-                    )}
-                    {overdue && !done && (
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg"
-                            style={{ backgroundColor: 'rgba(192,57,43,0.10)', color: '#C0392B' }}>
-                            Overdue
-                        </span>
-                    )}
+                    {done && <Badge variant="success" size="sm">Done</Badge>}
+                    {overdue && !done && <Badge variant="error" size="sm">Overdue</Badge>}
                     {goal.deadline && !done && (
                         <span className="text-[11px] text-surface-400">by {formatDeadline(goal.deadline)}</span>
                     )}
@@ -58,8 +51,8 @@ export function GoalCard({ goal }: GoalCardProps) {
             {/* Progress bar */}
             <div className="w-full h-2 rounded-full bg-surface-200 overflow-hidden">
                 <div
-                    className="h-full rounded-full transition-all duration-500"
-                    style={{ width: `${pct}%`, background: barGradient }}
+                    className={`h-full rounded-full transition-all duration-500 ${barClass}`}
+                    style={{ width: `${pct}%` }}
                 />
             </div>
 
@@ -68,7 +61,15 @@ export function GoalCard({ goal }: GoalCardProps) {
                 <span className="text-xs text-surface-500">
                     {goal.currentValue} / {goal.targetValue} {goal.unit}
                 </span>
-                <span className="text-xs font-bold" style={{ color: barColor }}>{pct}%</span>
+                <div className="flex items-center gap-3">
+                    {goal.isRecurring && goal.currentStreak > 0 && (
+                        <span className="flex items-center gap-1 text-xs font-semibold text-warning">
+                            <Flame className="h-3.5 w-3.5" aria-hidden="true" />
+                            {goal.currentStreak}
+                        </span>
+                    )}
+                    <span className={`text-xs font-bold ${pctColor}`}>{pct}%</span>
+                </div>
             </div>
         </Card>
     );

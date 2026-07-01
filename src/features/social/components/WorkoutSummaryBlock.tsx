@@ -1,7 +1,6 @@
 import { Dumbbell, Activity, Timer, Flame, ListChecks, CheckCircle2, type LucideIcon } from 'lucide-react';
 import { IconChip } from '@/shared/ui';
-import { TYPE_CONFIG } from '@/features/workout/typeConfig';
-import type { KnownWorkoutType } from '@/features/workout/types';
+import { TYPE_CONFIG, resolveKnownType } from '@/features/workout/typeConfig';
 import type { WorkoutSummary } from '../types';
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
@@ -24,17 +23,10 @@ function formatVolume(kg?: number | null): string | null {
     return kg >= 1000 ? `${(kg / 1000).toFixed(1)}t` : `${Math.round(kg)} kg`;
 }
 
-// Backend workout types are lowercase in the feed payload (e.g. "running"),
-// while the shared TYPE_CONFIG is keyed by the capitalized KnownWorkoutType.
-function resolveType(workoutType: string): KnownWorkoutType {
-    const capitalized = workoutType.charAt(0).toUpperCase() + workoutType.slice(1).toLowerCase();
-    return (capitalized in TYPE_CONFIG ? capitalized : 'Gym') as KnownWorkoutType;
-}
-
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export function WorkoutSummaryBlock({ summary }: { summary: WorkoutSummary }) {
-    const type = resolveType(summary.workoutType);
+    const type = resolveKnownType(summary.workoutType) ?? 'Gym';
     const { label, Icon, color, bg } = TYPE_CONFIG[type];
 
     const stats: Array<{ Icon: LucideIcon; value: string }> = [];

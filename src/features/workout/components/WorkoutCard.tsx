@@ -26,7 +26,7 @@ export function WorkoutCard({ workout, onClick }: Props) {
     return (
         <button
             onClick={onClick}
-            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border bg-surface hover:bg-background transition-all text-left group"
+            className="w-full flex items-center gap-3.5 px-4 py-4 rounded-2xl border bg-surface hover:bg-background transition-all text-left group"
             style={{ borderColor: border }}
         >
             {/* Type icon */}

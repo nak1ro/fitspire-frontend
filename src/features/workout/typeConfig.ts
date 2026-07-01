@@ -29,8 +29,17 @@ const FALLBACK_CONFIG: WorkoutTypeConfig = {
     border: 'rgba(5,150,105,0.20)',
 };
 
+// The API returns lowercase workout-type strings (e.g. "running"), while
+// TYPE_CONFIG is keyed by the capitalized KnownWorkoutType. Normalize before lookup.
+export function resolveKnownType(type: string): KnownWorkoutType | null {
+    if (!type) return null;
+    const capitalized = type.charAt(0).toUpperCase() + type.slice(1).toLowerCase();
+    return capitalized in TYPE_CONFIG ? (capitalized as KnownWorkoutType) : null;
+}
+
 export function getTypeConfig(type: string): WorkoutTypeConfig {
-    return TYPE_CONFIG[type as KnownWorkoutType] ?? FALLBACK_CONFIG;
+    const resolved = resolveKnownType(type);
+    return resolved ? TYPE_CONFIG[resolved] : FALLBACK_CONFIG;
 }
 
 export const KNOWN_TYPES = Object.keys(TYPE_CONFIG) as KnownWorkoutType[];

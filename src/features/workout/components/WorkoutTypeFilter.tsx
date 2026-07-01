@@ -8,7 +8,7 @@ interface Props {
 
 export function WorkoutTypeFilter({ value, onChange }: Props) {
     return (
-        <div className="flex gap-2 overflow-x-auto pb-1 mb-4">
+        <div className="flex gap-2 overflow-x-auto pb-1 mb-6">
             {/* All chip */}
             <button
                 type="button"

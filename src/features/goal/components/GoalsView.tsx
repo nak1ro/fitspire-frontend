@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Plus, Target } from 'lucide-react';
 import { Button } from '@/shared/ui';
-import { useGoals } from '../hooks/useGoals';
+import { useGoals, useGoalTypes } from '../hooks/useGoals';
 import { GoalCard } from './GoalCard';
 import { CreateGoalModal } from './CreateGoalModal';
 
@@ -39,7 +39,14 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
 
 export function GoalsView() {
     const { data: goals, isLoading } = useGoals();
+    const { data: goalTypes } = useGoalTypes();
     const [createOpen, setCreateOpen] = useState(false);
+
+    const categoryByTypeId = useMemo(() => {
+        const map = new Map<string, string>();
+        for (const type of goalTypes ?? []) map.set(type.id, type.category);
+        return map;
+    }, [goalTypes]);
 
     const activeGoals = (goals ?? []).filter((g) => g.milestonePercent < 100);
     const completedGoals = (goals ?? []).filter((g) => g.milestonePercent >= 100);
@@ -66,7 +73,7 @@ export function GoalsView() {
                         <div className="space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Active</h3>
                             <div className="space-y-2.5">
-                                {activeGoals.map((goal) => <GoalCard key={goal.id} goal={goal} />)}
+                                {activeGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} />)}
                             </div>
                         </div>
                     )}
@@ -75,7 +82,7 @@ export function GoalsView() {
                         <div className="space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Completed</h3>
                             <div className="space-y-2.5">
-                                {completedGoals.map((goal) => <GoalCard key={goal.id} goal={goal} />)}
+                                {completedGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} />)}
                             </div>
                         </div>
                     )}
