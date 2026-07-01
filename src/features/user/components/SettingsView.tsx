@@ -2,6 +2,7 @@
 
 import { useTheme } from 'next-themes';
 import { Loader2 } from 'lucide-react';
+import { Alert, ChipGroup as SharedChipGroup, Toggle as SharedToggle, type ChipGroupOption } from '@/shared/ui';
 import { useUserPreferences, useUpdateUserPreferences } from '../hooks/useUserPreferences';
 import type { PreferredLanguage, UnitSystem } from '../types';
 
@@ -42,24 +43,6 @@ function SettingRow({
     );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
-    return (
-        <button
-            type="button"
-            role="switch"
-            aria-checked={checked}
-            onClick={() => onChange(!checked)}
-            className="relative w-11 h-6 rounded-full transition-colors"
-            style={{ backgroundColor: checked ? '#059669' : 'var(--color-surface-200)' }}
-        >
-            <div
-                className="absolute top-1 w-4 h-4 rounded-full bg-white shadow-sm transition-transform"
-                style={{ transform: checked ? 'translateX(21px)' : 'translateX(4px)' }}
-            />
-        </button>
-    );
-}
-
 function ChipGroup<T extends string>({
     options,
     value,
@@ -71,27 +54,13 @@ function ChipGroup<T extends string>({
     onChange: (v: T) => void;
     labelMap?: Partial<Record<T, string>>;
 }) {
+    const chipOptions: ChipGroupOption<T>[] = options.map(opt => ({ value: opt, label: labelMap?.[opt] ?? opt }));
     return (
-        <div className="flex gap-1.5">
-            {options.map(opt => {
-                const active = opt === value;
-                return (
-                    <button
-                        key={opt}
-                        type="button"
-                        onClick={() => onChange(opt)}
-                        className="px-3 py-1.5 rounded-xl text-xs font-bold border transition-all"
-                        style={active ? {
-                            backgroundColor: 'rgba(5,150,105,0.08)',
-                            borderColor: '#059669',
-                            color: '#059669',
-                        } : { borderColor: 'var(--color-surface-200)', color: 'var(--color-surface-500)' }}
-                    >
-                        {labelMap?.[opt] ?? opt}
-                    </button>
-                );
-            })}
-        </div>
+        <SharedChipGroup
+            options={chipOptions}
+            value={value}
+            onChange={v => v && onChange(v)}
+        />
     );
 }
 
@@ -120,13 +89,16 @@ const LANGUAGE_LABELS: Record<PreferredLanguage, string> = { en: 'English', es: 
 export function SettingsView() {
     const { setTheme } = useTheme();
     const { data: prefs, isLoading } = useUserPreferences();
-    const { mutate, isPending } = useUpdateUserPreferences();
+    const { mutate, isPending, isError } = useUpdateUserPreferences();
 
     if (isLoading || !prefs) return <SettingsSkeleton />;
 
+    // Only flip the visible theme once the preference is confirmed saved,
+    // so a failed save can't leave the UI theme desynced from what's persisted.
     const handleDarkMode = (enabled: boolean) => {
-        setTheme(enabled ? 'dark' : 'light');
-        mutate({ isDarkModeEnabled: enabled });
+        mutate({ isDarkModeEnabled: enabled }, {
+            onSuccess: () => setTheme(enabled ? 'dark' : 'light'),
+        });
     };
 
     return (
@@ -138,7 +110,7 @@ export function SettingsView() {
                 description="Switch between light and dark theme"
                 saving={isPending}
             >
-                <Toggle
+                <SharedToggle
                     checked={prefs.isDarkModeEnabled}
                     onChange={handleDarkMode}
                 />
@@ -166,7 +138,7 @@ export function SettingsView() {
                 description="Receive updates about your activity and challenges"
                 saving={isPending}
             >
-                <Toggle
+                <SharedToggle
                     checked={prefs.receiveEmailNotifications}
                     onChange={v => mutate({ receiveEmailNotifications: v })}
                 />
@@ -186,6 +158,12 @@ export function SettingsView() {
                     labelMap={LANGUAGE_LABELS}
                 />
             </SettingRow>
+
+            {isError && (
+                <Alert variant="error" className="mt-4">
+                    Couldn't save your changes. Please try again.
+                </Alert>
+            )}
         </div>
     );
 }

@@ -30,15 +30,11 @@ function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void 
                     <button
                         key={tab.id}
                         onClick={() => onChange(tab.id)}
-                        className="flex-1 py-3 text-sm font-bold transition-colors relative"
-                        style={{ color: isActive ? '#059669' : 'var(--color-surface-500)' }}
+                        className={`flex-1 py-3 text-sm font-bold transition-colors relative ${isActive ? 'text-primary-500' : 'text-surface-500'}`}
                     >
                         {tab.label}
                         {isActive && (
-                            <span
-                                className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                                style={{ background: 'linear-gradient(to right, #059669, #34D399)' }}
-                            />
+                            <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-primary" />
                         )}
                     </button>
                 );

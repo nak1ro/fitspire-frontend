@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, ChevronUp } from 'lucide-react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useCreateGymWorkout } from '../hooks/useCreateWorkout';
 import { useCompleteWorkout } from '../hooks/useWorkoutMutations';
@@ -10,7 +10,6 @@ import { ExerciseSearchPanel } from './ExerciseSearchPanel';
 import { FormSection } from './form/FormSection';
 import { ChipSelect } from './form/ChipSelect';
 import { NumField } from './form/NumField';
-import { Toggle } from './form/Toggle';
 import { ExerciseRow } from './form/ExerciseRow';
 import type { Exercise, WorkoutSplit, WorkoutIntensity } from '../types';
 

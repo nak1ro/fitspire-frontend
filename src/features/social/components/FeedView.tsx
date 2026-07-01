@@ -1,7 +1,7 @@
 'use client';
 
 import { Users } from 'lucide-react';
-import { IconChip } from '@/shared/ui';
+import { EmptyState } from '@/shared/ui';
 import { useSocialFeed } from '../hooks/useSocialFeed';
 import { FeedCard } from './FeedCard';
 import { FeedSkeleton } from './FeedSkeleton';
@@ -11,15 +11,11 @@ import { PostComposer } from './PostComposer';
 
 function EmptyFeed() {
     return (
-        <div className="flex flex-col items-center text-center py-16 px-6 space-y-4">
-            <IconChip icon={Users} size="lg" />
-            <div className="space-y-1.5 max-w-xs">
-                <p className="text-base font-semibold text-foreground">Your feed is quiet</p>
-                <p className="text-sm text-surface-500 leading-relaxed">
-                    Follow people to see their workouts, milestones, and posts here.
-                </p>
-            </div>
-        </div>
+        <EmptyState
+            icon={Users}
+            title="Your feed is quiet"
+            description="Follow people to see their workouts, milestones, and posts here."
+        />
     );
 }
 

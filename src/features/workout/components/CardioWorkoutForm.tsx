@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import {
     useCreateCyclingWorkout,
@@ -12,7 +12,6 @@ import {
 import { FormSection } from './form/FormSection';
 import { NumField } from './form/NumField';
 import { ChipSelect } from './form/ChipSelect';
-import { Toggle } from './form/Toggle';
 import type {
     KnownWorkoutType,
     SwimmingStroke,

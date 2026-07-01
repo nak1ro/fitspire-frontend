@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Dumbbell } from 'lucide-react';
 import Link from 'next/link';
+import { EmptyState } from '@/shared/ui';
 import { WorkoutCard } from '@/features/workout/components/WorkoutCard';
 import { WorkoutDetailModal } from '@/features/workout/components/WorkoutDetailModal';
 import type { Workout } from '@/features/workout/types';
@@ -32,9 +33,13 @@ export function ProfileWorkoutsTab({ workouts }: Props) {
                 </div>
 
                 {recentWorkouts.length === 0 ? (
-                    <p className="text-sm text-surface-400 py-4 text-center">No workouts logged yet.</p>
+                    <EmptyState
+                        icon={Dumbbell}
+                        title="No workouts yet"
+                        description="Log your first workout to see it here."
+                    />
                 ) : (
-                    <div className="space-y-2">
+                    <div className="space-y-2.5">
                         {recentWorkouts.map(w => (
                             <WorkoutCard
                                 key={w.id}

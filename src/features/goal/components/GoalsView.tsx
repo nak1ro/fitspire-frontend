@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { Plus, Target } from 'lucide-react';
-import { Button } from '@/shared/ui';
+import { Button, EmptyState } from '@/shared/ui';
 import { useGoals, useGoalTypes } from '../hooks/useGoals';
 import { GoalCard } from './GoalCard';
 import { CreateGoalModal } from './CreateGoalModal';
@@ -17,23 +17,19 @@ function GoalsSkeleton() {
     );
 }
 
-function EmptyState({ onCreate }: { onCreate: () => void }) {
+function GoalsEmptyState({ onCreate }: { onCreate: () => void }) {
     return (
-        <div className="flex flex-col items-center text-center py-16 px-6 space-y-4">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center bg-primary-50">
-                <Target className="h-7 w-7 text-primary-500" aria-hidden="true" />
-            </div>
-            <div className="space-y-1">
-                <h2 className="text-base font-bold text-foreground">No goals yet</h2>
-                <p className="text-sm text-surface-500 max-w-xs">
-                    Set a goal to start tracking your progress.
-                </p>
-            </div>
-            <Button onClick={onCreate} className="gap-2">
-                <Plus className="h-4 w-4" aria-hidden="true" />
-                New Goal
-            </Button>
-        </div>
+        <EmptyState
+            icon={Target}
+            title="No goals yet"
+            description="Set a goal to start tracking your progress."
+            action={
+                <Button onClick={onCreate} className="gap-2">
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                    New Goal
+                </Button>
+            }
+        />
     );
 }
 
@@ -66,7 +62,7 @@ export function GoalsView() {
             {isLoading ? (
                 <GoalsSkeleton />
             ) : !goals || goals.length === 0 ? (
-                <EmptyState onCreate={() => setCreateOpen(true)} />
+                <GoalsEmptyState onCreate={() => setCreateOpen(true)} />
             ) : (
                 <div className="space-y-6">
                     {activeGoals.length > 0 && (

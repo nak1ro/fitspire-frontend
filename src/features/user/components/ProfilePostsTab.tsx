@@ -1,6 +1,7 @@
 'use client';
 
 import { MessageSquare } from 'lucide-react';
+import { EmptyState } from '@/shared/ui';
 import { useUserPosts } from '@/features/social/hooks/useSocialFeed';
 import { FeedCard } from '@/features/social/components/FeedCard';
 
@@ -41,20 +42,11 @@ export function ProfilePostsTab({ userId }: Props) {
     );
 
     if (!posts || posts.length === 0) return (
-        <div className="flex flex-col items-center text-center py-16 px-6 space-y-4">
-            <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
-            >
-                <MessageSquare className="h-7 w-7" style={{ color: '#059669' }} aria-hidden="true" />
-            </div>
-            <div className="space-y-1.5 max-w-xs">
-                <p className="text-base font-semibold text-foreground">No posts yet</p>
-                <p className="text-sm text-surface-500 leading-relaxed">
-                    Share a workout, milestone, or thought from the feed.
-                </p>
-            </div>
-        </div>
+        <EmptyState
+            icon={MessageSquare}
+            title="No posts yet"
+            description="Share a workout, milestone, or thought from the feed."
+        />
     );
 
     return (

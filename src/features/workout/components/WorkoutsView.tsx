@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { Dumbbell } from 'lucide-react';
+import { EmptyState } from '@/shared/ui';
 import { useWorkouts } from '../hooks/useWorkouts';
 import { WorkoutStatsStrip } from './WorkoutStatsStrip';
 import { WorkoutTypeFilter } from './WorkoutTypeFilter';
@@ -29,26 +30,15 @@ function groupByMonth(workouts: Workout[]): MonthGroup[] {
 
 // ─── Empty state ───────────────────────────────────────────────────────────────
 
-function EmptyState({ filtered }: { filtered: boolean }) {
+function WorkoutsEmptyState({ filtered }: { filtered: boolean }) {
     return (
-        <div className="flex flex-col items-center text-center py-16 px-6 space-y-4">
-            <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(5,150,105,0.08)' }}
-            >
-                <Dumbbell className="h-7 w-7" style={{ color: '#059669' }} aria-hidden="true" />
-            </div>
-            <div className="space-y-1.5 max-w-xs">
-                <p className="text-base font-semibold text-foreground">
-                    {filtered ? 'No workouts of this type' : 'No workouts yet'}
-                </p>
-                <p className="text-sm text-surface-500 leading-relaxed">
-                    {filtered
-                        ? 'Try a different filter or log one now.'
-                        : 'Hit the "Log Workout" button to record your first session.'}
-                </p>
-            </div>
-        </div>
+        <EmptyState
+            icon={Dumbbell}
+            title={filtered ? 'No workouts of this type' : 'No workouts yet'}
+            description={filtered
+                ? 'Try a different filter or log one now.'
+                : 'Hit the "Log Workout" button to record your first session.'}
+        />
     );
 }
 
@@ -87,7 +77,7 @@ export function WorkoutsView() {
             )}
 
             {!isLoading && !isError && filteredWorkouts.length === 0 && (
-                <EmptyState filtered={!!selectedType} />
+                <WorkoutsEmptyState filtered={!!selectedType} />
             )}
 
             {!isLoading && !isError && grouped.map(group => (
