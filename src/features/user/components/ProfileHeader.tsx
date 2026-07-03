@@ -1,6 +1,6 @@
 import type React from 'react';
-import { Pencil, Dumbbell, Flame, Trophy } from 'lucide-react';
-import { Avatar } from '@/shared/ui';
+import { Pencil, Dumbbell, Flame, Trophy, UserCheck } from 'lucide-react';
+import { Avatar, Badge } from '@/shared/ui';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -8,7 +8,13 @@ interface Props {
     totalWorkouts: number;
     streak: number;
     totalPRs: number;
+    followersCount?: number;
+    followingCount?: number;
+    incomingRequestCount?: number;
     onEdit: () => void;
+    onShowFollowers?: () => void;
+    onShowFollowing?: () => void;
+    onShowRequests?: () => void;
 }
 
 interface StatPillProps {
@@ -33,7 +39,11 @@ function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
     );
 }
 
-export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit }: Props) {
+export function ProfileHeader({
+    profile, totalWorkouts, streak, totalPRs,
+    followersCount, followingCount, incomingRequestCount,
+    onEdit, onShowFollowers, onShowFollowing, onShowRequests,
+}: Props) {
     return (
         <div className="pb-5 mb-1">
             {/* Top row: avatar + edit button */}
@@ -45,14 +55,27 @@ export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit
                     size="xl"
                 />
 
-                {/* Edit button */}
-                <button
-                    onClick={onEdit}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
-                >
-                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                    Edit profile
-                </button>
+                <div className="flex items-center gap-2">
+                    {Boolean(incomingRequestCount) && onShowRequests && (
+                        <button
+                            onClick={onShowRequests}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
+                        >
+                            <UserCheck className="h-3.5 w-3.5" aria-hidden="true" />
+                            Requests
+                            <Badge variant="primary" size="sm">{incomingRequestCount}</Badge>
+                        </button>
+                    )}
+
+                    {/* Edit button */}
+                    <button
+                        onClick={onEdit}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
+                    >
+                        <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                        Edit profile
+                    </button>
+                </div>
             </div>
 
             {/* Name + username */}
@@ -64,6 +87,28 @@ export function ProfileHeader({ profile, totalWorkouts, streak, totalPRs, onEdit
             {/* Bio */}
             {profile.bio && (
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
+            )}
+
+            {/* Followers / following */}
+            {(followersCount !== undefined || followingCount !== undefined) && (
+                <div className="flex items-center gap-5 mb-4">
+                    <button
+                        type="button"
+                        onClick={onShowFollowers}
+                        className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
+                    >
+                        <span className="text-sm font-extrabold text-foreground tabular-nums">{followersCount ?? 0}</span>
+                        <span className="text-xs text-surface-500">followers</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onShowFollowing}
+                        className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
+                    >
+                        <span className="text-sm font-extrabold text-foreground tabular-nums">{followingCount ?? 0}</span>
+                        <span className="text-xs text-surface-500">following</span>
+                    </button>
+                </div>
             )}
 
             {/* Stats row */}

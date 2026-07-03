@@ -1,9 +1,9 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Search } from 'lucide-react';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { NotificationsBell } from '@/features/notification/components/NotificationsBell';
+import { UserSearch } from '@/features/social/components/UserSearch';
 import { UserMenu } from './UserMenu';
 
 const PAGE_TITLES: Record<string, string> = {
@@ -36,13 +36,7 @@ export function AppHeader() {
 
             <div className="flex items-center gap-1">
 
-                {/* Search — decorative for now, no backend to search against */}
-                <button
-                    className="p-2 rounded-xl transition-all text-surface-500 hover:bg-surface-100 hover:text-foreground"
-                    aria-label="Search"
-                >
-                    <Search className="h-5 w-5" aria-hidden="true" />
-                </button>
+                <UserSearch />
 
                 <NotificationsBell />
 

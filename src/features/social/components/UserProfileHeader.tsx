@@ -1,0 +1,65 @@
+'use client';
+
+import { useState } from 'react';
+import { Lock } from 'lucide-react';
+import { Avatar } from '@/shared/ui';
+import { FollowButton } from './FollowButton';
+import { FollowListModal } from './FollowListModal';
+import type { SocialProfileResponse } from '../types';
+
+interface Props {
+    profile: SocialProfileResponse;
+}
+
+export function UserProfileHeader({ profile }: Props) {
+    const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
+
+    return (
+        <div className="pb-5 mb-1">
+            <div className="flex items-start justify-between mb-4">
+                <Avatar
+                    displayName={profile.displayName}
+                    userName={profile.userName}
+                    avatarUrl={profile.profilePictureUrl}
+                    size="xl"
+                />
+                <FollowButton userId={profile.id} relationship={profile.relationship} isPrivate={profile.isPrivate} />
+            </div>
+
+            <div className="mb-2">
+                <div className="flex items-center gap-1.5">
+                    <h1 className="text-xl font-extrabold text-foreground leading-tight">{profile.displayName}</h1>
+                    {profile.isPrivate && <Lock className="h-4 w-4 text-surface-400 shrink-0" aria-hidden="true" />}
+                </div>
+                <p className="text-sm text-surface-500 mt-0.5">@{profile.userName}</p>
+            </div>
+
+            {profile.bio && (
+                <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
+            )}
+
+            <div className="flex items-center gap-5">
+                <button
+                    type="button"
+                    onClick={() => setListMode('followers')}
+                    className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
+                >
+                    <span className="text-sm font-extrabold text-foreground tabular-nums">{profile.followersCount}</span>
+                    <span className="text-xs text-surface-500">followers</span>
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setListMode('following')}
+                    className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
+                >
+                    <span className="text-sm font-extrabold text-foreground tabular-nums">{profile.followingCount}</span>
+                    <span className="text-xs text-surface-500">following</span>
+                </button>
+            </div>
+
+            {listMode && (
+                <FollowListModal userId={profile.id} mode={listMode} open onClose={() => setListMode(null)} />
+            )}
+        </div>
+    );
+}

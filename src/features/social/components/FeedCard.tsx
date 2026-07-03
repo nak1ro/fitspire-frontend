@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Heart, MessageCircle, Send, Trophy } from 'lucide-react';
 import { Avatar, Card, IconChip } from '@/shared/ui';
 import type { FeedItem } from '../types';
@@ -28,12 +29,14 @@ function GoalAchievedBlock({ content }: { content?: string | null }) {
 
 // ─── Comment row ───────────────────────────────────────────────────────────────
 
-function CommentRow({ userName, avatarUrl, content }: { userName: string; avatarUrl?: string | null; content: string }) {
+function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; userName: string; avatarUrl?: string | null; content: string }) {
     return (
         <div className="flex items-start gap-2">
-            <Avatar displayName={userName} userName={userName} avatarUrl={avatarUrl} size="xs" />
+            <Link href={`/profile/${userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
+                <Avatar displayName={userName} userName={userName} avatarUrl={avatarUrl} size="xs" />
+            </Link>
             <div className="min-w-0 rounded-xl bg-background px-3 py-2 flex-1">
-                <span className="text-xs font-semibold text-foreground">{userName} </span>
+                <Link href={`/profile/${userId}`} className="text-xs font-semibold text-foreground hover:underline">{userName} </Link>
                 <span className="text-xs text-surface-600">{content}</span>
             </div>
         </div>
@@ -78,9 +81,13 @@ export function FeedCard({ item }: { item: FeedItem }) {
 
             {/* Header */}
             <div className="flex items-center gap-3 px-4 pt-4 pb-0">
-                <Avatar displayName={item.userName} userName={item.userName} avatarUrl={item.userAvatarUrl} size="md" />
+                <Link href={`/profile/${item.userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
+                    <Avatar displayName={item.userName} userName={item.userName} avatarUrl={item.userAvatarUrl} size="md" />
+                </Link>
                 <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-foreground leading-tight">{item.userName}</p>
+                    <Link href={`/profile/${item.userId}`} className="text-sm font-semibold text-foreground leading-tight hover:underline">
+                        {item.userName}
+                    </Link>
                     <p className="text-[11px] text-surface-400 leading-tight mt-0.5">
                         {formatRelativeTime(item.createdAt)}
                     </p>
@@ -146,6 +153,7 @@ export function FeedCard({ item }: { item: FeedItem }) {
                     {item.recentComments.map(c => (
                         <CommentRow
                             key={c.id}
+                            userId={c.userId}
                             userName={c.userName}
                             avatarUrl={c.userAvatarUrl}
                             content={c.content}

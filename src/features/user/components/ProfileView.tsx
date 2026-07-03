@@ -4,6 +4,9 @@ import { useState, useMemo } from 'react';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useWorkouts } from '@/features/workout/hooks/useWorkouts';
 import { usePersonalRecords } from '@/features/workout/hooks/usePersonalRecords';
+import { useSocialProfile, useIncomingFollowRequests } from '@/features/social/hooks/useSocialReads';
+import { FollowListModal } from '@/features/social/components/FollowListModal';
+import { FollowRequestsModal } from '@/features/social/components/FollowRequestsModal';
 import { ProfileHeader } from './ProfileHeader';
 import { EditProfileModal } from './EditProfileModal';
 import { ProfilePostsTab } from './ProfilePostsTab';
@@ -66,10 +69,14 @@ function ProfileSkeleton() {
 export function ProfileView() {
     const [activeTab, setActiveTab] = useState<Tab>('posts');
     const [editOpen, setEditOpen] = useState(false);
+    const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
+    const [requestsOpen, setRequestsOpen] = useState(false);
 
     const { data: profile, isLoading: profileLoading } = useUserProfile();
     const { data: workouts } = useWorkouts();
     const { data: personalRecords } = usePersonalRecords();
+    const { data: socialProfile } = useSocialProfile(profile?.id ?? null);
+    const { data: incomingRequests } = useIncomingFollowRequests();
 
     const streak = useMemo(() => getCurrentStreak(workouts ?? []), [workouts]);
 
@@ -84,7 +91,13 @@ export function ProfileView() {
                 totalWorkouts={workouts?.length ?? 0}
                 streak={streak}
                 totalPRs={personalRecords?.length ?? 0}
+                followersCount={socialProfile?.followersCount}
+                followingCount={socialProfile?.followingCount}
+                incomingRequestCount={incomingRequests?.length ?? 0}
                 onEdit={() => setEditOpen(true)}
+                onShowFollowers={() => setListMode('followers')}
+                onShowFollowing={() => setListMode('following')}
+                onShowRequests={() => setRequestsOpen(true)}
             />
 
             <TabBar active={activeTab} onChange={setActiveTab} />
@@ -105,6 +118,14 @@ export function ProfileView() {
                     open={editOpen}
                     onClose={() => setEditOpen(false)}
                 />
+            )}
+
+            {listMode && (
+                <FollowListModal userId={profile.id} mode={listMode} open onClose={() => setListMode(null)} />
+            )}
+
+            {requestsOpen && (
+                <FollowRequestsModal open={requestsOpen} onClose={() => setRequestsOpen(false)} />
             )}
         </>
     );
