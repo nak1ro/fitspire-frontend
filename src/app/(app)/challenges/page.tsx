@@ -1,12 +1,9 @@
-import { Trophy } from 'lucide-react';
-import { ComingSoonView } from '@/features/shared-views/ComingSoonView';
+import { ChallengesView } from '@/features/challenge/components/ChallengesView';
 
 export default function ChallengesPage() {
     return (
-        <ComingSoonView
-            icon={Trophy}
-            title="Challenges are coming soon"
-            subtitle="Create a challenge, set a goal together, and see who rises to it."
-        />
+        <div className="max-w-2xl mx-auto px-4 py-6">
+            <ChallengesView />
+        </div>
     );
 }
