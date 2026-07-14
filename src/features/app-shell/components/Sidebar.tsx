@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Target, Trophy, Settings, Plus, Utensils } from 'lucide-react';
+import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils } from 'lucide-react';
 import { Button } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { StreakCard } from './StreakCard';
@@ -73,22 +73,22 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
             {/* Spacer — pushes streak card + settings to the bottom */}
             <div className="flex-1" />
 
-            {/* Bottom section — streak card + settings */}
+            {/* Bottom section — streak card + profile */}
             <div className="shrink-0 px-3 pt-1 pb-4 space-y-5">
                 <StreakCard />
 
                 <Link
-                    href="/settings"
+                    href="/profile"
                     className={cn(
                         'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all',
-                        isActive('/settings') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
+                        isActive('/profile') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
                     )}
                 >
-                    <Settings
-                        className={cn('h-[18px] w-[18px] shrink-0', isActive('/settings') ? 'text-primary-500' : 'text-surface-500')}
+                    <User
+                        className={cn('h-[18px] w-[18px] shrink-0', isActive('/profile') ? 'text-primary-500' : 'text-surface-500')}
                         aria-hidden="true"
                     />
-                    Settings
+                    Profile
                 </Link>
             </div>
         </aside>

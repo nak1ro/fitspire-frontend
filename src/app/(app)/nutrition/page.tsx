@@ -1,12 +1,9 @@
-import { Utensils } from 'lucide-react';
-import { ComingSoonView } from '@/features/shared-views/ComingSoonView';
+import { NutritionView } from '@/features/nutrition/components/NutritionView';
 
 export default function NutritionPage() {
     return (
-        <ComingSoonView
-            icon={Utensils}
-            title="Nutrition tracking is coming soon"
-            subtitle="Log meals and hit your daily calorie and protein targets."
-        />
+        <div className="max-w-2xl mx-auto px-4 py-6">
+            <NutritionView />
+        </div>
     );
 }
