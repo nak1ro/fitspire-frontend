@@ -12,28 +12,32 @@ import { EditProfileModal } from './EditProfileModal';
 import { ProfilePostsTab } from './ProfilePostsTab';
 import { ProfileWorkoutsTab } from './ProfileWorkoutsTab';
 import { ProfileRecordsTab } from './ProfileRecordsTab';
+import { BodyTrackingTab } from '@/features/body-tracking/components/BodyTrackingTab';
+import { BadgesTab } from '@/features/badge/components/BadgesTab';
 import { getCurrentStreak } from '@/shared/lib/streak';
 
 // ─── Tab bar ───────────────────────────────────────────────────────────────────
 
-type Tab = 'posts' | 'workouts' | 'records';
+type Tab = 'posts' | 'workouts' | 'records' | 'body' | 'badges';
 
 const TABS: { id: Tab; label: string }[] = [
     { id: 'posts',    label: 'Posts' },
     { id: 'workouts', label: 'Workouts' },
     { id: 'records',  label: 'Records' },
+    { id: 'body',     label: 'Body' },
+    { id: 'badges',   label: 'Badges' },
 ];
 
 function TabBar({ active, onChange }: { active: Tab; onChange: (t: Tab) => void }) {
     return (
-        <div className="flex border-b border-surface-200 mb-4">
+        <div className="flex border-b border-surface-200 mb-4 overflow-x-auto">
             {TABS.map(tab => {
                 const isActive = tab.id === active;
                 return (
                     <button
                         key={tab.id}
                         onClick={() => onChange(tab.id)}
-                        className={`flex-1 py-3 text-sm font-bold transition-colors relative ${isActive ? 'text-primary-500' : 'text-surface-500'}`}
+                        className={`shrink-0 px-1 mr-6 py-3 text-sm font-bold transition-colors relative ${isActive ? 'text-primary-500' : 'text-surface-500'}`}
                     >
                         {tab.label}
                         {isActive && (
@@ -111,6 +115,8 @@ export function ProfileView() {
             {activeTab === 'records' && (
                 <ProfileRecordsTab records={personalRecords ?? []} />
             )}
+            {activeTab === 'body' && <BodyTrackingTab />}
+            {activeTab === 'badges' && <BadgesTab />}
 
             {editOpen && (
                 <EditProfileModal
