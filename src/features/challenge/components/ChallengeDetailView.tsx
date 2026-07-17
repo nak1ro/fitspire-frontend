@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { AlertCircle, Calendar, Target, Trophy, Users } from 'lucide-react';
+import { AlertCircle, Calendar, Pencil, Target, Trophy, UserPlus, Users, XCircle } from 'lucide-react';
 import { Alert, Avatar, Badge, Button, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { useChallenge, useJoinChallenge, useLeaveChallenge } from '../hooks/useChallenges';
+import { useCancelChallenge, useChallenge, useJoinChallenge, useLeaveChallenge } from '../hooks/useChallenges';
 import { getMetricConfig } from '../metricConfig';
 import { ChallengeLeaderboard } from './ChallengeLeaderboard';
+import { EditChallengeModal } from './EditChallengeModal';
+import { InviteChallengeModal } from './InviteChallengeModal';
+import { ManageParticipantsList } from './ManageParticipantsList';
 
 function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -27,7 +30,11 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
     const { data: challenge, isLoading, isError } = useChallenge(challengeId);
     const { mutate: join, isPending: joining } = useJoinChallenge();
     const { mutate: leave, isPending: leaving } = useLeaveChallenge();
+    const { mutate: cancel, isPending: cancelling } = useCancelChallenge();
     const [actionError, setActionError] = useState<string | null>(null);
+    const [editOpen, setEditOpen] = useState(false);
+    const [inviteOpen, setInviteOpen] = useState(false);
+    const [cancelConfirming, setCancelConfirming] = useState(false);
 
     if (isLoading) return <DetailSkeleton />;
 
@@ -54,6 +61,22 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
         setActionError(null);
         leave(challengeId, { onError: (err) => setActionError(getErrorMessage(err, 'Failed to leave challenge.')) });
     };
+
+    const handleCancel = () => {
+        if (!cancelConfirming) { setCancelConfirming(true); return; }
+        setActionError(null);
+        cancel(challengeId, {
+            onError: (err) => { setActionError(getErrorMessage(err, 'Failed to cancel challenge.')); setCancelConfirming(false); },
+        });
+    };
+
+    // viewer.canManage tracks only full-edit eligibility (Upcoming), not general creator actions —
+    // the creator can still edit copy, invite, and cancel while Active, so those gate on status directly.
+    const canEdit = challenge.viewer.isCreator && (challenge.status === 'Upcoming' || challenge.status === 'Active');
+    const canInvite = challenge.viewer.isCreator
+        && (challenge.status === 'Upcoming' || (challenge.status === 'Active' && challenge.joinClosing === 'AtEnd'));
+    const canCancel = challenge.viewer.isCreator && (challenge.status === 'Upcoming' || challenge.status === 'Active');
+    const canManageParticipants = challenge.viewer.isCreator && challenge.status === 'Upcoming';
 
     return (
         <div className="space-y-5">
@@ -120,7 +143,50 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
                 </>
             )}
 
+            {challenge.viewer.isCreator && (canEdit || canInvite || canCancel) && (
+                <div className="flex items-center gap-2 flex-wrap">
+                    {canEdit && (
+                        <button
+                            onClick={() => setEditOpen(true)}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
+                        >
+                            <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                            Edit
+                        </button>
+                    )}
+                    {canInvite && (
+                        <button
+                            onClick={() => setInviteOpen(true)}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
+                        >
+                            <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
+                            Invite
+                        </button>
+                    )}
+                    {canCancel && (
+                        <button
+                            onClick={handleCancel}
+                            disabled={cancelling}
+                            className={
+                                'flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border transition-all disabled:opacity-50 ' +
+                                (cancelConfirming ? 'border-error text-error bg-error/5' : 'border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground')
+                            }
+                        >
+                            <XCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                            {cancelConfirming ? 'Confirm cancel' : 'Cancel challenge'}
+                        </button>
+                    )}
+                </div>
+            )}
+
             {actionError && <Alert variant="error">{actionError}</Alert>}
+
+            {canManageParticipants && (
+                <div className="space-y-2.5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400 px-1">Manage participants</h3>
+                    <ManageParticipantsList challengeId={challengeId} creatorUserId={challenge.creator.userId} />
+                </div>
+            )}
 
             {challenge.viewer.membershipStatus === 'Joined' && challenge.viewer.score != null && (
                 <Card padding="sm" className="flex items-center justify-between">
@@ -137,6 +203,9 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
                     <ChallengeLeaderboard challengeId={challengeId} showResults={showResults} />
                 </div>
             )}
+
+            <EditChallengeModal challenge={challenge} open={editOpen} onClose={() => setEditOpen(false)} />
+            <InviteChallengeModal challenge={challenge} open={inviteOpen} onClose={() => setInviteOpen(false)} />
         </div>
     );
 }
