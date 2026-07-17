@@ -1,5 +1,6 @@
 import type React from 'react';
-import { Pencil, Dumbbell, Flame, Trophy, UserCheck } from 'lucide-react';
+import Link from 'next/link';
+import { Pencil, Dumbbell, Flame, Trophy, UserCheck, Sparkles } from 'lucide-react';
 import { Avatar, Badge } from '@/shared/ui';
 import type { UserProfile } from '../types';
 
@@ -66,6 +67,14 @@ export function ProfileHeader({
                             <Badge variant="primary" size="sm">{incomingRequestCount}</Badge>
                         </button>
                     )}
+
+                    <Link
+                        href="/coach"
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
+                    >
+                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
+                        Coach
+                    </Link>
 
                     {/* Edit button */}
                     <button

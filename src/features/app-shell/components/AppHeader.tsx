@@ -15,6 +15,7 @@ const PAGE_TITLES: Record<string, string> = {
     '/profile': 'Profile',
     '/settings': 'Settings',
     '/notifications': 'Notifications',
+    '/coach': 'Weekly Coach',
 };
 
 function resolveTitle(pathname: string): string {
