@@ -9,7 +9,10 @@ import { DailySummaryCard } from './DailySummaryCard';
 import { MealCard } from './MealCard';
 import { MealFormModal } from './MealFormModal';
 import { NutritionTargetsModal } from './NutritionTargetsModal';
+import { NutritionTrendsView } from './NutritionTrendsView';
 import type { Meal } from '../types';
+
+type Tab = 'today' | 'trends';
 
 function toISODate(d: Date): string {
     const y = d.getFullYear();
@@ -44,6 +47,7 @@ function DailySkeleton() {
 }
 
 export function NutritionView() {
+    const [tab, setTab] = useState<Tab>('today');
     const [selectedDate, setSelectedDate] = useState(() => toISODate(new Date()));
     const [editingMeal, setEditingMeal] = useState<Meal | null>(null);
     const [addOpen, setAddOpen] = useState(false);
@@ -63,6 +67,23 @@ export function NutritionView() {
 
     return (
         <>
+            <div className="flex border-b border-surface-200 mb-5">
+                {(['today', 'trends'] as Tab[]).map(t => (
+                    <button
+                        key={t}
+                        onClick={() => setTab(t)}
+                        className={`px-1 mr-6 py-3 text-sm font-bold transition-colors relative capitalize ${tab === t ? 'text-primary-500' : 'text-surface-500'}`}
+                    >
+                        {t}
+                        {tab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-primary" />}
+                    </button>
+                ))}
+            </div>
+
+            {tab === 'trends' ? (
+                <NutritionTrendsView />
+            ) : (
+                <>
             {/* Date navigator */}
             <div className="flex items-center justify-between mb-5">
                 <button
@@ -117,6 +138,8 @@ export function NutritionView() {
                         ))
                     )}
                 </div>
+            )}
+                </>
             )}
 
             <MealFormModal
