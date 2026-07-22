@@ -16,9 +16,10 @@ function isOverdue(goal: Goal): boolean {
 interface GoalCardProps {
     goal: Goal;
     category?: string;
+    onClick?: () => void;
 }
 
-export function GoalCard({ goal, category }: GoalCardProps) {
+export function GoalCard({ goal, category, onClick }: GoalCardProps) {
     const pct = Math.min(100, Math.round(goal.milestonePercent));
     const done = pct >= 100;
     const overdue = isOverdue(goal);
@@ -33,7 +34,7 @@ export function GoalCard({ goal, category }: GoalCardProps) {
     const pctColor = done ? 'text-success' : overdue ? 'text-error' : 'text-primary-600';
 
     return (
-        <Card padding="sm" interactive className="space-y-3">
+        <Card padding="sm" interactive onClick={onClick} className="space-y-3">
             <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <IconChip icon={Icon} size="sm" color={color} bg={bg} />

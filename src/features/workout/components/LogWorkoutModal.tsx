@@ -1,12 +1,47 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { X, ChevronLeft } from 'lucide-react';
+import { X, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { Button } from '@/shared/ui';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import type { KnownWorkoutType } from '../types';
+import { useActiveWorkoutSession, useAbandonWorkout } from '../hooks/useWorkoutSessions';
+import { getTypeConfig } from '../typeConfig';
 import { WorkoutTypeStep } from './WorkoutTypeStep';
 import { GymWorkoutForm } from './GymWorkoutForm';
 import { CardioWorkoutForm } from './CardioWorkoutForm';
+
+function ActiveSessionBanner() {
+    const { data: activeSession } = useActiveWorkoutSession();
+    const { mutate: abandon, isPending } = useAbandonWorkout();
+    const [confirming, setConfirming] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    if (!activeSession) return null;
+
+    const handleAbandon = () => {
+        if (!confirming) { setConfirming(true); return; }
+        setError(null);
+        abandon(activeSession.id, {
+            onError: (err) => { setError(getErrorMessage(err, 'Failed to abandon session.')); setConfirming(false); },
+        });
+    };
+
+    return (
+        <div className="mb-4 p-4 rounded-xl border border-warning/30 bg-warning/5 space-y-2">
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                <AlertTriangle className="h-4 w-4 text-warning shrink-0" aria-hidden="true" />
+                You have an unfinished {getTypeConfig(activeSession.workoutType).label} session
+            </div>
+            <p className="text-xs text-surface-500">Abandon it to start a new workout — this can't be undone.</p>
+            {error && <p className="text-xs text-error">{error}</p>}
+            <Button variant="secondary" size="sm" loading={isPending} onClick={handleAbandon}>
+                {confirming ? 'Tap again to confirm' : 'Abandon unfinished session'}
+            </Button>
+        </div>
+    );
+}
 
 type CardioType = Exclude<KnownWorkoutType, 'Gym'>;
 
@@ -93,7 +128,10 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                 {/* Scrollable body */}
                 <div className="flex-1 overflow-y-auto px-5 pb-5 pt-1">
                     {step === 'type' && (
-                        <WorkoutTypeStep onSelect={handleTypeSelect} />
+                        <>
+                            <ActiveSessionBanner />
+                            <WorkoutTypeStep onSelect={handleTypeSelect} />
+                        </>
                     )}
                     {step === 'form' && selectedType === 'Gym' && (
                         <GymWorkoutForm onSuccess={handleSuccess} />

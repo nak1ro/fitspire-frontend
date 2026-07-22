@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, Target } from 'lucide-react';
 import { Button, EmptyState } from '@/shared/ui';
 import { useGoals, useGoalTypes } from '../hooks/useGoals';
@@ -37,6 +38,8 @@ export function GoalsView() {
     const { data: goalsPage, isLoading } = useGoals();
     const { data: goalTypes } = useGoalTypes();
     const [createOpen, setCreateOpen] = useState(false);
+    const router = useRouter();
+    const openGoal = (id: string) => router.push(`/goals/${id}`);
 
     const categoryByTypeId = useMemo(() => {
         const map = new Map<string, string>();
@@ -70,7 +73,7 @@ export function GoalsView() {
                         <div className="space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Active</h3>
                             <div className="space-y-2.5">
-                                {activeGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} />)}
+                                {activeGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} onClick={() => openGoal(goal.id)} />)}
                             </div>
                         </div>
                     )}
@@ -79,7 +82,7 @@ export function GoalsView() {
                         <div className="space-y-2.5">
                             <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Completed</h3>
                             <div className="space-y-2.5">
-                                {completedGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} />)}
+                                {completedGoals.map((goal) => <GoalCard key={goal.id} goal={goal} category={categoryByTypeId.get(goal.goalTypeId)} onClick={() => openGoal(goal.id)} />)}
                             </div>
                         </div>
                     )}

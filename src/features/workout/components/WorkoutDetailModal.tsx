@@ -27,10 +27,16 @@ function formatDate(dateStr: string): string {
 
 function formatDuration(min: number | null | undefined): string | null {
     if (min == null) return null;
-    if (min < 60) return `${min} min`;
-    const h = Math.floor(min / 60);
-    const m = min % 60;
+    const rounded = Math.round(min);
+    if (rounded < 60) return `${rounded} min`;
+    const h = Math.floor(rounded / 60);
+    const m = rounded % 60;
     return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+// Splits PascalCase enum values like "FullBody" into "Full Body" for display.
+function humanize(value: string): string {
+    return value.replace(/([a-z])([A-Z])/g, '$1 $2');
 }
 
 // ─── Stat grid ─────────────────────────────────────────────────────────────────
@@ -72,8 +78,8 @@ function GymDetail({ workout, color, bg }: { workout: GymWorkout; color: string;
             {/* Badges */}
             {(workout.splitType || workout.intensityLevel) && (
                 <div className="flex gap-2.5 flex-wrap">
-                    {workout.splitType && <TypeBadge label={workout.splitType} color={color} bg={bg} />}
-                    {workout.intensityLevel && <TypeBadge label={workout.intensityLevel} color={color} bg={bg} />}
+                    {workout.splitType && <TypeBadge label={humanize(workout.splitType)} color={color} bg={bg} />}
+                    {workout.intensityLevel && <TypeBadge label={humanize(workout.intensityLevel)} color={color} bg={bg} />}
                 </div>
             )}
 
@@ -153,7 +159,7 @@ function SwimmingDetail({ workout }: { workout: SwimmingWorkout }) {
 }
 
 function YogaDetail({ workout, color, bg }: { workout: YogaWorkout; color: string; bg: string }) {
-    const badges = [workout.style, workout.intensity, workout.focusArea].filter(Boolean) as string[];
+    const badges = ([workout.style, workout.intensity, workout.focusArea].filter(Boolean) as string[]).map(humanize);
     const stats: Array<{ label: string; value: string }> = [
         ...(workout.durationMinutes != null ? [{ label: 'Duration', value: formatDuration(workout.durationMinutes)! }] : []),
         ...(workout.caloriesBurned != null ? [{ label: 'Calories', value: `${workout.caloriesBurned} kcal` }] : []),
