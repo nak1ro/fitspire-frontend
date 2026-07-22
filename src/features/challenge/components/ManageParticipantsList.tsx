@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { UserMinus, Users } from 'lucide-react';
-import { Avatar, EmptyState } from '@/shared/ui';
+import { Avatar, Button, EmptyState } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useChallengeLeaderboard, useRemoveChallengeParticipant } from '../hooks/useChallenges';
 
@@ -30,23 +30,21 @@ function Row({ challengeId, userId, displayName, avatarUrl }: {
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
             <Link href={`/profile/${userId}`} className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-80 transition-opacity">
                 <Avatar displayName={displayName} userName={displayName} avatarUrl={avatarUrl} size="sm" />
-                <div className="min-w-0">
-                    <p className="text-sm font-semibold text-foreground leading-tight truncate">{displayName}</p>
-                    {error && <p className="text-xs text-error leading-tight mt-0.5">{error}</p>}
-                </div>
+                <p className="text-sm font-semibold text-foreground leading-tight truncate min-w-0">{displayName}</p>
             </Link>
-            <button
-                type="button"
-                onClick={handleRemove}
-                disabled={isPending}
-                className={
-                    'flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border transition-all disabled:opacity-50 shrink-0 ' +
-                    (confirming ? 'border-error text-error bg-error/5' : 'border-surface-200 text-surface-600 hover:bg-surface-100')
-                }
-            >
-                <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
-                {confirming ? 'Confirm' : 'Remove'}
-            </button>
+            <div className="flex flex-col items-end gap-1 shrink-0">
+                <Button
+                    size="sm"
+                    variant={confirming ? 'danger' : 'secondary'}
+                    loading={isPending}
+                    onClick={handleRemove}
+                    className="gap-1"
+                >
+                    <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
+                    {confirming ? 'Confirm' : 'Remove'}
+                </Button>
+                {error && <p className="text-xs text-error">{error}</p>}
+            </div>
         </div>
     );
 }

@@ -37,14 +37,14 @@ export function BodyTrackingTab() {
     const [addOpen, setAddOpen] = useState(false);
     const [editingCheckIn, setEditingCheckIn] = useState<BodyCheckIn | null>(null);
 
-    const { data: summary } = useBodyCheckInSummary({ from: daysAgo(90), to: toISODate(new Date()) });
+    const { data: summary, isLoading: loadingSummary } = useBodyCheckInSummary({ from: daysAgo(90), to: toISODate(new Date()) });
     const { data: history, isLoading } = useBodyCheckIns({ pageSize: 100 });
 
     const grouped = useMemo(() => groupByMonth(history?.items ?? []), [history]);
 
     return (
         <div className="space-y-6">
-            <CheckInSummaryCard summary={summary} />
+            <CheckInSummaryCard summary={summary} isLoading={loadingSummary} />
 
             <Button onClick={() => setAddOpen(true)} fullWidth className="gap-2">
                 <Plus className="h-4 w-4" aria-hidden="true" />

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { Trash2, ChevronDown } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
@@ -15,10 +15,12 @@ interface Props {
 }
 
 function MiniNumField({ label, value, onChange }: { label: string; value: number | null | undefined; onChange: (v: number | null) => void }) {
+    const inputId = useId();
     return (
         <div className="flex flex-col items-center gap-1">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">{label}</span>
+            <label htmlFor={inputId} className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">{label}</label>
             <input
+                id={inputId}
                 type="number"
                 min={0}
                 value={value ?? ''}

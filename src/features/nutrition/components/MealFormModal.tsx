@@ -70,11 +70,11 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
     const { mutateAsync: createMeal, isPending: creating } = useCreateMeal();
     const { mutateAsync: updateMealMeta, isPending: updatingMeta } = useUpdateMeal();
     const { mutateAsync: deleteMeal, isPending: deletingMeal } = useDeleteMeal();
-    const { mutateAsync: addItem } = useAddMealItem();
-    const { mutateAsync: updateItem } = useUpdateMealItem();
-    const { mutateAsync: deleteItem } = useDeleteMealItem();
+    const { mutateAsync: addItem, isPending: addingItem } = useAddMealItem();
+    const { mutateAsync: updateItem, isPending: updatingItem } = useUpdateMealItem();
+    const { mutateAsync: deleteItem, isPending: deletingItem } = useDeleteMealItem();
 
-    const isPending = creating || updatingMeta || deletingMeal;
+    const isPending = creating || updatingMeta || deletingMeal || addingItem || updatingItem || deletingItem;
 
     const addDraftItem = (item: MealItemRequest) => setItems(prev => [...prev, toDraft(item)]);
     const removeDraftItem = (localId: string) => setItems(prev => prev.filter(i => i.localId !== localId));
@@ -89,6 +89,7 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
             onClose();
         } catch (err) {
             setSubmitError(getErrorMessage(err, 'Failed to delete meal.'));
+            setConfirmingDelete(false);
         }
     };
 

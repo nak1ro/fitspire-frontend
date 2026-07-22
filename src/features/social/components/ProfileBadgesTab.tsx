@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Award } from 'lucide-react';
 import { Card, EmptyState } from '@/shared/ui';
 import { usePublicBadges } from '../hooks/useSocialReads';
@@ -17,6 +18,7 @@ function tierStyle(tier: string) {
 
 function BadgeTile({ badge }: { badge: PublicBadge }) {
     const { color, bg } = tierStyle(badge.tier);
+    const [imageFailed, setImageFailed] = useState(false);
 
     return (
         <Card padding="sm" className="flex flex-col items-center text-center gap-2">
@@ -24,8 +26,8 @@ function BadgeTile({ badge }: { badge: PublicBadge }) {
                 className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 shadow-chip"
                 style={{ backgroundColor: bg }}
             >
-                {badge.iconUrl ? (
-                    <img src={badge.iconUrl} alt="" className="w-8 h-8 object-contain" />
+                {badge.iconUrl && !imageFailed ? (
+                    <img src={badge.iconUrl} alt="" className="w-8 h-8 object-contain" onError={() => setImageFailed(true)} />
                 ) : (
                     <Award className="h-6 w-6" style={{ color }} aria-hidden="true" />
                 )}

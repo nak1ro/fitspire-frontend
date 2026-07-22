@@ -16,10 +16,11 @@ interface Props {
     item: BadgeCatalogueItem;
     selectable?: boolean;
     selected?: boolean;
+    disabled?: boolean;
     onClick?: () => void;
 }
 
-export function BadgeTile({ item, selectable, selected, onClick }: Props) {
+export function BadgeTile({ item, selectable, selected, disabled, onClick }: Props) {
     const { badge, isEarned, progressPercentage } = item;
     const { color, bg } = tierStyle(badge.tier);
     const pct = !isEarned && progressPercentage != null ? Math.min(100, Math.round(progressPercentage)) : null;
@@ -27,9 +28,9 @@ export function BadgeTile({ item, selectable, selected, onClick }: Props) {
     return (
         <Card
             padding="sm"
-            interactive={Boolean(onClick)}
-            onClick={onClick}
-            className={`flex flex-col items-center text-center gap-2 relative ${!isEarned ? 'opacity-50' : ''}`}
+            interactive={Boolean(onClick) && !disabled}
+            onClick={disabled ? undefined : onClick}
+            className={`flex flex-col items-center text-center gap-2 relative ${!isEarned || disabled ? 'opacity-50' : ''}`}
         >
             {selectable && selected && (
                 <div className="absolute top-2 right-2 flex items-center justify-center h-5 w-5 rounded-full bg-primary-500 text-white">

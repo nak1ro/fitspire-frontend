@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Loader2, RefreshCw, Sparkles, Trash2 } from 'lucide-react';
 import { Alert, Badge, Button, EmptyState } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
@@ -38,6 +38,11 @@ export function WeeklyCoachView() {
     const { mutateAsync: generate, isPending: generating } = useGenerateWeeklyCoachReport();
     const { mutateAsync: remove, isPending: deleting } = useDeleteWeeklyCoachReport();
 
+    useEffect(() => {
+        setConfirmingDelete(false);
+        setActionError(null);
+    }, [activeId]);
+
     const handleGenerateLatest = async () => {
         setActionError(null);
         try {
@@ -68,6 +73,7 @@ export function WeeklyCoachView() {
             setConfirmingDelete(false);
         } catch (err) {
             setActionError(getErrorMessage(err, 'Failed to delete report.'));
+            setConfirmingDelete(false);
         }
     };
 
@@ -97,7 +103,7 @@ export function WeeklyCoachView() {
 
     return (
         <div className="space-y-6">
-            {actionError && <Alert variant="error">{actionError}</Alert>}
+            {actionError && report?.status !== 'Failed' && <Alert variant="error">{actionError}</Alert>}
 
             {loadingReport || !report ? (
                 <ViewSkeleton />

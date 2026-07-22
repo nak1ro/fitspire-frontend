@@ -27,7 +27,11 @@ function MetricRow({ label, current, change, unit }: MetricRowProps) {
     );
 }
 
-export function CheckInSummaryCard({ summary }: { summary?: BodyCheckInSummary }) {
+export function CheckInSummaryCard({ summary, isLoading }: { summary?: BodyCheckInSummary; isLoading?: boolean }) {
+    if (isLoading) {
+        return <div className="h-40 rounded-2xl bg-surface-100 animate-pulse" />;
+    }
+
     if (!summary || summary.activeCheckInCount === 0) return null;
 
     const { current, changes, latestWellbeingScore } = summary;

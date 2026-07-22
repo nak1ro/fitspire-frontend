@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
-import { Alert } from '@/shared/ui';
+import { useState, useEffect, useRef } from 'react';
+import { X, Camera, Loader2 } from 'lucide-react';
+import { Alert, Avatar } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { useUpdateUserProfile } from '../hooks/useUserProfile';
+import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
+import { useUpdateUserProfile, useAttachUserProfilePicture, useRemoveUserProfilePicture } from '../hooks/useUserProfile';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -17,8 +18,36 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
     const [displayName, setDisplayName] = useState(profile.displayName);
     const [bio, setBio] = useState(profile.bio ?? '');
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [photoError, setPhotoError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const { mutateAsync, isPending } = useUpdateUserProfile();
+    const { mutateAsync: uploadPhoto, isPending: uploadingPhoto } = useUploadMedia();
+    const { mutateAsync: attachPhoto, isPending: attachingPhoto } = useAttachUserProfilePicture();
+    const { mutateAsync: removePhoto, isPending: removingPhoto } = useRemoveUserProfilePicture();
+    const photoBusy = uploadingPhoto || attachingPhoto || removingPhoto;
+
+    const handlePickPhoto = () => fileInputRef.current?.click();
+
+    const handleFileSelected = async (file: File | undefined) => {
+        if (!file) return;
+        setPhotoError(null);
+        try {
+            const asset = await uploadPhoto({ file, purpose: 'ProfilePicture' });
+            await attachPhoto(asset.id);
+        } catch (err) {
+            setPhotoError(getErrorMessage(err, 'Failed to update profile photo.'));
+        }
+    };
+
+    const handleRemovePhoto = async () => {
+        setPhotoError(null);
+        try {
+            await removePhoto();
+        } catch (err) {
+            setPhotoError(getErrorMessage(err, 'Failed to remove profile photo.'));
+        }
+    };
 
     // Sync fields when profile changes
     useEffect(() => {
@@ -61,6 +90,49 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
 
                 {/* Form */}
                 <div className="px-5 pb-5 pt-1 space-y-4">
+                    <div className="flex flex-col items-center gap-2">
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            onChange={e => handleFileSelected(e.target.files?.[0])}
+                        />
+                        <div className="relative">
+                            <Avatar
+                                displayName={profile.displayName}
+                                userName={profile.userName}
+                                avatarUrl={profile.profilePictureUrl}
+                                size="xl"
+                            />
+                            {photoBusy && (
+                                <div className="absolute inset-0 rounded-2xl bg-black/40 flex items-center justify-center">
+                                    <Loader2 className="h-5 w-5 text-white animate-spin" aria-hidden="true" />
+                                </div>
+                            )}
+                            <button
+                                type="button"
+                                onClick={handlePickPhoto}
+                                disabled={photoBusy}
+                                className="absolute -bottom-1 -right-1 flex items-center justify-center h-7 w-7 rounded-full bg-primary-500 text-white shadow-chip disabled:opacity-50"
+                                aria-label="Change profile photo"
+                            >
+                                <Camera className="h-3.5 w-3.5" aria-hidden="true" />
+                            </button>
+                        </div>
+                        {profile.profilePictureUrl && (
+                            <button
+                                type="button"
+                                onClick={handleRemovePhoto}
+                                disabled={photoBusy}
+                                className="text-xs font-semibold text-error hover:opacity-70 transition-opacity disabled:opacity-50"
+                            >
+                                Remove photo
+                            </button>
+                        )}
+                        {photoError && <p className="text-xs text-error text-center">{photoError}</p>}
+                    </div>
+
                     <div className="space-y-1.5">
                         <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
                             Display name

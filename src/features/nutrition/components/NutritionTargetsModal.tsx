@@ -40,6 +40,7 @@ export function NutritionTargetsModal({ open, onClose }: Props) {
     const [carbs, setCarbs] = useState('');
     const [fat, setFat] = useState('');
     const [error, setError] = useState<string | null>(null);
+    const [confirmingClear, setConfirmingClear] = useState(false);
 
     useEffect(() => {
         if (!open) return;
@@ -48,6 +49,7 @@ export function NutritionTargetsModal({ open, onClose }: Props) {
         setCarbs(target?.carbsGrams != null ? String(target.carbsGrams) : '');
         setFat(target?.fatGrams != null ? String(target.fatGrams) : '');
         setError(null);
+        setConfirmingClear(false);
     }, [open, target]);
 
     const toValue = (v: string) => v.trim() === '' ? null : parseFloat(v);
@@ -73,12 +75,14 @@ export function NutritionTargetsModal({ open, onClose }: Props) {
     };
 
     const handleClear = async () => {
+        if (!confirmingClear) { setConfirmingClear(true); return; }
         setError(null);
         try {
             await clear();
             onClose();
         } catch (err) {
             setError(getErrorMessage(err, 'Failed to clear targets.'));
+            setConfirmingClear(false);
         }
     };
 
@@ -124,7 +128,7 @@ export function NutritionTargetsModal({ open, onClose }: Props) {
                             disabled={clearing}
                             className="w-full py-2 text-sm font-semibold text-error hover:opacity-70 transition-opacity disabled:opacity-50"
                         >
-                            Clear targets
+                            {confirmingClear ? 'Tap again to confirm' : 'Clear targets'}
                         </button>
                     )}
                 </div>

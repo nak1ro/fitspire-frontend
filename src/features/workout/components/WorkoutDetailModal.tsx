@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, Trash2, Lock, AlertTriangle, Dumbbell } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
-import { Badge, Button, Card, IconChip } from '@/shared/ui';
+import { Alert, Badge, Button, Card, IconChip } from '@/shared/ui';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import type {
     GymWorkout,
     RunningWorkout,
@@ -215,21 +216,36 @@ interface Props {
 export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
     const router = useRouter();
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const { data: workout, isLoading } = useWorkout(workoutId);
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
 
+    // The parent keeps this component mounted and only swaps `workoutId`, so local
+    // state must be reset per-workout rather than relying on unmount to clear it.
+    useEffect(() => {
+        setConfirmDelete(false);
+        setDeleteError(null);
+    }, [workoutId]);
+
     const handleDelete = async () => {
         if (!workoutId) return;
-        await deleteWorkout(workoutId);
-        onClose();
-        onDeleted?.();
-        router.refresh();
+        setDeleteError(null);
+        try {
+            await deleteWorkout(workoutId);
+            onClose();
+            onDeleted?.();
+            router.refresh();
+        } catch (err) {
+            setDeleteError(getErrorMessage(err, 'Failed to delete workout.'));
+            setConfirmDelete(false);
+        }
     };
 
     // Reset confirm state when modal closes
     const handleClose = () => {
         setConfirmDelete(false);
+        setDeleteError(null);
         onClose();
     };
 
@@ -313,6 +329,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                                 <AlertTriangle className="h-4 w-4 text-error shrink-0" aria-hidden="true" />
                                 <span>This can't be undone. Are you sure?</span>
                             </div>
+                            {deleteError && <Alert variant="error">{deleteError}</Alert>}
                             <div className="flex gap-3">
                                 <Button variant="danger" size="md" fullWidth onClick={handleDelete} loading={deleting}>
                                     Yes, delete

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Plus } from 'lucide-react';
-import { Toggle } from '@/shared/ui';
+import { Search, Plus, Utensils } from 'lucide-react';
+import { Button, EmptyState, Toggle } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useFavouriteFoods, useRecentFoods, useCreateFavouriteFood } from '../../hooks/useNutrition';
@@ -30,6 +30,16 @@ const EMPTY_DRAFT: MealItemRequest = {
 };
 
 type Tab = 'favourites' | 'recent' | 'custom';
+
+function RowsSkeleton() {
+    return (
+        <div className="p-2 space-y-2">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="h-11 rounded-lg bg-surface-100 animate-pulse" />
+            ))}
+        </div>
+    );
+}
 
 interface FoodListRowProps {
     item: MealItemRequest;
@@ -131,36 +141,36 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
             )}
 
             <div className="grid grid-cols-4 gap-2">
-                {(['caloriesKcal', 'proteinGrams', 'carbsGrams', 'fatGrams'] as const).map(field => (
-                    <div key={field} className="flex flex-col items-center gap-1">
-                        <span className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
-                            {field === 'caloriesKcal' ? 'Kcal' : field === 'proteinGrams' ? 'Protein' : field === 'carbsGrams' ? 'Carbs' : 'Fat'}
-                        </span>
-                        <input
-                            type="number"
-                            min={0}
-                            value={draft[field] ?? ''}
-                            onChange={e => patch({ [field]: e.target.value === '' ? null : Math.max(0, parseFloat(e.target.value)) })}
-                            placeholder="—"
-                            className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
-                        />
-                    </div>
-                ))}
+                {(['caloriesKcal', 'proteinGrams', 'carbsGrams', 'fatGrams'] as const).map(field => {
+                    const fieldLabel = field === 'caloriesKcal' ? 'Kcal' : field === 'proteinGrams' ? 'Protein' : field === 'carbsGrams' ? 'Carbs' : 'Fat';
+                    const inputId = `quick-add-${field}`;
+                    return (
+                        <div key={field} className="flex flex-col items-center gap-1">
+                            <label htmlFor={inputId} className="text-[10px] font-semibold uppercase tracking-wider text-surface-400">
+                                {fieldLabel}
+                            </label>
+                            <input
+                                id={inputId}
+                                type="number"
+                                min={0}
+                                value={draft[field] ?? ''}
+                                onChange={e => patch({ [field]: e.target.value === '' ? null : Math.max(0, parseFloat(e.target.value)) })}
+                                placeholder="—"
+                                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                            />
+                        </div>
+                    );
+                })}
             </div>
 
             <Toggle label="Save as favourite" checked={saveAsFavourite} onChange={setSaveAsFavourite} />
 
             {error && <p className="text-xs text-error">{error}</p>}
 
-            <button
-                type="button"
-                onClick={handleAdd}
-                disabled={savingFavourite}
-                className="w-full flex items-center justify-center gap-1.5 h-10 rounded-xl text-sm font-bold text-white bg-primary-500 hover:bg-primary-600 transition-colors disabled:opacity-50"
-            >
+            <Button onClick={handleAdd} loading={savingFavourite} fullWidth className="gap-1.5">
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 Add food
-            </button>
+            </Button>
         </div>
     );
 }
@@ -203,26 +213,30 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
                         />
                     </div>
                     <div className="max-h-48 overflow-y-auto">
-                        {loadingFavourites && <p className="text-sm text-surface-400 text-center py-6">Loading…</p>}
-                        {!loadingFavourites && (!favourites || favourites.items.length === 0) && (
-                            <p className="text-sm text-surface-400 text-center py-6">No favourites yet</p>
+                        {loadingFavourites ? (
+                            <RowsSkeleton />
+                        ) : !favourites || favourites.items.length === 0 ? (
+                            <EmptyState icon={Utensils} title="No favourites yet" className="py-6" />
+                        ) : (
+                            favourites.items.map(fav => (
+                                <FoodListRow key={fav.id} item={fav} onSelect={() => onAdd(toItemRequest(fav))} />
+                            ))
                         )}
-                        {!loadingFavourites && favourites?.items.map(fav => (
-                            <FoodListRow key={fav.id} item={fav} onSelect={() => onAdd(toItemRequest(fav))} />
-                        ))}
                     </div>
                 </>
             )}
 
             {tab === 'recent' && (
                 <div className="max-h-48 overflow-y-auto">
-                    {loadingRecent && <p className="text-sm text-surface-400 text-center py-6">Loading…</p>}
-                    {!loadingRecent && (!recent || recent.length === 0) && (
-                        <p className="text-sm text-surface-400 text-center py-6">Nothing logged recently</p>
+                    {loadingRecent ? (
+                        <RowsSkeleton />
+                    ) : !recent || recent.length === 0 ? (
+                        <EmptyState icon={Utensils} title="Nothing logged recently" className="py-6" />
+                    ) : (
+                        recent.map((item, i) => (
+                            <FoodListRow key={`${item.name}-${i}`} item={item} onSelect={() => onAdd(toItemRequest(item))} />
+                        ))
                     )}
-                    {!loadingRecent && recent?.map((item, i) => (
-                        <FoodListRow key={`${item.name}-${i}`} item={item} onSelect={() => onAdd(toItemRequest(item))} />
-                    ))}
                 </div>
             )}
 

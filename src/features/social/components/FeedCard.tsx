@@ -112,6 +112,19 @@ export function FeedCard({ item }: { item: FeedItem }) {
                 {item.type === 'GoalAchieved' && (
                     <GoalAchievedBlock content={item.content} />
                 )}
+
+                {item.media.length > 0 && (
+                    <div className={item.media.length > 1 ? 'grid grid-cols-2 gap-1.5 mt-3' : 'mt-3'}>
+                        {item.media.map(media => (
+                            <img
+                                key={media.id}
+                                src={media.primary?.url ?? media.thumbnail?.url}
+                                alt=""
+                                className="w-full rounded-xl object-cover max-h-96"
+                            />
+                        ))}
+                    </div>
+                )}
             </div>
 
             {/* Footer */}

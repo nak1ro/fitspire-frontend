@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { Search, UserPlus, X } from 'lucide-react';
-import { Avatar } from '@/shared/ui';
+import { Avatar, Button, EmptyState } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useSearchSocialUsers } from '@/features/social/hooks/useSocialReads';
 import type { SocialUserSummary } from '@/features/social/types';
@@ -24,6 +25,22 @@ function useDebouncedValue(value: string, delayMs: number) {
     return debounced;
 }
 
+function ResultsSkeleton() {
+    return (
+        <div className="p-1.5 space-y-1">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2.5 animate-pulse">
+                    <div className="w-8 h-8 rounded-full bg-surface-200 shrink-0" />
+                    <div className="space-y-1.5 flex-1">
+                        <div className="h-3 w-28 bg-surface-200 rounded-full" />
+                        <div className="h-2.5 w-20 bg-surface-200 rounded-full" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
+
 function ResultRow({ user, challengeId, alreadyIn }: { user: SocialUserSummary; challengeId: string; alreadyIn: boolean }) {
     const [invited, setInvited] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -42,27 +59,24 @@ function ResultRow({ user, challengeId, alreadyIn }: { user: SocialUserSummary; 
 
     return (
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl">
-            <Avatar displayName={user.displayName} userName={user.userName} avatarUrl={user.profilePictureUrl} size="sm" />
-            <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground leading-tight truncate">{user.displayName}</p>
-                <p className="text-xs leading-tight mt-0.5 truncate text-surface-400">
-                    {error ? <span className="text-error">{error}</span> : `@${user.userName}`}
-                </p>
-            </div>
+            <Link href={`/profile/${user.id}`} className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-80 transition-opacity">
+                <Avatar displayName={user.displayName} userName={user.userName} avatarUrl={user.profilePictureUrl} size="sm" />
+                <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground leading-tight truncate">{user.displayName}</p>
+                    <p className="text-xs leading-tight mt-0.5 truncate text-surface-400">
+                        {error ? <span className="text-error">{error}</span> : `@${user.userName}`}
+                    </p>
+                </div>
+            </Link>
             {alreadyIn ? (
                 <span className="text-xs font-semibold text-surface-400 shrink-0">Already in</span>
             ) : invited ? (
                 <span className="text-xs font-semibold text-success shrink-0">Invited</span>
             ) : (
-                <button
-                    type="button"
-                    onClick={handleInvite}
-                    disabled={isPending}
-                    className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold border border-surface-200 text-surface-600 hover:bg-surface-100 transition-all disabled:opacity-50 shrink-0"
-                >
+                <Button size="sm" variant="secondary" loading={isPending} onClick={handleInvite} className="gap-1 shrink-0">
                     <UserPlus className="h-3.5 w-3.5" aria-hidden="true" />
                     Invite
-                </button>
+                </Button>
             )}
         </div>
     );
@@ -95,7 +109,7 @@ export function InviteChallengeModal({ challenge, open, onClose }: Props) {
             <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true" />
 
             <div
-                className="relative w-full sm:max-w-lg max-h-[80dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
+                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
                 style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
             >
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
@@ -127,9 +141,9 @@ export function InviteChallengeModal({ challenge, open, onClose }: Props) {
                     {!canSearch ? (
                         <p className="text-sm text-surface-400 text-center py-10">Search for someone to invite.</p>
                     ) : isLoading || isFetching ? (
-                        <p className="text-sm text-surface-400 text-center py-10">Searching…</p>
+                        <ResultsSkeleton />
                     ) : !results || results.length === 0 ? (
-                        <p className="text-sm text-surface-400 text-center py-10">No people found</p>
+                        <EmptyState icon={Search} title="No people found" className="py-10" />
                     ) : (
                         results.map(user => (
                             <ResultRow key={user.id} user={user} challengeId={challenge.id} alreadyIn={excludeUserIds.has(user.id)} />

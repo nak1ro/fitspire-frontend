@@ -23,6 +23,13 @@ function daysFromNow(days: number): string {
     return d.toISOString().split('T')[0];
 }
 
+function addDaysToDate(dateStr: string, days: number): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    date.setDate(date.getDate() + days);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 // Date <input> values are plain "YYYY-MM-DD" with no timezone, and
 // `new Date(dateStr)` parses that as UTC midnight — which is already in the
 // past for most timezones once any time has passed "today". Use the current
@@ -71,6 +78,9 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
         setError(null);
         if (!title.trim()) { setError('Enter a title.'); return; }
         if (mode === 'Target' && (!targetValue || Number(targetValue) <= 0)) { setError('Enter a target value.'); return; }
+        if (endDate <= startDate) { setError('End date must be after the start date.'); return; }
+        const limit = Number(participantLimit);
+        if (!Number.isFinite(limit) || limit < 2 || limit > 100) { setError('Participant limit must be between 2 and 100.'); return; }
 
         try {
             await createChallenge({
@@ -84,7 +94,7 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
                 startDate: toDateInstant(startDate),
                 endDate: toDateInstant(endDate),
                 joinClosing,
-                participantLimit: Math.min(100, Math.max(2, Number(participantLimit) || 2)),
+                participantLimit: limit,
             });
             onSuccess();
         } catch (err) {
@@ -157,17 +167,17 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-surface-700">Visibility</label>
                 <div className="flex gap-2">
-                    {(['Public', 'FollowersOnly'] as ChallengeVisibility[]).map(v => (
+                    {(['Public', 'FollowersOnly', 'InviteOnly'] as ChallengeVisibility[]).map(v => (
                         <button
                             key={v}
                             type="button"
                             onClick={() => setVisibility(v)}
                             className={
-                                'flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all ' +
+                                'flex-1 py-2.5 rounded-xl text-xs sm:text-sm font-semibold border transition-all ' +
                                 (visibility === v ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-surface-200 text-surface-500 hover:bg-surface-100')
                             }
                         >
-                            {v === 'Public' ? 'Public' : 'Followers only'}
+                            {v === 'Public' ? 'Public' : v === 'FollowersOnly' ? 'Followers only' : 'Invite only'}
                         </button>
                     ))}
                 </div>
@@ -180,7 +190,11 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
                         type="date"
                         value={startDate}
                         min={today()}
-                        onChange={e => setStartDate(e.target.value)}
+                        onChange={e => {
+                            const value = e.target.value;
+                            setStartDate(value);
+                            if (endDate <= value) setEndDate(addDaysToDate(value, 1));
+                        }}
                         className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
                     />
                 </div>
@@ -189,7 +203,7 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
                     <input
                         type="date"
                         value={endDate}
-                        min={daysFromNow(1)}
+                        min={addDaysToDate(startDate, 1)}
                         onChange={e => setEndDate(e.target.value)}
                         className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
                     />

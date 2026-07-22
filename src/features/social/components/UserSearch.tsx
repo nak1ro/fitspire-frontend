@@ -3,9 +3,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
-import { Avatar } from '@/shared/ui';
+import { Avatar, EmptyState } from '@/shared/ui';
 import { useSearchSocialUsers } from '../hooks/useSocialReads';
 import type { SocialUserSummary } from '../types';
+
+function ResultsSkeleton() {
+    return (
+        <div className="p-1.5 space-y-1">
+            {[1, 2, 3].map(i => (
+                <div key={i} className="flex items-center gap-3 px-3 py-2 animate-pulse">
+                    <div className="w-8 h-8 rounded-full bg-surface-200 shrink-0" />
+                    <div className="space-y-1.5 flex-1">
+                        <div className="h-3 w-28 bg-surface-200 rounded-full" />
+                        <div className="h-2.5 w-20 bg-surface-200 rounded-full" />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+}
 
 function useDebouncedValue(value: string, delayMs: number) {
     const [debounced, setDebounced] = useState(value);
@@ -110,9 +126,9 @@ export function UserSearch() {
                     {!canSearch ? (
                         <p className="text-sm text-surface-400 text-center py-6">Keep typing…</p>
                     ) : isLoading || isFetching ? (
-                        <p className="text-sm text-surface-400 text-center py-6">Searching…</p>
+                        <ResultsSkeleton />
                     ) : !results || results.length === 0 ? (
-                        <p className="text-sm text-surface-400 text-center py-6">No people found</p>
+                        <EmptyState icon={Search} title="No people found" className="py-6" />
                     ) : (
                         results.map((user) => (
                             <ResultRow key={user.id} user={user} onSelect={() => handleSelect(user.id)} />

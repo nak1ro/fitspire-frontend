@@ -8,6 +8,7 @@ import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useCancelChallenge, useChallenge, useJoinChallenge, useLeaveChallenge } from '../hooks/useChallenges';
 import { getMetricConfig } from '../metricConfig';
 import { ChallengeLeaderboard } from './ChallengeLeaderboard';
+import { STATUS_VARIANT } from './ChallengeCard';
 import { EditChallengeModal } from './EditChallengeModal';
 import { InviteChallengeModal } from './InviteChallengeModal';
 import { ManageParticipantsList } from './ManageParticipantsList';
@@ -89,10 +90,7 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
                             <p className="text-xs text-surface-400 mt-0.5">{metric.label}</p>
                         </div>
                     </div>
-                    <Badge
-                        variant={challenge.status === 'Active' ? 'primary' : challenge.status === 'Completed' ? 'success' : challenge.status === 'Cancelled' ? 'error' : 'default'}
-                        size="sm"
-                    >
+                    <Badge variant={STATUS_VARIANT[challenge.status]} size="sm">
                         {challenge.status}
                     </Badge>
                 </div>

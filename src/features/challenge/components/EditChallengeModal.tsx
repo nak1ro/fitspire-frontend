@@ -23,6 +23,13 @@ function today(): string {
     return toDateInputValue(new Date().toISOString());
 }
 
+function addDaysToDate(dateStr: string, days: number): string {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const date = new Date(y, m - 1, d);
+    date.setDate(date.getDate() + days);
+    return toDateInputValue(date.toISOString());
+}
+
 // See CreateChallengeModal.tsx for why "today" needs the current instant rather than local midnight.
 function toDateInstant(dateStr: string): string {
     const [y, m, d] = dateStr.split('-').map(Number);
@@ -30,8 +37,8 @@ function toDateInstant(dateStr: string): string {
     return new Date(y, m - 1, d).toISOString();
 }
 
-const fieldToggleClass = (active: boolean) =>
-    'flex-1 py-2.5 rounded-xl text-sm font-semibold border transition-all ' +
+const fieldToggleClass = (active: boolean, textSize: string = 'text-sm') =>
+    `flex-1 py-2.5 rounded-xl ${textSize} font-semibold border transition-all ` +
     (active ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-surface-200 text-surface-500 hover:bg-surface-100');
 
 function CopyForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSuccess: () => void }) {
@@ -104,6 +111,9 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
         setError(null);
         if (!title.trim()) { setError('Enter a title.'); return; }
         if (mode === 'Target' && (!targetValue || Number(targetValue) <= 0)) { setError('Enter a target value.'); return; }
+        if (endDate <= startDate) { setError('End date must be after the start date.'); return; }
+        const limit = Number(participantLimit);
+        if (!Number.isFinite(limit) || limit < 2 || limit > 100) { setError('Participant limit must be between 2 and 100.'); return; }
 
         try {
             await mutateAsync({
@@ -119,7 +129,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     startDate: toDateInstant(startDate),
                     endDate: toDateInstant(endDate),
                     joinClosing,
-                    participantLimit: Math.min(100, Math.max(2, Number(participantLimit) || 2)),
+                    participantLimit: limit,
                 },
             });
             onSuccess();
@@ -184,9 +194,9 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
             <div className="space-y-2">
                 <label className="block text-sm font-medium text-surface-700">Visibility</label>
                 <div className="flex gap-2">
-                    {(['Public', 'FollowersOnly'] as ChallengeVisibility[]).map(v => (
-                        <button key={v} type="button" onClick={() => setVisibility(v)} className={fieldToggleClass(visibility === v)}>
-                            {v === 'Public' ? 'Public' : 'Followers only'}
+                    {(['Public', 'FollowersOnly', 'InviteOnly'] as ChallengeVisibility[]).map(v => (
+                        <button key={v} type="button" onClick={() => setVisibility(v)} className={fieldToggleClass(visibility === v, 'text-xs sm:text-sm')}>
+                            {v === 'Public' ? 'Public' : v === 'FollowersOnly' ? 'Followers only' : 'Invite only'}
                         </button>
                     ))}
                 </div>
@@ -199,7 +209,11 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                         type="date"
                         value={startDate}
                         min={today()}
-                        onChange={e => setStartDate(e.target.value)}
+                        onChange={e => {
+                            const value = e.target.value;
+                            setStartDate(value);
+                            if (endDate <= value) setEndDate(addDaysToDate(value, 1));
+                        }}
                         className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
                     />
                 </div>
@@ -208,7 +222,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     <input
                         type="date"
                         value={endDate}
-                        min={today()}
+                        min={addDaysToDate(startDate, 1)}
                         onChange={e => setEndDate(e.target.value)}
                         className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
                     />

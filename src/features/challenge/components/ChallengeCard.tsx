@@ -3,7 +3,7 @@ import { Badge, Card, IconChip } from '@/shared/ui';
 import { getMetricConfig } from '../metricConfig';
 import type { ChallengeResponse, ChallengeStatus } from '../types';
 
-const STATUS_VARIANT: Record<ChallengeStatus, 'default' | 'primary' | 'success' | 'warning' | 'error'> = {
+export const STATUS_VARIANT: Record<ChallengeStatus, 'default' | 'primary' | 'success' | 'warning' | 'error'> = {
     Upcoming: 'default',
     Active: 'primary',
     Finalizing: 'warning',
@@ -43,6 +43,9 @@ export function ChallengeCard({ challenge, onClick }: { challenge: ChallengeResp
                 <div className="flex items-center gap-3">
                     {challenge.visibility === 'FollowersOnly' && (
                         <Badge variant="outline" size="sm">Followers only</Badge>
+                    )}
+                    {challenge.visibility === 'InviteOnly' && (
+                        <Badge variant="outline" size="sm">Invite only</Badge>
                     )}
                     <span className="flex items-center gap-1 text-xs text-surface-400">
                         <Users className="h-3.5 w-3.5" aria-hidden="true" />

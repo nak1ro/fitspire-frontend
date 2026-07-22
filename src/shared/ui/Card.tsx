@@ -1,4 +1,4 @@
-import { HTMLAttributes, forwardRef } from 'react';
+import { HTMLAttributes, KeyboardEvent, MouseEvent, forwardRef } from 'react';
 import { cn } from '../lib/cn';
 
 interface CardProps extends HTMLAttributes<HTMLDivElement> {
@@ -16,7 +16,7 @@ const shadows = {
 } as const;
 
 export const Card = forwardRef<HTMLDivElement, CardProps>(
-    ({ className, variant = 'elevated', padding = 'md', interactive = false, style, ...props }, ref) => {
+    ({ className, variant = 'elevated', padding = 'md', interactive = false, style, onClick, onKeyDown, ...props }, ref) => {
 
         const variants = {
             flat:     'bg-surface',
@@ -31,6 +31,19 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
             lg:   'p-6',
         };
 
+        const interactiveA11yProps = interactive && onClick ? {
+            role: 'button' as const,
+            tabIndex: 0,
+            onKeyDown: (e: KeyboardEvent<HTMLDivElement>) => {
+                onKeyDown?.(e);
+                if (e.defaultPrevented) return;
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    onClick(e as unknown as MouseEvent<HTMLDivElement>);
+                }
+            },
+        } : { onKeyDown };
+
         return (
             <div
                 ref={ref}
@@ -42,6 +55,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
                     className
                 )}
                 style={shadows[variant] ? { boxShadow: shadows[variant], ...style } : style}
+                onClick={onClick}
+                {...interactiveA11yProps}
                 {...props}
             />
         );

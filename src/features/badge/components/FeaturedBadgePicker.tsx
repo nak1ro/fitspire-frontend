@@ -55,7 +55,7 @@ export function FeaturedBadgePicker({ open, onClose }: Props) {
             <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
 
             <div
-                className="relative w-full sm:max-w-lg max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
+                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
                 style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
             >
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
@@ -76,15 +76,19 @@ export function FeaturedBadgePicker({ open, onClose }: Props) {
                         <EmptyState icon={Award} title="No earned badges yet" className="py-10" />
                     ) : (
                         <div className="grid grid-cols-3 gap-3">
-                            {earned.items.map(item => (
-                                <BadgeTile
-                                    key={item.badge.badgeId}
-                                    item={item}
-                                    selectable
-                                    selected={selected.includes(item.badge.badgeId)}
-                                    onClick={() => toggle(item.badge.badgeId)}
-                                />
-                            ))}
+                            {earned.items.map(item => {
+                                const isSelected = selected.includes(item.badge.badgeId);
+                                return (
+                                    <BadgeTile
+                                        key={item.badge.badgeId}
+                                        item={item}
+                                        selectable
+                                        selected={isSelected}
+                                        disabled={!isSelected && selected.length >= MAX_FEATURED}
+                                        onClick={() => toggle(item.badge.badgeId)}
+                                    />
+                                );
+                            })}
                         </div>
                     )}
 
