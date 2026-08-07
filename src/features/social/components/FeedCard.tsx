@@ -98,9 +98,9 @@ export function FeedCard({ item }: { item: FeedItem }) {
                     <Link href={`/profile/${item.userId}`} className="text-sm font-semibold text-foreground leading-tight hover:underline">
                         {item.userName}
                     </Link>
-                    <p className="text-[11px] text-surface-400 leading-tight mt-0.5">
+                    <Link href={`/feed/${item.id}`} className="text-[11px] text-surface-400 leading-tight mt-0.5 hover:underline block w-fit">
                         {formatRelativeTime(item.createdAt)}
-                    </p>
+                    </Link>
                 </div>
             </div>
 

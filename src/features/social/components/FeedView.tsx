@@ -1,13 +1,16 @@
 'use client';
 
-import { Users } from 'lucide-react';
+import { useState } from 'react';
+import { Compass, Users } from 'lucide-react';
 import { EmptyState } from '@/shared/ui';
-import { useSocialFeed } from '../hooks/useSocialFeed';
+import { useDiscoverFeed, useSocialFeed } from '../hooks/useSocialFeed';
 import { FeedCard } from './FeedCard';
 import { FeedSkeleton } from './FeedSkeleton';
 import { PostComposer } from './PostComposer';
 
-// ─── Empty state ───────────────────────────────────────────────────────────────
+type Tab = 'following' | 'discover';
+
+// ─── Empty states ──────────────────────────────────────────────────────────────
 
 function EmptyFeed() {
     return (
@@ -15,6 +18,16 @@ function EmptyFeed() {
             icon={Users}
             title="Your feed is quiet"
             description="Follow people to see their workouts, milestones, and posts here."
+        />
+    );
+}
+
+function EmptyDiscover() {
+    return (
+        <EmptyState
+            icon={Compass}
+            title="Nothing to discover yet"
+            description="Public posts from across Fitspire will show up here."
         />
     );
 }
@@ -30,15 +43,13 @@ function FeedError() {
     );
 }
 
-// ─── View ──────────────────────────────────────────────────────────────────────
+// ─── Following tab ─────────────────────────────────────────────────────────────
 
-export function FeedView() {
+function FollowingTab() {
     const { data, isLoading, isError } = useSocialFeed({ pageSize: 20 });
 
     return (
-        <div className="space-y-4">
-            <PostComposer />
-
+        <>
             {isLoading && <FeedSkeleton />}
             {isError && <FeedError />}
 
@@ -47,6 +58,55 @@ export function FeedView() {
             {!isLoading && !isError && data && data.length > 0 && (
                 data.map(item => <FeedCard key={item.id} item={item} />)
             )}
+        </>
+    );
+}
+
+// ─── Discover tab ──────────────────────────────────────────────────────────────
+
+function DiscoverTab() {
+    const { data, isLoading, isError } = useDiscoverFeed({ pageSize: 20 });
+
+    return (
+        <>
+            {isLoading && <FeedSkeleton />}
+            {isError && <FeedError />}
+
+            {!isLoading && !isError && data && data.length === 0 && <EmptyDiscover />}
+
+            {!isLoading && !isError && data && data.length > 0 && (
+                data.map(item => <FeedCard key={item.id} item={item} />)
+            )}
+        </>
+    );
+}
+
+// ─── View ──────────────────────────────────────────────────────────────────────
+
+export function FeedView() {
+    const [tab, setTab] = useState<Tab>('following');
+
+    return (
+        <div className="space-y-4">
+            <PostComposer />
+
+            <div className="flex border-b border-surface-200">
+                {([
+                    { key: 'following', label: 'Following' },
+                    { key: 'discover', label: 'Discover' },
+                ] as const).map(t => (
+                    <button
+                        key={t.key}
+                        onClick={() => setTab(t.key)}
+                        className={`px-1 mr-6 py-3 text-sm font-bold transition-colors relative ${tab === t.key ? 'text-primary-500' : 'text-surface-500'}`}
+                    >
+                        {t.label}
+                        {tab === t.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-primary" />}
+                    </button>
+                ))}
+            </div>
+
+            {tab === 'following' ? <FollowingTab /> : <DiscoverTab />}
         </div>
     );
 }

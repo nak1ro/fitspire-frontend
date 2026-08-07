@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Trash2, Lock, AlertTriangle, Dumbbell } from 'lucide-react';
+import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
@@ -223,16 +224,33 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
     const router = useRouter();
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [shared, setShared] = useState(false);
+    const [shareError, setShareError] = useState<string | null>(null);
 
     const { data: workout, isLoading } = useWorkout(workoutId);
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
+    const { mutate: shareWorkout, isPending: sharing } = useShareWorkout();
 
     // The parent keeps this component mounted and only swaps `workoutId`, so local
     // state must be reset per-workout rather than relying on unmount to clear it.
     useEffect(() => {
         setConfirmDelete(false);
         setDeleteError(null);
+        setShared(false);
+        setShareError(null);
     }, [workoutId]);
+
+    const handleShare = () => {
+        if (!workoutId) return;
+        setShareError(null);
+        shareWorkout(
+            { workoutId },
+            {
+                onSuccess: () => setShared(true),
+                onError: (err) => setShareError(getErrorMessage(err, 'Failed to share workout.')),
+            }
+        );
+    };
 
     const handleDelete = async () => {
         if (!workoutId) return;
@@ -318,8 +336,25 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                     )}
                 </div>
 
-                {/* Footer — delete action */}
-                <div className="shrink-0 border-t border-surface-200 px-5 py-5">
+                {/* Footer — share + delete actions */}
+                <div className="shrink-0 border-t border-surface-200 px-5 py-5 space-y-3">
+                    {workout && workout.status === 'Completed' && !workout.isPrivate && (
+                        <>
+                            {shareError && <Alert variant="error">{shareError}</Alert>}
+                            <Button
+                                variant="secondary"
+                                size="md"
+                                fullWidth
+                                loading={sharing}
+                                disabled={shared}
+                                onClick={handleShare}
+                                className="gap-2"
+                            >
+                                {shared ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4" aria-hidden="true" />}
+                                {shared ? 'Shared to feed' : 'Share to feed'}
+                            </Button>
+                        </>
+                    )}
                     {!confirmDelete ? (
                         <button
                             type="button"
