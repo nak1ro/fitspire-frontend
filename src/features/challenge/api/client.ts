@@ -9,6 +9,7 @@ import type {
     ChallengeResponse,
     CreateChallengeRequest,
     InviteChallengeUserRequest,
+    SentChallengeInvitation,
     UpdateActiveChallengeCopyRequest,
     UpdateChallengeRequest,
 } from '../types';
@@ -83,6 +84,12 @@ export const inviteChallengeUser = (
 
 export const cancelChallengeInvitation = (accessToken: string, invitationId: string) =>
     http<void>(CHALLENGE_ROUTES.invitation(invitationId), { method: 'DELETE', accessToken });
+
+export const getSentChallengeInvitations = (accessToken: string, challengeId: string, pagination?: Partial<PageRequest>) =>
+    http<PageResponse<SentChallengeInvitation>>(CHALLENGE_ROUTES.invitations(challengeId), {
+        accessToken,
+        query: paginationQuery(pagination),
+    });
 
 export const acceptChallengeInvitation = (accessToken: string, invitationId: string) =>
     http<void>(CHALLENGE_ROUTES.acceptInvitation(invitationId), { method: 'POST', accessToken });

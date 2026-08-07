@@ -7,6 +7,7 @@ import {
     getDiscoverFeed,
     getFollowingFeed,
     getPost,
+    getSavedPosts,
     getUserPosts,
 } from '../api/client';
 import { FeedPagination } from '../types';
@@ -30,6 +31,16 @@ export function useDiscoverFeed(pagination?: FeedPagination) {
     return useQuery({
         queryKey: socialQueryKeys.discoverFeed(pagination),
         queryFn: () => getDiscoverFeed(requireAccessToken(accessToken), pagination),
+        enabled: Boolean(accessToken),
+    });
+}
+
+export function useSavedPosts(pagination?: FeedPagination) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.savedPosts(pagination),
+        queryFn: () => getSavedPosts(requireAccessToken(accessToken), pagination),
         enabled: Boolean(accessToken),
     });
 }

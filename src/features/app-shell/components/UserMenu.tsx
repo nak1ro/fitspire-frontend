@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Settings, LogOut } from 'lucide-react';
+import { Bookmark, Settings, LogOut } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { Avatar } from '@/shared/ui';
 
@@ -44,6 +44,15 @@ export function UserMenu({ displayName, userName, avatarUrl }: UserMenuProps) {
                     className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-surface-200 bg-background p-1.5 z-20"
                     style={{ boxShadow: 'var(--shadow-panel)' }}
                 >
+                    <Link
+                        href="/saved"
+                        role="menuitem"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-foreground transition-colors"
+                    >
+                        <Bookmark className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Saved posts
+                    </Link>
                     <Link
                         href="/settings"
                         role="menuitem"

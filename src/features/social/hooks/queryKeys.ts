@@ -7,6 +7,8 @@ export const socialQueryKeys = {
         [...socialQueryKeys.feeds(), 'following', pagination ?? {}] as const,
     discoverFeed: (pagination?: FeedPagination) =>
         [...socialQueryKeys.feeds(), 'discover', pagination ?? {}] as const,
+    savedPosts: (pagination?: FeedPagination) =>
+        [...socialQueryKeys.feeds(), 'saved', pagination ?? {}] as const,
     feed: (pagination?: FeedPagination) => socialQueryKeys.followingFeed(pagination),
     userPostsRoot: () => [...socialQueryKeys.all, 'user-posts'] as const,
     userPosts: (targetUserId: string, pagination?: FeedPagination) =>

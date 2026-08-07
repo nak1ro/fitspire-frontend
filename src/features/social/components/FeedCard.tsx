@@ -2,10 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Heart, MessageCircle, Send, Trophy } from 'lucide-react';
+import { Bookmark, Heart, MessageCircle, Send, Trophy } from 'lucide-react';
 import { Avatar, Card, IconChip } from '@/shared/ui';
 import type { FeedItem } from '../types';
-import { useLikePost, useUnlikePost, useCommentOnPost } from '../hooks/useSocialMutations';
+import { useLikePost, useUnlikePost, useCommentOnPost, useSavePost, useUnsavePost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 
@@ -48,11 +48,14 @@ function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; 
 export function FeedCard({ item }: { item: FeedItem }) {
     const [liked, setLiked] = useState(item.isLikedByCurrentUser);
     const [likesCount, setLikesCount] = useState(item.likesCount);
+    const [saved, setSaved] = useState(item.isSavedByCurrentUser);
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentText, setCommentText] = useState('');
 
     const { mutate: likePost } = useLikePost();
     const { mutate: unlikePost } = useUnlikePost();
+    const { mutate: savePost } = useSavePost();
+    const { mutate: unsavePost } = useUnsavePost();
     const { mutate: postComment, isPending: isSendingComment } = useCommentOnPost();
 
     const handleLike = () => {
@@ -66,6 +69,13 @@ export function FeedCard({ item }: { item: FeedItem }) {
                 setLikesCount(c => c + (wasLiked ? 1 : -1));
             },
         });
+    };
+
+    const handleSave = () => {
+        const wasSaved = saved;
+        setSaved(!wasSaved);
+        const mutateSave = wasSaved ? unsavePost : savePost;
+        mutateSave(item.id, { onError: () => setSaved(wasSaved) });
     };
 
     const handleSendComment = () => {
@@ -156,6 +166,18 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         <span className="text-xs font-medium text-surface-500 tabular-nums">
                             {item.commentsCount}
                         </span>
+                    </button>
+
+                    {/* Save */}
+                    <button
+                        onClick={handleSave}
+                        className="ml-auto transition-all hover:opacity-70"
+                        aria-label={saved ? 'Unsave post' : 'Save post'}
+                    >
+                        <Bookmark
+                            className={saved ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
+                            aria-hidden="true"
+                        />
                     </button>
                 </div>
             </div>

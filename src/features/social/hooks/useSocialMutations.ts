@@ -16,10 +16,12 @@ import {
     likePost,
     rejectFollowRequest,
     removeFollower,
+    savePost,
     shareWorkout,
     unlikeComment,
     unlikePost,
     unfollowUser,
+    unsavePost,
     updateComment,
     updatePost,
 } from '../api/client';
@@ -97,6 +99,26 @@ export function useUnlikePost() {
 
     return useMutation({
         mutationFn: (postId: string) => unlikePost(requireAccessToken(accessToken), postId),
+        onSuccess: async (_, postId) => invalidatePostReads(queryClient, postId),
+    });
+}
+
+export function useSavePost() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (postId: string) => savePost(requireAccessToken(accessToken), postId),
+        onSuccess: async (_, postId) => invalidatePostReads(queryClient, postId),
+    });
+}
+
+export function useUnsavePost() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (postId: string) => unsavePost(requireAccessToken(accessToken), postId),
         onSuccess: async (_, postId) => invalidatePostReads(queryClient, postId),
     });
 }

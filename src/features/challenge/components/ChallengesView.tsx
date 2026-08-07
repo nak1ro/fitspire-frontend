@@ -2,14 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trophy } from 'lucide-react';
-import { Button, EmptyState } from '@/shared/ui';
-import { useDiscoverChallenges, useAvailableChallenges, useMyChallenges } from '../hooks/useChallenges';
+import { Mail, Plus, Trophy } from 'lucide-react';
+import { Badge, Button, EmptyState } from '@/shared/ui';
+import { useDiscoverChallenges, useAvailableChallenges, useIncomingChallengeInvitations, useMyChallenges } from '../hooks/useChallenges';
 import { ChallengeCard } from './ChallengeCard';
+import { ChallengeInvitationCard } from './ChallengeInvitationCard';
 import { CreateChallengeModal } from './CreateChallengeModal';
 import type { ChallengeResponse } from '../types';
 
-type Tab = 'discover' | 'mine';
+type Tab = 'discover' | 'mine' | 'invites';
 
 const ACTIVE_STATUSES = new Set(['Upcoming', 'Active', 'Finalizing']);
 
@@ -89,10 +90,31 @@ function MineTab({ onOpen }: { onOpen: (id: string) => void }) {
     );
 }
 
+function InvitesTab({ onOpen }: { onOpen: (id: string) => void }) {
+    const { data, isLoading } = useIncomingChallengeInvitations({ pageSize: 50 });
+    const items = data?.items ?? [];
+
+    if (isLoading) return <ChallengesSkeleton />;
+
+    if (items.length === 0) {
+        return <EmptyState icon={Mail} title="No pending invites" description="Challenge invitations you receive will show up here." />;
+    }
+
+    return (
+        <div className="space-y-2.5">
+            {items.map(invitation => (
+                <ChallengeInvitationCard key={invitation.id} invitation={invitation} onOpen={onOpen} />
+            ))}
+        </div>
+    );
+}
+
 export function ChallengesView() {
     const [tab, setTab] = useState<Tab>('discover');
     const [createOpen, setCreateOpen] = useState(false);
     const router = useRouter();
+    const { data: invitations } = useIncomingChallengeInvitations({ pageSize: 50 });
+    const invitationCount = invitations?.totalCount ?? 0;
 
     const openChallenge = (id: string) => router.push(`/challenges/${id}`);
 
@@ -100,13 +122,16 @@ export function ChallengesView() {
         <>
             <div className="flex items-center justify-between mb-5">
                 <div className="flex border-b border-surface-200 flex-1">
-                    {(['discover', 'mine'] as Tab[]).map(t => (
+                    {(['discover', 'mine', 'invites'] as Tab[]).map(t => (
                         <button
                             key={t}
                             onClick={() => setTab(t)}
-                            className={`px-1 mr-6 py-3 text-sm font-bold transition-colors relative capitalize ${tab === t ? 'text-primary-500' : 'text-surface-500'}`}
+                            className={`flex items-center gap-1.5 px-1 mr-6 py-3 text-sm font-bold transition-colors relative capitalize ${tab === t ? 'text-primary-500' : 'text-surface-500'}`}
                         >
                             {t}
+                            {t === 'invites' && invitationCount > 0 && (
+                                <Badge variant="primary" size="sm">{invitationCount}</Badge>
+                            )}
                             {tab === t && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-primary" />}
                         </button>
                     ))}
@@ -117,7 +142,13 @@ export function ChallengesView() {
                 </Button>
             </div>
 
-            {tab === 'discover' ? <DiscoverTab onOpen={openChallenge} /> : <MineTab onOpen={openChallenge} />}
+            {tab === 'discover' ? (
+                <DiscoverTab onOpen={openChallenge} />
+            ) : tab === 'mine' ? (
+                <MineTab onOpen={openChallenge} />
+            ) : (
+                <InvitesTab onOpen={openChallenge} />
+            )}
 
             <CreateChallengeModal open={createOpen} onClose={() => setCreateOpen(false)} />
         </>

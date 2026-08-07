@@ -14,4 +14,6 @@ export const challengeQueryKeys = {
         [...challengeQueryKeys.detail(challengeId), 'leaderboard', pagination ?? {}] as const,
     results: (challengeId: string, pagination?: Partial<PageRequest>) =>
         [...challengeQueryKeys.detail(challengeId), 'results', pagination ?? {}] as const,
+    sentInvitations: (challengeId: string, pagination?: Partial<PageRequest>) =>
+        [...challengeQueryKeys.detail(challengeId), 'invitations', 'sent', pagination ?? {}] as const,
 };

@@ -99,6 +99,16 @@ export interface ChallengeInvitation {
     createdAt: string;
 }
 
+export interface SentChallengeInvitation {
+    id: string;
+    invitedUserId: string;
+    invitedUserDisplayName: string;
+    invitedUserAvatarUrl?: string | null;
+    invitedUserAvatar?: Media | null;
+    status: string;
+    createdAt: string;
+}
+
 export interface InviteChallengeUserRequest {
     userId: string;
 }

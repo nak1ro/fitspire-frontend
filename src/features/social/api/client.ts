@@ -13,6 +13,7 @@ import {
     PublicChallengeResult,
     PublicGoal,
     PublicGoalPeriod,
+    SaveResponse,
     ShareWorkoutRequest,
     SocialProfileResponse,
     SocialUserSummary,
@@ -91,6 +92,24 @@ export const unlikePost = (accessToken: string, postId: string) =>
     http<LikeResponse>(SOCIAL_ROUTES.postLikes(postId), {
         method: 'DELETE',
         accessToken,
+    });
+
+export const savePost = (accessToken: string, postId: string) =>
+    http<SaveResponse>(SOCIAL_ROUTES.postSaved(postId), {
+        method: 'POST',
+        accessToken,
+    });
+
+export const unsavePost = (accessToken: string, postId: string) =>
+    http<SaveResponse>(SOCIAL_ROUTES.postSaved(postId), {
+        method: 'DELETE',
+        accessToken,
+    });
+
+export const getSavedPosts = (accessToken: string, pagination?: FeedPagination) =>
+    http<FeedItem[]>(SOCIAL_ROUTES.savedPosts, {
+        accessToken,
+        query: toPaginationQuery(pagination),
     });
 
 export const getPostLikes = (accessToken: string, postId: string, pagination?: FeedPagination) =>

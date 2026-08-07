@@ -18,6 +18,7 @@ import {
     getDiscoverChallenges,
     getIncomingChallengeInvitations,
     getMyChallenges,
+    getSentChallengeInvitations,
     inviteChallengeUser,
     joinChallenge,
     leaveChallenge,
@@ -106,6 +107,15 @@ export function useChallengeResults(challengeId: string | null, pagination?: Par
     return useQuery({
         queryKey: challengeQueryKeys.results(challengeId ?? '', pagination),
         queryFn: () => getChallengeResults(requireAccessToken(accessToken), challengeId ?? '', pagination),
+        enabled: Boolean(accessToken && challengeId),
+    });
+}
+
+export function useSentChallengeInvitations(challengeId: string | null, pagination?: Partial<PageRequest>) {
+    const { accessToken } = useAuthSession();
+    return useQuery({
+        queryKey: challengeQueryKeys.sentInvitations(challengeId ?? '', pagination),
+        queryFn: () => getSentChallengeInvitations(requireAccessToken(accessToken), challengeId ?? '', pagination),
         enabled: Boolean(accessToken && challengeId),
     });
 }

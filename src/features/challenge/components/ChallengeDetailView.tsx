@@ -7,6 +7,7 @@ import { Alert, Avatar, Badge, Button, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useCancelChallenge, useChallenge, useJoinChallenge, useLeaveChallenge } from '../hooks/useChallenges';
 import { getMetricConfig } from '../metricConfig';
+import { ChallengeInvitationsManageList } from './ChallengeInvitationsManageList';
 import { ChallengeLeaderboard } from './ChallengeLeaderboard';
 import { STATUS_VARIANT } from './ChallengeCard';
 import { EditChallengeModal } from './EditChallengeModal';
@@ -183,6 +184,13 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
                 <div className="space-y-2.5">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400 px-1">Manage participants</h3>
                     <ManageParticipantsList challengeId={challengeId} creatorUserId={challenge.creator.userId} />
+                </div>
+            )}
+
+            {canManageParticipants && (
+                <div className="space-y-2.5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400 px-1">Pending invitations</h3>
+                    <ChallengeInvitationsManageList challengeId={challengeId} />
                 </div>
             )}
 

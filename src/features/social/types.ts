@@ -42,6 +42,7 @@ export interface FeedItem {
     workoutSummary?: WorkoutSummary | null;
     likesCount: number;
     isLikedByCurrentUser: boolean;
+    isSavedByCurrentUser: boolean;
     commentsCount: number;
     recentComments: CommentPreview[];
     createdAt: string;
@@ -84,6 +85,10 @@ export interface CommentResponse {
 
 export interface LikeResponse {
     isLiked: boolean;
+}
+
+export interface SaveResponse {
+    isSaved: boolean;
 }
 
 export interface FollowResponse {

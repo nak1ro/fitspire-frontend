@@ -6,6 +6,8 @@ export const SOCIAL_ROUTES = {
     posts: '/api/social/posts',
     post: (postId: string) => `/api/social/posts/${postId}`,
     postLikes: (postId: string) => `/api/social/posts/${postId}/likes`,
+    postSaved: (postId: string) => `/api/social/posts/${postId}/saved`,
+    savedPosts: '/api/social/saved-posts',
     comments: (postId: string) => `/api/social/posts/${postId}/comments`,
     comment: (postId: string, commentId: string) => `/api/social/posts/${postId}/comments/${commentId}`,
     commentReplies: (postId: string, commentId: string) =>

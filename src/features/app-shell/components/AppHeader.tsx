@@ -12,6 +12,7 @@ const PAGE_TITLES: Record<string, string> = {
     '/goals': 'Goals',
     '/nutrition': 'Nutrition',
     '/challenges': 'Challenges',
+    '/saved': 'Saved Posts',
     '/profile': 'Profile',
     '/settings': 'Settings',
     '/notifications': 'Notifications',
