@@ -81,6 +81,7 @@ export interface CommentResponse {
     repliesCount: number;
     createdAt: string;
     updatedAt?: string | null;
+    replyToUser?: SocialUserSummary | null;
 }
 
 export interface LikeResponse {

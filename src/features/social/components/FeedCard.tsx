@@ -1,12 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Bookmark, Heart, MessageCircle, Send, Trophy } from 'lucide-react';
-import { Avatar, Card, IconChip } from '@/shared/ui';
+import { Bookmark, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2, Trophy } from 'lucide-react';
+import { Alert, Avatar, Card, IconChip } from '@/shared/ui';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import type { FeedItem } from '../types';
-import { useLikePost, useUnlikePost, useCommentOnPost, useSavePost, useUnsavePost } from '../hooks/useSocialMutations';
+import { useLikePost, useUnlikePost, useCommentOnPost, useSavePost, useUnsavePost, useDeletePost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
+import { EditPostModal } from './EditPostModal';
+import { LikesModal } from './LikesModal';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 
 // ─── Goal block ────────────────────────────────────────────────────────────────
@@ -43,20 +47,83 @@ function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; 
     );
 }
 
+// ─── Owner menu ────────────────────────────────────────────────────────────────
+
+function OwnerMenu({ canEdit, onEdit, onDelete }: { canEdit: boolean; onEdit: () => void; onDelete: () => void }) {
+    const [open, setOpen] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (!open) return;
+        function handleOutside(event: MouseEvent) {
+            if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+        }
+        document.addEventListener('mousedown', handleOutside);
+        return () => document.removeEventListener('mousedown', handleOutside);
+    }, [open]);
+
+    return (
+        <div ref={ref} className="relative shrink-0">
+            <button
+                onClick={() => setOpen(v => !v)}
+                className="p-1.5 rounded-lg text-surface-400 hover:text-foreground hover:bg-surface-100 transition-all"
+                aria-label="Post options"
+                aria-expanded={open}
+            >
+                <MoreVertical className="h-4 w-4" aria-hidden="true" />
+            </button>
+            {open && (
+                <div
+                    role="menu"
+                    className="absolute right-0 top-full mt-1 w-40 rounded-xl border border-surface-200 bg-background p-1.5 z-20"
+                    style={{ boxShadow: 'var(--shadow-panel)' }}
+                >
+                    {canEdit && (
+                        <button
+                            role="menuitem"
+                            onClick={() => { setOpen(false); onEdit(); }}
+                            className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-foreground transition-colors text-left"
+                        >
+                            <Pencil className="h-4 w-4 shrink-0" aria-hidden="true" />
+                            Edit
+                        </button>
+                    )}
+                    <button
+                        role="menuitem"
+                        onClick={() => { setOpen(false); onDelete(); }}
+                        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-error hover:bg-error/10 transition-colors text-left"
+                    >
+                        <Trash2 className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Delete
+                    </button>
+                </div>
+            )}
+        </div>
+    );
+}
+
 // ─── Main card ─────────────────────────────────────────────────────────────────
 
-export function FeedCard({ item }: { item: FeedItem }) {
+export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () => void }) {
     const [liked, setLiked] = useState(item.isLikedByCurrentUser);
     const [likesCount, setLikesCount] = useState(item.likesCount);
     const [saved, setSaved] = useState(item.isSavedByCurrentUser);
     const [showCommentBox, setShowCommentBox] = useState(false);
     const [commentText, setCommentText] = useState('');
+    const [editOpen, setEditOpen] = useState(false);
+    const [likesModalOpen, setLikesModalOpen] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
+    const { data: profile } = useUserProfile();
     const { mutate: likePost } = useLikePost();
     const { mutate: unlikePost } = useUnlikePost();
     const { mutate: savePost } = useSavePost();
     const { mutate: unsavePost } = useUnsavePost();
     const { mutate: postComment, isPending: isSendingComment } = useCommentOnPost();
+    const { mutate: deletePost, isPending: deleting } = useDeletePost();
+
+    const isOwner = Boolean(profile && profile.id === item.userId);
 
     const handleLike = () => {
         const wasLiked = liked;
@@ -86,6 +153,15 @@ export function FeedCard({ item }: { item: FeedItem }) {
         );
     };
 
+    const handleDelete = () => {
+        if (!confirmDelete) { setConfirmDelete(true); return; }
+        setDeleteError(null);
+        deletePost(item.id, {
+            onSuccess: () => onDeleted?.(),
+            onError: (err) => { setDeleteError(getErrorMessage(err, 'Failed to delete post.')); setConfirmDelete(false); },
+        });
+    };
+
     return (
         <Card padding="none" className="overflow-hidden">
 
@@ -102,7 +178,27 @@ export function FeedCard({ item }: { item: FeedItem }) {
                         {formatRelativeTime(item.createdAt)}
                     </Link>
                 </div>
+                {isOwner && (
+                    <OwnerMenu canEdit={item.type === 'Text'} onEdit={() => setEditOpen(true)} onDelete={handleDelete} />
+                )}
             </div>
+
+            {confirmDelete && (
+                <div className="px-4 pt-3">
+                    <div className="flex items-center justify-between gap-3 rounded-xl bg-error/5 border border-error/20 px-3.5 py-2.5">
+                        <span className="text-xs font-medium text-error">Delete this post? This can't be undone.</span>
+                        <div className="flex items-center gap-2 shrink-0">
+                            <button onClick={handleDelete} disabled={deleting} className="text-xs font-bold text-error hover:opacity-70 disabled:opacity-50">
+                                {deleting ? 'Deleting…' : 'Delete'}
+                            </button>
+                            <button onClick={() => setConfirmDelete(false)} className="text-xs font-bold text-surface-500 hover:text-foreground">
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+                    {deleteError && <div className="mt-2"><Alert variant="error">{deleteError}</Alert></div>}
+                </div>
+            )}
 
             {/* Body */}
             <div className="px-4 pt-3 pb-0">
@@ -142,19 +238,26 @@ export function FeedCard({ item }: { item: FeedItem }) {
                 <div className="flex items-center gap-4 border-t border-surface-100 pt-3">
 
                     {/* Like */}
-                    <button
-                        onClick={handleLike}
-                        className="flex items-center gap-1.5 transition-all hover:opacity-70"
-                        aria-label={liked ? 'Unlike post' : 'Like post'}
-                    >
-                        <Heart
-                            className={liked ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
-                            aria-hidden="true"
-                        />
-                        <span className={liked ? 'text-xs font-medium tabular-nums text-primary-500' : 'text-xs font-medium tabular-nums text-surface-500'}>
+                    <div className="flex items-center gap-1">
+                        <button
+                            onClick={handleLike}
+                            className="flex items-center gap-1.5 transition-all hover:opacity-70"
+                            aria-label={liked ? 'Unlike post' : 'Like post'}
+                        >
+                            <Heart
+                                className={liked ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
+                                aria-hidden="true"
+                            />
+                        </button>
+                        <button
+                            onClick={() => setLikesModalOpen(true)}
+                            disabled={likesCount === 0}
+                            className={liked ? 'text-xs font-medium tabular-nums text-primary-500 hover:underline disabled:no-underline' : 'text-xs font-medium tabular-nums text-surface-500 hover:underline disabled:no-underline'}
+                            aria-label="See who liked this post"
+                        >
                             {likesCount}
-                        </span>
-                    </button>
+                        </button>
+                    </div>
 
                     {/* Comment toggle */}
                     <button
@@ -194,6 +297,11 @@ export function FeedCard({ item }: { item: FeedItem }) {
                             content={c.content}
                         />
                     ))}
+                    {item.commentsCount > item.recentComments.length && (
+                        <Link href={`/feed/${item.id}`} className="block text-xs font-semibold text-surface-400 hover:text-foreground transition-colors">
+                            View all {item.commentsCount} comments
+                        </Link>
+                    )}
                 </div>
             )}
 
@@ -228,6 +336,9 @@ export function FeedCard({ item }: { item: FeedItem }) {
 
             {/* Bottom padding */}
             <div className="h-4" />
+
+            <EditPostModal postId={item.id} initialContent={item.content ?? ''} open={editOpen} onClose={() => setEditOpen(false)} />
+            <LikesModal target={{ kind: 'post', postId: item.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
         </Card>
     );
 }

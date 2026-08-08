@@ -1,9 +1,11 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { usePost } from '../hooks/useSocialFeed';
 import { FeedCard } from './FeedCard';
+import { PostComments } from './PostComments';
 
 function DetailSkeleton() {
     return (
@@ -33,6 +35,7 @@ function PostNotFound() {
 }
 
 export function PostDetailView({ postId }: { postId: string }) {
+    const router = useRouter();
     const { data: post, isLoading, isError } = usePost(postId);
 
     return (
@@ -44,7 +47,12 @@ export function PostDetailView({ postId }: { postId: string }) {
 
             {isLoading && <DetailSkeleton />}
             {isError && <PostNotFound />}
-            {!isLoading && !isError && post && <FeedCard item={post} />}
+            {!isLoading && !isError && post && (
+                <>
+                    <FeedCard item={post} onDeleted={() => router.push('/feed')} />
+                    <PostComments postId={postId} postOwnerUserId={post.userId} />
+                </>
+            )}
         </div>
     );
 }

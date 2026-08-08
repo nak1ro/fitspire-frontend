@@ -27,10 +27,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 }
             },
         }),
-        Google({
-            clientId: env.GOOGLE_CLIENT_ID,
-            clientSecret: env.GOOGLE_CLIENT_SECRET,
-        }),
+        ...(env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET
+            ? [Google({
+                clientId: env.GOOGLE_CLIENT_ID,
+                clientSecret: env.GOOGLE_CLIENT_SECRET,
+            })]
+            : []),
     ],
     callbacks,
     pages: {
