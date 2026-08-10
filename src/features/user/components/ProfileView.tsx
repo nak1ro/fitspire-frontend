@@ -14,6 +14,7 @@ import { ProfileWorkoutsTab } from './ProfileWorkoutsTab';
 import { ProfileRecordsTab } from './ProfileRecordsTab';
 import { BodyTrackingTab } from '@/features/body-tracking/components/BodyTrackingTab';
 import { BadgesTab } from '@/features/badge/components/BadgesTab';
+import { useMyBadges } from '@/features/badge/hooks/useBadges';
 import { getCurrentStreak } from '@/shared/lib/streak';
 
 // ─── Tab bar ───────────────────────────────────────────────────────────────────
@@ -81,8 +82,15 @@ export function ProfileView() {
     const { data: personalRecords } = usePersonalRecords();
     const { data: socialProfile } = useSocialProfile(profile?.id ?? null);
     const { data: incomingRequests } = useIncomingFollowRequests();
+    const { data: featuredBadgesPage } = useMyBadges({ featured: true, pageSize: 5 });
 
     const streak = useMemo(() => getCurrentStreak(workouts ?? []), [workouts]);
+    const featuredBadges = useMemo(
+        () => (featuredBadgesPage?.items ?? []).map(item => ({
+            id: item.badge.badgeId, name: item.badge.name, tier: item.badge.tier, iconUrl: item.badge.iconUrl,
+        })),
+        [featuredBadgesPage]
+    );
 
     if (profileLoading || !profile) {
         return <ProfileSkeleton />;
@@ -98,6 +106,7 @@ export function ProfileView() {
                 followersCount={socialProfile?.followersCount}
                 followingCount={socialProfile?.followingCount}
                 incomingRequestCount={incomingRequests?.length ?? 0}
+                featuredBadges={featuredBadges}
                 onEdit={() => setEditOpen(true)}
                 onShowFollowers={() => setListMode('followers')}
                 onShowFollowing={() => setListMode('following')}

@@ -1,9 +1,16 @@
 'use client';
 
-import { Target } from 'lucide-react';
+import { CalendarCheck, Target } from 'lucide-react';
 import { Badge, Card, EmptyState, IconChip } from '@/shared/ui';
-import { usePublicGoals } from '../hooks/useSocialReads';
-import type { PublicGoal } from '../types';
+import { usePublicGoalPeriods, usePublicGoals } from '../hooks/useSocialReads';
+import type { PublicGoal, PublicGoalPeriod } from '../types';
+
+function formatDateRange(startAt: string, endAt: string): string {
+    const opts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
+    const start = new Date(startAt).toLocaleDateString('en-US', opts);
+    const end = new Date(endAt).toLocaleDateString('en-US', opts);
+    return `${start} – ${end}`;
+}
 
 function GoalRow({ goal }: { goal: PublicGoal }) {
     const pct = goal.targetValue > 0 ? Math.min(100, Math.round((goal.currentValue / goal.targetValue) * 100)) : 0;
@@ -37,6 +44,24 @@ function GoalRow({ goal }: { goal: PublicGoal }) {
     );
 }
 
+function PeriodRow({ period }: { period: PublicGoalPeriod }) {
+    const pct = period.targetValue > 0 ? Math.min(100, Math.round((period.progressValue / period.targetValue) * 100)) : 0;
+
+    return (
+        <Card padding="sm" className="flex items-center gap-3">
+            <IconChip icon={CalendarCheck} size="sm" variant="success" />
+            <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-foreground leading-tight truncate">{period.templateName}</p>
+                <p className="text-xs text-surface-400 leading-tight mt-0.5">{formatDateRange(period.startAt, period.endAt)}</p>
+            </div>
+            <div className="text-right shrink-0">
+                <p className="text-xs font-bold text-success">{period.progressValue}/{period.targetValue}</p>
+                <p className="text-[11px] text-surface-400">{pct}%</p>
+            </div>
+        </Card>
+    );
+}
+
 function GoalsSkeleton() {
     return (
         <div className="space-y-2.5">
@@ -48,16 +73,20 @@ function GoalsSkeleton() {
 }
 
 export function ProfileGoalsTab({ userId }: { userId: string }) {
-    const { data: goals, isLoading } = usePublicGoals(userId);
+    const { data: goals, isLoading: goalsLoading } = usePublicGoals(userId);
+    const { data: periodsPage, isLoading: periodsLoading } = usePublicGoalPeriods(userId, { pageSize: 20 });
 
-    if (isLoading) return <GoalsSkeleton />;
+    if (goalsLoading || periodsLoading) return <GoalsSkeleton />;
 
-    if (!goals || goals.length === 0) {
+    const periods = periodsPage?.items ?? [];
+    const hasGoals = Boolean(goals && goals.length > 0);
+
+    if (!hasGoals && periods.length === 0) {
         return <EmptyState icon={Target} title="No public goals" description="This account hasn't shared any active or completed goals." />;
     }
 
-    const active = goals.filter((g) => g.status === 'Active');
-    const completed = goals.filter((g) => g.status !== 'Active');
+    const active = (goals ?? []).filter((g) => g.status === 'Active');
+    const completed = (goals ?? []).filter((g) => g.status !== 'Active');
 
     return (
         <div className="space-y-6">
@@ -74,6 +103,14 @@ export function ProfileGoalsTab({ userId }: { userId: string }) {
                     <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Completed</h3>
                     <div className="space-y-2.5">
                         {completed.map((goal) => <GoalRow key={goal.id} goal={goal} />)}
+                    </div>
+                </div>
+            )}
+            {periods.length > 0 && (
+                <div className="space-y-2.5">
+                    <h3 className="text-xs font-bold uppercase tracking-widest text-surface-400">Completed periods</h3>
+                    <div className="space-y-2.5">
+                        {periods.map((period, index) => <PeriodRow key={`${period.goalId}-${period.completedAt}-${index}`} period={period} />)}
                     </div>
                 </div>
             )}

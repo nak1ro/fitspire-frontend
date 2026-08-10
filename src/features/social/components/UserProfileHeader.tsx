@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Avatar } from '@/shared/ui';
+import { FeaturedBadgesStrip } from '@/features/badge/components/FeaturedBadgesStrip';
+import { usePublicFeaturedBadges } from '../hooks/useSocialReads';
 import { FollowButton } from './FollowButton';
 import { FollowListModal } from './FollowListModal';
 import type { SocialProfileResponse } from '../types';
@@ -13,6 +15,7 @@ interface Props {
 
 export function UserProfileHeader({ profile }: Props) {
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
+    const { data: featuredBadges } = usePublicFeaturedBadges(profile.id);
 
     return (
         <div className="pb-5 mb-1">
@@ -36,6 +39,12 @@ export function UserProfileHeader({ profile }: Props) {
 
             {profile.bio && (
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
+            )}
+
+            {featuredBadges && featuredBadges.length > 0 && (
+                <FeaturedBadgesStrip
+                    badges={featuredBadges.map(badge => ({ id: badge.badgeId, name: badge.name, tier: badge.tier, iconUrl: badge.iconUrl }))}
+                />
             )}
 
             <div className="flex items-center gap-5">

@@ -2,6 +2,7 @@ import type React from 'react';
 import Link from 'next/link';
 import { Pencil, Dumbbell, Flame, Trophy, UserCheck, Sparkles } from 'lucide-react';
 import { Avatar, Badge } from '@/shared/ui';
+import { FeaturedBadgesStrip, type FeaturedBadgeItem } from '@/features/badge/components/FeaturedBadgesStrip';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
     followersCount?: number;
     followingCount?: number;
     incomingRequestCount?: number;
+    featuredBadges?: FeaturedBadgeItem[];
     onEdit: () => void;
     onShowFollowers?: () => void;
     onShowFollowing?: () => void;
@@ -42,7 +44,7 @@ function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
 
 export function ProfileHeader({
     profile, totalWorkouts, streak, totalPRs,
-    followersCount, followingCount, incomingRequestCount,
+    followersCount, followingCount, incomingRequestCount, featuredBadges,
     onEdit, onShowFollowers, onShowFollowing, onShowRequests,
 }: Props) {
     return (
@@ -96,6 +98,11 @@ export function ProfileHeader({
             {/* Bio */}
             {profile.bio && (
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
+            )}
+
+            {/* Featured badges */}
+            {featuredBadges && featuredBadges.length > 0 && (
+                <FeaturedBadgesStrip badges={featuredBadges} />
             )}
 
             {/* Followers / following */}
