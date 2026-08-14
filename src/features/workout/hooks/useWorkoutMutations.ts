@@ -8,6 +8,7 @@ import {
     createWorkoutFromRoutine,
     deleteWorkout,
     deleteWorkoutRoutine,
+    restoreWorkout,
     saveWorkoutAsRoutine,
     updateWorkout,
     updateWorkoutRoutine,
@@ -57,6 +58,18 @@ export function useDeleteWorkout() {
         onSuccess: async (_result, workoutId) => {
             queryClient.removeQueries({ queryKey: workoutQueryKeys.detail(workoutId) });
             await invalidateWorkoutDerivedQueries(queryClient);
+        },
+    });
+}
+
+export function useRestoreWorkout() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (workoutId: string) => restoreWorkout(requireAccessToken(accessToken), workoutId),
+        onSuccess: async (_result, workoutId) => {
+            await invalidateWorkoutDerivedQueries(queryClient, workoutId);
         },
     });
 }

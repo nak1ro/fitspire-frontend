@@ -1,14 +1,16 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check } from 'lucide-react';
+import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check, Pencil } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
-import { Alert, Badge, Button, Card, IconChip } from '@/shared/ui';
+import { Alert, Button, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { formatDate, formatDuration, humanize, StatBox, TypeBadge } from './workoutDetailFormatters';
+import { EditWorkoutModal } from './EditWorkoutModal';
 import type {
     GymWorkout,
     RunningWorkout,
@@ -17,47 +19,6 @@ import type {
     WorkoutDetail,
     YogaWorkout,
 } from '../types';
-
-// ─── Helpers ───────────────────────────────────────────────────────────────────
-
-function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    });
-}
-
-function formatDuration(min: number | null | undefined): string | null {
-    if (min == null) return null;
-    const rounded = Math.round(min);
-    if (rounded < 60) return `${rounded} min`;
-    const h = Math.floor(rounded / 60);
-    const m = rounded % 60;
-    return m > 0 ? `${h}h ${m}m` : `${h}h`;
-}
-
-// Splits PascalCase enum values like "FullBody" into "Full Body" for display.
-function humanize(value: string): string {
-    return value.replace(/([a-z])([A-Z])/g, '$1 $2');
-}
-
-// ─── Stat grid ─────────────────────────────────────────────────────────────────
-
-function StatBox({ label, value }: { label: string; value: string | number }) {
-    return (
-        <Card variant="outlined" padding="sm" className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold uppercase tracking-wider text-surface-400">{label}</span>
-            <span className="text-base font-bold text-foreground">{value}</span>
-        </Card>
-    );
-}
-
-function TypeBadge({ label, color, bg }: { label: string; color: string; bg: string }) {
-    return (
-        <Badge size="md" style={{ backgroundColor: bg, color }}>
-            {label}
-        </Badge>
-    );
-}
 
 // ─── Type-specific detail sections ─────────────────────────────────────────────
 
@@ -226,6 +187,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [shared, setShared] = useState(false);
     const [shareError, setShareError] = useState<string | null>(null);
+    const [editOpen, setEditOpen] = useState(false);
 
     const { data: workout, isLoading } = useWorkout(workoutId);
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
@@ -238,6 +200,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
         setDeleteError(null);
         setShared(false);
         setShareError(null);
+        setEditOpen(false);
     }, [workoutId]);
 
     const handleShare = () => {
@@ -336,8 +299,20 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                     )}
                 </div>
 
-                {/* Footer — share + delete actions */}
+                {/* Footer — edit + share + delete actions */}
                 <div className="shrink-0 border-t border-surface-200 px-5 py-5 space-y-3">
+                    {workout && workout.status !== 'Archived' && (
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            fullWidth
+                            onClick={() => setEditOpen(true)}
+                            className="gap-2"
+                        >
+                            <Pencil className="h-4 w-4" aria-hidden="true" />
+                            Edit workout
+                        </Button>
+                    )}
                     {workout && workout.status === 'Completed' && !workout.isPrivate && (
                         <>
                             {shareError && <Alert variant="error">{shareError}</Alert>}
@@ -368,7 +343,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                         <div className="space-y-4">
                             <div className="flex items-center gap-2 text-sm text-surface-500">
                                 <AlertTriangle className="h-4 w-4 text-error shrink-0" aria-hidden="true" />
-                                <span>This can't be undone. Are you sure?</span>
+                                <span>This moves it to Archived — you can restore it later. Delete anyway?</span>
                             </div>
                             {deleteError && <Alert variant="error">{deleteError}</Alert>}
                             <div className="flex gap-3">
@@ -383,6 +358,10 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                     )}
                 </div>
             </div>
+
+            {workout && (
+                <EditWorkoutModal workout={workout} open={editOpen} onClose={() => setEditOpen(false)} />
+            )}
         </div>
     );
 }

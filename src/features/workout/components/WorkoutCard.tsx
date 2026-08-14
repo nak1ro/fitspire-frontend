@@ -3,7 +3,8 @@ import type { Workout } from '../types';
 import { getTypeConfig } from '../typeConfig';
 
 interface Props {
-    workout: Workout;
+    workout: Pick<Workout, 'workoutType' | 'date' | 'durationMinutes' | 'isPrivate'>
+        & Partial<Pick<Workout, 'isRoutine' | 'routineName'>>;
     onClick: () => void;
 }
 

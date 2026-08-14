@@ -1,16 +1,20 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Dumbbell } from 'lucide-react';
+import { Archive, Dumbbell } from 'lucide-react';
 import { EmptyState } from '@/shared/ui';
 import { useWorkouts } from '../hooks/useWorkouts';
+import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
 import { resolveKnownType } from '../typeConfig';
 import { WorkoutStatsStrip } from './WorkoutStatsStrip';
 import { WorkoutTypeFilter } from './WorkoutTypeFilter';
 import { WorkoutCard } from './WorkoutCard';
 import { WorkoutListSkeleton } from './WorkoutListSkeleton';
 import { WorkoutDetailModal } from './WorkoutDetailModal';
-import type { KnownWorkoutType, Workout } from '../types';
+import { ArchivedWorkoutDetailModal } from './ArchivedWorkoutDetailModal';
+import type { KnownWorkoutType, Workout, WorkoutHistoryItem } from '../types';
+
+type Tab = 'active' | 'archived';
 
 // ─── Month grouping ────────────────────────────────────────────────────────────
 
@@ -29,7 +33,7 @@ function groupByMonth(workouts: Workout[]): MonthGroup[] {
     return Array.from(groups.entries()).map(([label, items]) => ({ label, items }));
 }
 
-// ─── Empty state ───────────────────────────────────────────────────────────────
+// ─── Empty states ──────────────────────────────────────────────────────────────
 
 function WorkoutsEmptyState({ filtered }: { filtered: boolean }) {
     return (
@@ -43,9 +47,9 @@ function WorkoutsEmptyState({ filtered }: { filtered: boolean }) {
     );
 }
 
-// ─── View ──────────────────────────────────────────────────────────────────────
+// ─── Active tab ────────────────────────────────────────────────────────────────
 
-export function WorkoutsView() {
+function ActiveTab() {
     const [selectedType, setSelectedType] = useState<KnownWorkoutType | null>(null);
     const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
 
@@ -103,6 +107,79 @@ export function WorkoutsView() {
                 workoutId={selectedWorkoutId}
                 onClose={() => setSelectedWorkoutId(null)}
             />
+        </>
+    );
+}
+
+// ─── Archived tab ──────────────────────────────────────────────────────────────
+
+function ArchivedTab() {
+    const [selectedItem, setSelectedItem] = useState<WorkoutHistoryItem | null>(null);
+    const { data, isLoading, isError } = useWorkoutHistory(1, 50, true);
+    const items = data?.items ?? [];
+
+    if (isLoading) return <WorkoutListSkeleton />;
+
+    if (isError) {
+        return (
+            <div className="rounded-2xl border border-surface-200 bg-surface px-6 py-10 text-center">
+                <p className="text-sm font-medium text-foreground">Couldn't load archived workouts</p>
+                <p className="text-xs text-surface-400 mt-1">Check your connection and try again.</p>
+            </div>
+        );
+    }
+
+    if (items.length === 0) {
+        return (
+            <EmptyState
+                icon={Archive}
+                title="No archived workouts"
+                description="Deleted workouts show up here so you can restore them."
+            />
+        );
+    }
+
+    return (
+        <>
+            <div className="space-y-2.5">
+                {items.map(item => (
+                    <WorkoutCard
+                        key={item.id}
+                        workout={item}
+                        onClick={() => setSelectedItem(item)}
+                    />
+                ))}
+            </div>
+
+            <ArchivedWorkoutDetailModal item={selectedItem} onClose={() => setSelectedItem(null)} />
+        </>
+    );
+}
+
+// ─── View ──────────────────────────────────────────────────────────────────────
+
+export function WorkoutsView() {
+    const [tab, setTab] = useState<Tab>('active');
+
+    return (
+        <>
+            <div className="flex border-b border-surface-200 mb-5">
+                {([
+                    { key: 'active', label: 'Active' },
+                    { key: 'archived', label: 'Archived' },
+                ] as const).map(t => (
+                    <button
+                        key={t.key}
+                        onClick={() => setTab(t.key)}
+                        className={`px-1 mr-6 py-3 text-sm font-bold transition-colors relative ${tab === t.key ? 'text-primary-500' : 'text-surface-500'}`}
+                    >
+                        {t.label}
+                        {tab === t.key && <span className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full bg-gradient-primary" />}
+                    </button>
+                ))}
+            </div>
+
+            {tab === 'active' ? <ActiveTab /> : <ArchivedTab />}
         </>
     );
 }
