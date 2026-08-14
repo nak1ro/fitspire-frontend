@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { Trash2, ChevronDown } from 'lucide-react';
+import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
 import type { MealItemRequest, QuantityUnit } from '../../types';
@@ -12,6 +12,8 @@ interface Props {
     item: MealItemRequest;
     onChange: (patch: Partial<MealItemRequest>) => void;
     onRemove: () => void;
+    onMoveUp?: () => void;
+    onMoveDown?: () => void;
 }
 
 function MiniNumField({ label, value, onChange }: { label: string; value: number | null | undefined; onChange: (v: number | null) => void }) {
@@ -33,7 +35,7 @@ function MiniNumField({ label, value, onChange }: { label: string; value: number
     );
 }
 
-export function FoodItemRow({ item, onChange, onRemove }: Props) {
+export function FoodItemRow({ item, onChange, onRemove, onMoveUp, onMoveDown }: Props) {
     const [expanded, setExpanded] = useState(false);
 
     return (
@@ -43,14 +45,38 @@ export function FoodItemRow({ item, onChange, onRemove }: Props) {
                     <span className="text-sm font-semibold text-foreground truncate">{item.name}</span>
                     <ChevronDown className={cn('h-3.5 w-3.5 text-surface-400 shrink-0 transition-transform', expanded && 'rotate-180')} aria-hidden="true" />
                 </button>
-                <button
-                    type="button"
-                    onClick={onRemove}
-                    className="flex items-center justify-center h-7 w-7 rounded-lg text-surface-400 hover:text-error hover:bg-surface-100 transition-colors shrink-0"
-                    aria-label={`Remove ${item.name}`}
-                >
-                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
-                </button>
+                <div className="flex items-center gap-0.5 shrink-0">
+                    {(onMoveUp || onMoveDown) && (
+                        <div className="flex flex-col">
+                            <button
+                                type="button"
+                                onClick={onMoveUp}
+                                disabled={!onMoveUp}
+                                className="flex items-center justify-center h-4 w-6 text-surface-400 hover:text-foreground disabled:opacity-25 disabled:hover:text-surface-400 transition-colors"
+                                aria-label={`Move ${item.name} up`}
+                            >
+                                <ChevronUp className="h-3 w-3" aria-hidden="true" />
+                            </button>
+                            <button
+                                type="button"
+                                onClick={onMoveDown}
+                                disabled={!onMoveDown}
+                                className="flex items-center justify-center h-4 w-6 text-surface-400 hover:text-foreground disabled:opacity-25 disabled:hover:text-surface-400 transition-colors"
+                                aria-label={`Move ${item.name} down`}
+                            >
+                                <ChevronDown className="h-3 w-3" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
+                    <button
+                        type="button"
+                        onClick={onRemove}
+                        className="flex items-center justify-center h-7 w-7 rounded-lg text-surface-400 hover:text-error hover:bg-surface-100 transition-colors shrink-0"
+                        aria-label={`Remove ${item.name}`}
+                    >
+                        <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                    </button>
+                </div>
             </div>
 
             <p className="text-xs text-surface-500">

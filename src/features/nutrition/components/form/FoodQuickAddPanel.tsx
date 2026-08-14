@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Search, Plus, Utensils } from 'lucide-react';
+import { Search, Plus, Utensils, Pencil, Trash2 } from 'lucide-react';
 import { Button, EmptyState, Toggle } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { useFavouriteFoods, useRecentFoods, useCreateFavouriteFood } from '../../hooks/useNutrition';
+import { useFavouriteFoods, useRecentFoods, useCreateFavouriteFood, useDeleteFavouriteFood } from '../../hooks/useNutrition';
 import { QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
-import type { MealItemRequest, QuantityUnit } from '../../types';
+import { EditFavouriteFoodModal } from './EditFavouriteFoodModal';
+import type { FavouriteFood, MealItemRequest, QuantityUnit } from '../../types';
 
 const UNITS: QuantityUnit[] = ['Grams', 'Millilitres', 'Serving', 'Piece', 'CustomServing'];
 
@@ -62,6 +63,51 @@ function FoodListRow({ item, onSelect }: FoodListRowProps) {
             </div>
             <Plus className="h-4 w-4 shrink-0 text-primary-500" aria-hidden="true" />
         </button>
+    );
+}
+
+function FavouriteFoodRow({ item, onSelect, onEdit }: { item: FavouriteFood; onSelect: () => void; onEdit: () => void }) {
+    const [confirmingDelete, setConfirmingDelete] = useState(false);
+    const { mutate: deleteFavourite, isPending: deleting } = useDeleteFavouriteFood();
+
+    const handleDelete = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (!confirmingDelete) { setConfirmingDelete(true); return; }
+        deleteFavourite(item.id);
+    };
+
+    return (
+        <div className="flex items-center gap-2 px-3.5 py-3 border-b border-surface-100 last:border-0">
+            <button type="button" onClick={onSelect} className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-medium text-foreground truncate">{item.name}</p>
+                <p className="text-xs text-surface-400 mt-0.5">
+                    {formatQuantity(item.quantity, item.quantityUnit, item.customUnitName)}
+                    {item.caloriesKcal != null && ` • ${item.caloriesKcal} kcal`}
+                </p>
+            </button>
+            <div className="flex items-center gap-1 shrink-0">
+                <button
+                    type="button"
+                    onClick={(e) => { e.stopPropagation(); onEdit(); }}
+                    className="p-1.5 rounded-lg text-surface-400 hover:text-foreground hover:bg-surface-100 transition-all"
+                    aria-label={`Edit ${item.name}`}
+                >
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+                <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={deleting}
+                    className={cn(
+                        'p-1.5 rounded-lg transition-all disabled:opacity-50',
+                        confirmingDelete ? 'text-error bg-error/10' : 'text-surface-400 hover:text-error hover:bg-error/10'
+                    )}
+                    aria-label={confirmingDelete ? `Confirm delete ${item.name}` : `Delete ${item.name}`}
+                >
+                    <Trash2 className="h-3.5 w-3.5" aria-hidden="true" />
+                </button>
+            </div>
+        </div>
     );
 }
 
@@ -178,6 +224,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
 export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
     const [tab, setTab] = useState<Tab>('recent');
     const [query, setQuery] = useState('');
+    const [editingFavourite, setEditingFavourite] = useState<FavouriteFood | null>(null);
 
     const { data: favourites, isLoading: loadingFavourites } = useFavouriteFoods({ query: query || undefined, pageSize: 30 });
     const { data: recent, isLoading: loadingRecent } = useRecentFoods(20);
@@ -219,7 +266,12 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
                             <EmptyState icon={Utensils} title="No favourites yet" className="py-6" />
                         ) : (
                             favourites.items.map(fav => (
-                                <FoodListRow key={fav.id} item={fav} onSelect={() => onAdd(toItemRequest(fav))} />
+                                <FavouriteFoodRow
+                                    key={fav.id}
+                                    item={fav}
+                                    onSelect={() => onAdd(toItemRequest(fav))}
+                                    onEdit={() => setEditingFavourite(fav)}
+                                />
                             ))
                         )}
                     </div>
@@ -241,6 +293,8 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
             )}
 
             {tab === 'custom' && <CustomFoodForm onAdd={onAdd} />}
+
+            <EditFavouriteFoodModal favourite={editingFavourite} onClose={() => setEditingFavourite(null)} />
         </div>
     );
 }

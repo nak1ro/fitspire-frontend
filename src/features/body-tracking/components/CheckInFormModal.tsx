@@ -5,6 +5,7 @@ import { X, Camera, Trash2, Loader2 } from 'lucide-react';
 import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
+import { useAbortMediaUpload } from '@/features/media/hooks/useAbortMediaUpload';
 import { useCreateBodyCheckIn, useUpdateBodyCheckIn, useDeleteBodyCheckIn } from '../hooks/useBodyCheckIns';
 import type { BodyCheckIn, BodyCheckInPhotoOperation } from '../types';
 
@@ -66,6 +67,7 @@ export function CheckInFormModal({ open, onClose, checkIn, defaultDate }: Props)
     const [submitError, setSubmitError] = useState<string | null>(null);
 
     const { mutateAsync: uploadPhoto, isPending: uploading } = useUploadMedia();
+    const { mutate: abortUpload } = useAbortMediaUpload();
     const { mutateAsync: createCheckIn, isPending: creating } = useCreateBodyCheckIn();
     const { mutateAsync: updateCheckIn, isPending: updating } = useUpdateBodyCheckIn();
     const { mutateAsync: deleteCheckIn, isPending: deleting } = useDeleteBodyCheckIn();
@@ -118,6 +120,9 @@ export function CheckInFormModal({ open, onClose, checkIn, defaultDate }: Props)
     };
 
     const handleRemovePhoto = () => {
+        // Best-effort cleanup of an already-completed (Ready but unattached) upload;
+        // abandoned uploads self-expire anyway, so a failure here isn't surfaced.
+        if (newPhotoMediaId) abortUpload(newPhotoMediaId);
         setPhotoOperation('Remove');
         setNewPhotoPreview(null);
         setNewPhotoMediaId(null);

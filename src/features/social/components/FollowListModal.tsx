@@ -1,9 +1,13 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { X, Users } from 'lucide-react';
-import { Avatar, EmptyState } from '@/shared/ui';
+import { X, Users, UserMinus } from 'lucide-react';
+import { Avatar, Button, EmptyState } from '@/shared/ui';
+import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { useFollowers, useFollowing } from '../hooks/useSocialReads';
+import { useRemoveFollower } from '../hooks/useSocialMutations';
 import type { SocialUserSummary } from '../types';
 
 interface Props {
@@ -13,19 +17,45 @@ interface Props {
     onClose: () => void;
 }
 
-function UserRow({ user, onNavigate }: { user: SocialUserSummary; onNavigate: () => void }) {
+function UserRow({ user, onNavigate, canRemove }: { user: SocialUserSummary; onNavigate: () => void; canRemove: boolean }) {
+    const [confirming, setConfirming] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const { mutate: removeFollower, isPending } = useRemoveFollower();
+
+    const handleRemove = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (!confirming) { setConfirming(true); return; }
+        setError(null);
+        removeFollower(user.id, {
+            onError: (err) => { setError(getErrorMessage(err, 'Failed to remove.')); setConfirming(false); },
+        });
+    };
+
     return (
-        <Link
-            href={`/profile/${user.id}`}
-            onClick={onNavigate}
-            className="flex items-center gap-3 px-5 py-2.5 hover:bg-surface-100 transition-colors"
-        >
-            <Avatar displayName={user.displayName} userName={user.userName} avatarUrl={user.profilePictureUrl} size="sm" />
-            <div className="min-w-0">
-                <p className="text-sm font-semibold text-foreground leading-tight truncate">{user.displayName}</p>
-                <p className="text-xs text-surface-400 leading-tight mt-0.5">@{user.userName}</p>
-            </div>
-        </Link>
+        <div className="flex items-center gap-3 px-5 py-2.5 hover:bg-surface-100 transition-colors">
+            <Link href={`/profile/${user.id}`} onClick={onNavigate} className="flex items-center gap-3 min-w-0 flex-1">
+                <Avatar displayName={user.displayName} userName={user.userName} avatarUrl={user.profilePictureUrl} size="sm" />
+                <div className="min-w-0">
+                    <p className="text-sm font-semibold text-foreground leading-tight truncate">{user.displayName}</p>
+                    <p className="text-xs leading-tight mt-0.5 truncate">
+                        {error ? <span className="text-error">{error}</span> : <span className="text-surface-400">@{user.userName}</span>}
+                    </p>
+                </div>
+            </Link>
+            {canRemove && (
+                <Button
+                    size="sm"
+                    variant={confirming ? 'danger' : 'secondary'}
+                    loading={isPending}
+                    onClick={handleRemove}
+                    className="gap-1 shrink-0"
+                >
+                    <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
+                    {confirming ? 'Confirm' : 'Remove'}
+                </Button>
+            )}
+        </div>
     );
 }
 
@@ -48,8 +78,12 @@ function ListSkeleton() {
 export function FollowListModal({ userId, mode, open, onClose }: Props) {
     const followersQuery = useFollowers(mode === 'followers' && open ? userId : null, { pageSize: 50 });
     const followingQuery = useFollowing(mode === 'following' && open ? userId : null, { pageSize: 50 });
+    const { data: profile } = useUserProfile();
 
     const { data: users, isLoading } = mode === 'followers' ? followersQuery : followingQuery;
+    // Removing a follower is only possible from your own followers list — the
+    // backend infers whose list is being edited from the caller's identity.
+    const canRemove = mode === 'followers' && Boolean(profile && profile.id === userId);
 
     if (!open) return null;
 
@@ -84,7 +118,7 @@ export function FollowListModal({ userId, mode, open, onClose }: Props) {
                     ) : (
                         <div className="py-1.5">
                             {users.map((user) => (
-                                <UserRow key={user.id} user={user} onNavigate={onClose} />
+                                <UserRow key={user.id} user={user} onNavigate={onClose} canRemove={canRemove} />
                             ))}
                         </div>
                     )}

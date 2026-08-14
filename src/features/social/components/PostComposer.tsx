@@ -5,6 +5,7 @@ import { X, Image as ImageIcon, Loader2 } from 'lucide-react';
 import { useCreatePost } from '../hooks/useSocialMutations';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
+import { useAbortMediaUpload } from '@/features/media/hooks/useAbortMediaUpload';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { Avatar, Button, Card } from '@/shared/ui';
 
@@ -17,6 +18,7 @@ export function PostComposer() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { mutate, isPending } = useCreatePost();
     const { mutateAsync: uploadImage, isPending: uploadingImage } = useUploadMedia();
+    const { mutate: abortUpload } = useAbortMediaUpload();
     const { data: profile } = useUserProfile();
 
     const handlePickImage = () => fileInputRef.current?.click();
@@ -35,6 +37,10 @@ export function PostComposer() {
     };
 
     const handleRemoveImage = () => {
+        // Best-effort cleanup: the upload already completed server-side (Ready but
+        // unattached) by the time a preview exists to remove. Abandoned uploads
+        // self-expire anyway, so a failure here isn't surfaced to the user.
+        if (imageMediaId) abortUpload(imageMediaId);
         setImagePreview(null);
         setImageMediaId(null);
         setImageError(null);

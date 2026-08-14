@@ -4,6 +4,7 @@ import { useTheme } from 'next-themes';
 import { Loader2 } from 'lucide-react';
 import { Alert, ChipGroup as SharedChipGroup, Toggle as SharedToggle, type ChipGroupOption } from '@/shared/ui';
 import { useUserPreferences, useUpdateUserPreferences } from '../hooks/useUserPreferences';
+import { ChangePasswordForm } from './ChangePasswordForm';
 import type { PreferredLanguage, UnitSystem } from '../types';
 
 // ─── Primitives ────────────────────────────────────────────────────────────────
@@ -164,6 +165,10 @@ export function SettingsView() {
                     Couldn't save your changes. Please try again.
                 </Alert>
             )}
+
+            {/* Security */}
+            <SectionHeader title="Security" />
+            <ChangePasswordForm />
         </div>
     );
 }

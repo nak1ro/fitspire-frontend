@@ -6,7 +6,7 @@ import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import {
     useCreateMeal, useUpdateMeal, useDeleteMeal,
-    useAddMealItem, useUpdateMealItem, useDeleteMealItem,
+    useAddMealItem, useUpdateMealItem, useDeleteMealItem, useReorderMealItems,
 } from '../hooks/useNutrition';
 import { MEAL_TYPES, MEAL_TYPE_CONFIG } from '../mealTypeConfig';
 import { FoodItemRow } from './form/FoodItemRow';
@@ -73,13 +73,22 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
     const { mutateAsync: addItem, isPending: addingItem } = useAddMealItem();
     const { mutateAsync: updateItem, isPending: updatingItem } = useUpdateMealItem();
     const { mutateAsync: deleteItem, isPending: deletingItem } = useDeleteMealItem();
+    const { mutateAsync: reorderItems, isPending: reordering } = useReorderMealItems();
 
-    const isPending = creating || updatingMeta || deletingMeal || addingItem || updatingItem || deletingItem;
+    const isPending = creating || updatingMeta || deletingMeal || addingItem || updatingItem || deletingItem || reordering;
 
     const addDraftItem = (item: MealItemRequest) => setItems(prev => [...prev, toDraft(item)]);
     const removeDraftItem = (localId: string) => setItems(prev => prev.filter(i => i.localId !== localId));
     const patchDraftItem = (localId: string, patch: Partial<MealItemRequest>) =>
         setItems(prev => prev.map(i => i.localId === localId ? { ...i, data: { ...i.data, ...patch } } : i));
+    const moveDraftItem = (index: number, direction: -1 | 1) =>
+        setItems(prev => {
+            const target = index + direction;
+            if (target < 0 || target >= prev.length) return prev;
+            const next = [...prev];
+            [next[index], next[target]] = [next[target], next[index]];
+            return next;
+        });
 
     const handleDelete = async () => {
         if (!meal) return;
@@ -118,12 +127,31 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
                 const currentExistingIds = new Set(items.filter(i => i.existingId).map(i => i.existingId));
                 const toDelete = meal.items.filter(i => !currentExistingIds.has(i.id));
 
-                await Promise.all([
-                    ...toDelete.map(i => deleteItem({ mealId: meal.id, itemId: i.id })),
-                    ...items.map(i => i.existingId
-                        ? updateItem({ mealId: meal.id, itemId: i.existingId, data: i.data })
-                        : addItem({ mealId: meal.id, data: { item: i.data } })),
-                ]);
+                // Sequential, not Promise.all: concurrent writes to sibling items of the same
+                // meal race under the backend's serializable transaction and can throw a
+                // spurious "transient failure" 40001 (same class of conflict documented in
+                // ef-navigation-fixup-bug-sweep.md, just triggered by real concurrency here
+                // rather than an EF change-tracking bug).
+                for (const i of toDelete) {
+                    await deleteItem({ mealId: meal.id, itemId: i.id });
+                }
+
+                // Resolve every draft item to its persisted ID (existing items are updated in
+                // place; new ones are created here), preserving the local array's order so it
+                // can be committed via the reorder endpoint below.
+                const orderedItemIds: string[] = [];
+                for (const i of items) {
+                    if (i.existingId) {
+                        await updateItem({ mealId: meal.id, itemId: i.existingId, data: i.data });
+                        orderedItemIds.push(i.existingId);
+                    } else {
+                        orderedItemIds.push(await addItem({ mealId: meal.id, data: { item: i.data } }) as string);
+                    }
+                }
+
+                if (orderedItemIds.length > 1) {
+                    await reorderItems({ mealId: meal.id, data: { itemIds: orderedItemIds } });
+                }
             }
             onClose();
         } catch (err) {
@@ -208,12 +236,14 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
 
                         {items.length > 0 && (
                             <div className="space-y-2.5">
-                                {items.map(item => (
+                                {items.map((item, index) => (
                                     <FoodItemRow
                                         key={item.localId}
                                         item={item.data}
                                         onChange={patch => patchDraftItem(item.localId, patch)}
                                         onRemove={() => removeDraftItem(item.localId)}
+                                        onMoveUp={index > 0 ? () => moveDraftItem(index, -1) : undefined}
+                                        onMoveDown={index < items.length - 1 ? () => moveDraftItem(index, 1) : undefined}
                                     />
                                 ))}
                             </div>
