@@ -4,6 +4,7 @@ export interface ApiError {
     title?: string;
     detail?: string;
     errors?: Record<string, string | string[]>;
+    retryAfterSeconds?: number;
 }
 
 export interface PageRequest {

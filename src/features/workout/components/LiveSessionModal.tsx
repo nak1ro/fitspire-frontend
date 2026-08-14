@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { AlertTriangle, Dumbbell, Pause, Play, X } from 'lucide-react';
+import { AlertTriangle, Pause, Play, X } from 'lucide-react';
 import { Alert, Button, IconChip, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useActiveWorkoutSession, useAbandonWorkout, usePauseWorkout, useResumeWorkout } from '../hooks/useWorkoutSessions';
@@ -11,7 +11,7 @@ import { useLiveElapsed } from '../hooks/useLiveElapsed';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
 import { StatBox } from './workoutDetailFormatters';
 import { LiveGymExercises } from './LiveGymExercises';
-import type { CyclingWorkout, RunningWorkout, SwimmingWorkout, WorkoutDetail, YogaWorkout } from '../types';
+import type { CyclingWorkout, GymWorkout, RunningWorkout, SwimmingWorkout, WorkoutDetail, YogaWorkout } from '../types';
 
 function LiveCardioSummary({ workout }: { workout: WorkoutDetail }) {
     const type = resolveKnownType(workout.workoutType);
@@ -169,7 +169,7 @@ export function LiveSessionModal({ open, onClose }: Props) {
 
                     {workout && (
                         resolveKnownType(workout.workoutType) === 'Gym'
-                            ? <LiveGymExercises workoutId={workout.id} exercises={workout.exercises} />
+                            ? <LiveGymExercises workoutId={workout.id} exercises={(workout as GymWorkout).exercises} />
                             : <LiveCardioSummary workout={workout} />
                     )}
                 </div>

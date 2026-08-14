@@ -11,8 +11,9 @@ import { getTypeConfig } from '../typeConfig';
 import { WorkoutTypeStep } from './WorkoutTypeStep';
 import { GymWorkoutForm } from './GymWorkoutForm';
 import { CardioWorkoutForm } from './CardioWorkoutForm';
+import { LiveSessionModal } from './LiveSessionModal';
 
-function ActiveSessionBanner() {
+function ActiveSessionBanner({ onResume }: { onResume: () => void }) {
     const { data: activeSession } = useActiveWorkoutSession();
     const { mutate: abandon, isPending } = useAbandonWorkout();
     const [confirming, setConfirming] = useState(false);
@@ -34,11 +35,16 @@ function ActiveSessionBanner() {
                 <AlertTriangle className="h-4 w-4 text-warning shrink-0" aria-hidden="true" />
                 You have an unfinished {getTypeConfig(activeSession.workoutType).label} session
             </div>
-            <p className="text-xs text-surface-500">Abandon it to start a new workout — this can't be undone.</p>
+            <p className="text-xs text-surface-500">Pick up where you left off, or abandon it to start a new workout.</p>
             {error && <p className="text-xs text-error">{error}</p>}
-            <Button variant="secondary" size="sm" loading={isPending} onClick={handleAbandon}>
-                {confirming ? 'Tap again to confirm' : 'Abandon unfinished session'}
-            </Button>
+            <div className="flex gap-2">
+                <Button variant="primary" size="sm" onClick={onResume}>
+                    Resume session
+                </Button>
+                <Button variant="secondary" size="sm" loading={isPending} onClick={handleAbandon}>
+                    {confirming ? 'Tap again to confirm' : 'Abandon'}
+                </Button>
+            </div>
         </div>
     );
 }
@@ -62,6 +68,12 @@ export function LogWorkoutModal({ open, onClose }: Props) {
     const router = useRouter();
     const [step, setStep] = useState<'type' | 'form'>('type');
     const [selectedType, setSelectedType] = useState<KnownWorkoutType | null>(null);
+    const [liveSessionOpen, setLiveSessionOpen] = useState(false);
+
+    const handleResume = () => {
+        setLiveSessionOpen(true);
+        onClose();
+    };
 
     // Reset state after close animation finishes
     useEffect(() => {
@@ -85,11 +97,11 @@ export function LogWorkoutModal({ open, onClose }: Props) {
         router.refresh();
     };
 
-    if (!open) return null;
-
     const title = step === 'form' && selectedType ? TYPE_LABELS[selectedType] : 'Log Workout';
 
     return (
+        <>
+        {open && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
 
             {/* Backdrop */}
@@ -129,7 +141,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                 <div className="flex-1 overflow-y-auto px-5 pb-5 pt-1">
                     {step === 'type' && (
                         <>
-                            <ActiveSessionBanner />
+                            <ActiveSessionBanner onResume={handleResume} />
                             <WorkoutTypeStep onSelect={handleTypeSelect} />
                         </>
                     )}
@@ -142,5 +154,9 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                 </div>
             </div>
         </div>
+        )}
+
+        <LiveSessionModal open={liveSessionOpen} onClose={() => setLiveSessionOpen(false)} />
+        </>
     );
 }

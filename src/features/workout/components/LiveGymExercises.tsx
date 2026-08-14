@@ -17,9 +17,7 @@ import {
 import { ExerciseSearchPanel } from './ExerciseSearchPanel';
 import type { Exercise, GymExercise, GymSet } from '../types';
 
-function NumCell({ value, placeholder, onCommit }: { value: number | null | undefined; placeholder: string; onCommit: (v: number | null) => void }) {
-    const [draft, setDraft] = useState(value != null ? String(value) : '');
-
+function NumCell({ draft, onChange, onBlur, placeholder }: { draft: string; onChange: (v: string) => void; onBlur: () => void; placeholder: string }) {
     return (
         <input
             type="number"
@@ -27,11 +25,8 @@ function NumCell({ value, placeholder, onCommit }: { value: number | null | unde
             step={placeholder === 'kg' ? 0.5 : 1}
             value={draft}
             placeholder={placeholder}
-            onChange={e => setDraft(e.target.value)}
-            onBlur={() => {
-                const parsed = draft === '' ? null : parseFloat(draft);
-                if ((parsed ?? null) !== (value ?? null)) onCommit(parsed);
-            }}
+            onChange={e => onChange(e.target.value)}
+            onBlur={onBlur}
             className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:bg-primary-50 focus:border-primary-500"
             style={{ colorScheme: 'light' }}
         />
@@ -49,30 +44,42 @@ function LiveSetRow({ workoutId, exerciseEntryId, set, onMoveUp, onMoveDown }: {
     const { mutate: setCompletion, isPending: completing } = useSetGymSetCompletion();
     const { mutate: deleteSet, isPending: deleting } = useDeleteGymSet();
 
-    const patch = (fields: Partial<{ reps: number | null; weightKg: number | null; isWarmup: boolean }>) => {
+    // Reps and weight are kept as local draft state (not sourced from `set` props on
+    // commit) so that two quick, sequential blurs — reps then weight — never race a
+    // still-in-flight refetch and stomp each other's just-typed value with a stale one.
+    const [repsDraft, setRepsDraft] = useState(set.reps != null ? String(set.reps) : '');
+    const [weightDraft, setWeightDraft] = useState(set.weightKg != null ? String(set.weightKg) : '');
+
+    const commit = (overrides: Partial<{ reps: number | null; weightKg: number | null; isWarmup: boolean }> = {}) => {
+        const reps = overrides.reps !== undefined ? overrides.reps : (repsDraft === '' ? null : parseFloat(repsDraft));
+        const weightKg = overrides.weightKg !== undefined ? overrides.weightKg : (weightDraft === '' ? null : parseFloat(weightDraft));
+        const isWarmup = overrides.isWarmup !== undefined ? overrides.isWarmup : set.isWarmup;
+
+        if (reps === (set.reps ?? null) && weightKg === (set.weightKg ?? null) && isWarmup === set.isWarmup) return;
+
         updateSet({
             workoutId,
             exerciseEntryId,
             setId: set.id,
             data: {
-                reps: fields.reps !== undefined ? fields.reps : set.reps ?? null,
-                weightKg: fields.weightKg !== undefined ? fields.weightKg : set.weightKg ?? null,
+                reps,
+                weightKg,
                 durationSeconds: set.durationSeconds ?? null,
                 distanceMeters: set.distanceMeters ?? null,
-                isWarmup: fields.isWarmup !== undefined ? fields.isWarmup : set.isWarmup,
+                isWarmup,
                 rpe: set.rpe ?? null,
                 notes: set.notes ?? null,
             },
         });
     };
 
-    const hasMeasurement = set.reps != null || set.weightKg != null;
+    const hasMeasurement = repsDraft !== '' || weightDraft !== '';
 
     return (
         <div className="grid grid-cols-[24px_1fr_1fr_32px_28px_28px_28px] items-center gap-1.5">
             <button
                 type="button"
-                onClick={() => patch({ isWarmup: !set.isWarmup })}
+                onClick={() => commit({ isWarmup: !set.isWarmup })}
                 className={cn(
                     'h-7 w-6 rounded-md text-[10px] font-bold border transition-colors',
                     set.isWarmup ? 'bg-warning/10 border-warning/40 text-warning' : 'border-surface-200 text-surface-300 hover:text-surface-500'
@@ -82,8 +89,8 @@ function LiveSetRow({ workoutId, exerciseEntryId, set, onMoveUp, onMoveDown }: {
             >
                 W
             </button>
-            <NumCell value={set.reps} placeholder="reps" onCommit={v => patch({ reps: v })} />
-            <NumCell value={set.weightKg} placeholder="kg" onCommit={v => patch({ weightKg: v })} />
+            <NumCell draft={repsDraft} placeholder="reps" onChange={setRepsDraft} onBlur={() => commit()} />
+            <NumCell draft={weightDraft} placeholder="kg" onChange={setWeightDraft} onBlur={() => commit()} />
             <button
                 type="button"
                 onClick={() => setCompletion({ workoutId, exerciseEntryId, setId: set.id, data: { isCompleted: !set.isCompleted } })}

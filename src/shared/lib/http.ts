@@ -86,6 +86,8 @@ function parseErrors(value: unknown): ApiError['errors'] {
 
 async function parseApiError(response: Response): Promise<ApiError> {
     const data = await parseBody(response);
+    const retryAfter = Number(response.headers.get('Retry-After'));
+    const retryAfterSeconds = Number.isFinite(retryAfter) && retryAfter >= 0 ? retryAfter : undefined;
 
     if (isRecord(data)) {
         const title = getString(data.title);
@@ -98,6 +100,7 @@ async function parseApiError(response: Response): Promise<ApiError> {
             title,
             detail,
             errors: parseErrors(data.errors),
+            retryAfterSeconds,
         };
     }
 
@@ -106,6 +109,7 @@ async function parseApiError(response: Response): Promise<ApiError> {
     return {
         status: response.status,
         message: message || `Request failed with status ${response.status}`,
+        retryAfterSeconds,
     };
 }
 

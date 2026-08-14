@@ -12,6 +12,7 @@ import { WorkoutCard } from './WorkoutCard';
 import { WorkoutListSkeleton } from './WorkoutListSkeleton';
 import { WorkoutDetailModal } from './WorkoutDetailModal';
 import { ArchivedWorkoutDetailModal } from './ArchivedWorkoutDetailModal';
+import { LiveSessionModal } from './LiveSessionModal';
 import type { KnownWorkoutType, Workout, WorkoutHistoryItem } from '../types';
 
 type Tab = 'active' | 'archived';
@@ -52,6 +53,7 @@ function WorkoutsEmptyState({ filtered }: { filtered: boolean }) {
 function ActiveTab() {
     const [selectedType, setSelectedType] = useState<KnownWorkoutType | null>(null);
     const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
+    const [liveSessionOpen, setLiveSessionOpen] = useState(false);
 
     const { data: workouts, isLoading, isError } = useWorkouts();
 
@@ -95,7 +97,11 @@ function ActiveTab() {
                             <WorkoutCard
                                 key={w.id}
                                 workout={w}
-                                onClick={() => setSelectedWorkoutId(w.id)}
+                                onClick={() => (
+                                    w.status === 'InProgress' || w.status === 'Paused'
+                                        ? setLiveSessionOpen(true)
+                                        : setSelectedWorkoutId(w.id)
+                                )}
                             />
                         ))}
                     </div>
@@ -107,6 +113,8 @@ function ActiveTab() {
                 workoutId={selectedWorkoutId}
                 onClose={() => setSelectedWorkoutId(null)}
             />
+
+            <LiveSessionModal open={liveSessionOpen} onClose={() => setLiveSessionOpen(false)} />
         </>
     );
 }

@@ -7,7 +7,6 @@ import {
     abandonWorkout,
     getActiveWorkoutSession,
     pauseWorkout,
-    restoreWorkout,
     resumeWorkout,
 } from '../api/client';
 import { workoutQueryKeys } from './queryKeys';
@@ -40,4 +39,3 @@ function useSessionMutation(mutation: (token: string, workoutId: string) => Prom
 export const usePauseWorkout = () => useSessionMutation(pauseWorkout);
 export const useResumeWorkout = () => useSessionMutation(resumeWorkout);
 export const useAbandonWorkout = () => useSessionMutation(abandonWorkout);
-export const useRestoreWorkout = () => useSessionMutation(restoreWorkout);
