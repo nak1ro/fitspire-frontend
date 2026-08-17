@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils } from 'lucide-react';
+import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles } from 'lucide-react';
 import { Button } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { StreakCard } from './StreakCard';
@@ -13,6 +13,7 @@ const NAV_ITEMS = [
     { href: '/goals',      label: 'Goals',      Icon: Target },
     { href: '/nutrition',  label: 'Nutrition',  Icon: Utensils },
     { href: '/challenges', label: 'Challenges', Icon: Trophy },
+    { href: '/coach',      label: 'Coach',      Icon: Sparkles },
 ] as const;
 
 interface SidebarProps {

@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { Plus } from 'lucide-react';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { NotificationsBell } from '@/features/notification/components/NotificationsBell';
 import { UserSearch } from '@/features/social/components/UserSearch';
@@ -16,7 +17,7 @@ const PAGE_TITLES: Record<string, string> = {
     '/profile': 'Profile',
     '/settings': 'Settings',
     '/notifications': 'Notifications',
-    '/coach': 'Weekly Coach',
+    '/coach': 'Coach',
 };
 
 function resolveTitle(pathname: string): string {
@@ -26,7 +27,11 @@ function resolveTitle(pathname: string): string {
     return 'Fitspire';
 }
 
-export function AppHeader() {
+interface AppHeaderProps {
+    onLogWorkout?: () => void;
+}
+
+export function AppHeader({ onLogWorkout }: AppHeaderProps) {
     const pathname = usePathname();
     const title = resolveTitle(pathname);
     const { data: profile } = useUserProfile();
@@ -37,6 +42,15 @@ export function AppHeader() {
             <h1 className="text-lg font-bold text-foreground tracking-tight">{title}</h1>
 
             <div className="flex items-center gap-1">
+
+                <button
+                    type="button"
+                    onClick={onLogWorkout}
+                    aria-label="Log workout"
+                    className="lg:hidden flex items-center justify-center h-9 w-9 rounded-full text-white bg-primary-500 hover:bg-primary-600 active:opacity-90 transition-colors mr-1"
+                >
+                    <Plus className="h-4 w-4" aria-hidden="true" />
+                </button>
 
                 <UserSearch />
 

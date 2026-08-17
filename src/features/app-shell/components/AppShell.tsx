@@ -17,11 +17,11 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             {/* Right column: header + scrollable content + mobile bottom nav */}
             <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-                <AppHeader />
+                <AppHeader onLogWorkout={() => setLogWorkoutOpen(true)} />
                 <main className="flex-1 overflow-y-auto">
                     {children}
                 </main>
-                <BottomNav onLogWorkout={() => setLogWorkoutOpen(true)} />
+                <BottomNav />
             </div>
 
             <LogWorkoutModal open={logWorkoutOpen} onClose={() => setLogWorkoutOpen(false)} />

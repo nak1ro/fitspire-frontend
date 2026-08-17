@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Target, User, Plus, type LucideIcon } from 'lucide-react';
+import { Home, Dumbbell, Target, User, Sparkles, type LucideIcon } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 
 interface NavItem {
@@ -11,21 +11,15 @@ interface NavItem {
     Icon: LucideIcon;
 }
 
-const LEFT_ITEMS = [
+const NAV_ITEMS = [
     { href: '/feed',     label: 'Feed',     Icon: Home },
     { href: '/workouts', label: 'Workouts', Icon: Dumbbell },
+    { href: '/coach',    label: 'Coach',    Icon: Sparkles },
+    { href: '/goals',    label: 'Goals',    Icon: Target },
+    { href: '/profile',  label: 'Profile',  Icon: User },
 ] as const;
 
-const RIGHT_ITEMS = [
-    { href: '/goals',   label: 'Goals',   Icon: Target },
-    { href: '/profile', label: 'Profile', Icon: User },
-] as const;
-
-interface BottomNavProps {
-    onLogWorkout?: () => void;
-}
-
-export function BottomNav({ onLogWorkout }: BottomNavProps) {
+export function BottomNav() {
     const pathname = usePathname();
     const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/');
 
@@ -52,20 +46,7 @@ export function BottomNav({ onLogWorkout }: BottomNavProps) {
             className="lg:hidden flex items-stretch shrink-0 bg-surface border-t border-surface-200"
             aria-label="Mobile navigation"
         >
-            {LEFT_ITEMS.map(renderItem)}
-
-            <div className="flex-1 flex items-center justify-center">
-                <button
-                    type="button"
-                    onClick={onLogWorkout}
-                    aria-label="Log workout"
-                    className="flex items-center justify-center h-11 w-11 rounded-full text-white shadow-float -translate-y-2 bg-primary-500 active:opacity-90"
-                >
-                    <Plus className="h-5 w-5" aria-hidden="true" />
-                </button>
-            </div>
-
-            {RIGHT_ITEMS.map(renderItem)}
+            {NAV_ITEMS.map(renderItem)}
         </nav>
     );
 }
