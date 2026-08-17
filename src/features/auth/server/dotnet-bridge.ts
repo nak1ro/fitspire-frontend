@@ -22,6 +22,7 @@ function toAuthUser(data: AuthResponse): AuthUser {
         email: data.email,
         createdAt: data.createdAt,
         token: data.token ?? undefined,
+        roles: data.roles,
     };
 }
 

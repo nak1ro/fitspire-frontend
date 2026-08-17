@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles } from 'lucide-react';
+import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles, Shield } from 'lucide-react';
 import { Button } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { StreakCard } from './StreakCard';
+import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 
 const NAV_ITEMS = [
     { href: '/feed',       label: 'Feed',       Icon: Home },
@@ -22,6 +23,7 @@ interface SidebarProps {
 
 export function Sidebar({ onLogWorkout }: SidebarProps) {
     const pathname = usePathname();
+    const { isAdmin } = useAuthSession();
 
     const isActive = (href: string) =>
         pathname === href || pathname.startsWith(href + '/');
@@ -61,6 +63,7 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                         </Link>
                     );
                 })}
+                {isAdmin && <Link href="/admin" className={cn('flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all', isActive('/admin') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100')}><Shield className={cn('h-[18px] w-[18px] shrink-0', isActive('/admin') ? 'text-primary-500' : 'text-surface-500')} aria-hidden="true" />Admin</Link>}
             </nav>
 
             {/* Log Workout CTA */}

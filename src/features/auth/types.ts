@@ -4,6 +4,7 @@ export interface BackendAuthUser {
     email: string;
     createdAt: string;
     token?: string | null;
+    roles: string[];
 }
 
 export interface AuthUser {
@@ -12,6 +13,7 @@ export interface AuthUser {
     email: string;
     createdAt: string;
     token?: string;
+    roles: string[];
 }
 
 export interface RegisterRequest {

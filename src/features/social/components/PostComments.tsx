@@ -17,6 +17,7 @@ import {
 } from '../hooks/useSocialMutations';
 import { LikesModal } from './LikesModal';
 import type { CommentResponse } from '../types';
+import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 
 function useOptimisticCommentLike(comment: CommentResponse, postId: string) {
     const [liked, setLiked] = useState(comment.isLikedByCurrentUser);
@@ -145,6 +146,7 @@ function CommentItem({
                         <button onClick={() => onReply(comment)} className="text-[11px] font-semibold text-surface-500 hover:text-foreground transition-colors">
                             Reply
                         </button>
+                        {Boolean(currentUserId && !isAuthor) && <ReportTrigger target={{ targetType: 'Comment', targetId: comment.id, label: 'comment' }} />}
                         {isAuthor && (
                             <button onClick={() => setEditing(true)} className="text-[11px] font-semibold text-surface-500 hover:text-foreground transition-colors">
                                 Edit
@@ -236,7 +238,7 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
             <h3 className="text-sm font-bold text-foreground">Comments</h3>
 
             {isLoading && <p className="text-sm text-surface-400">Loading comments…</p>}
-            {isError && <p className="text-sm text-error">Couldn't load comments.</p>}
+            {isError && <p className="text-sm text-error">Couldn&apos;t load comments.</p>}
             {!isLoading && !isError && (!comments || comments.length === 0) && (
                 <p className="text-sm text-surface-400">No comments yet. Be the first to say something.</p>
             )}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Bookmark, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2, Trophy } from 'lucide-react';
+import { Bookmark, Flag, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2, Trophy } from 'lucide-react';
 import { Alert, Avatar, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
@@ -12,6 +12,8 @@ import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { EditPostModal } from './EditPostModal';
 import { LikesModal } from './LikesModal';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
+import { ReportContentDialog } from '@/features/moderation/components/ReportContentDialog';
+import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 
 // ─── Goal block ────────────────────────────────────────────────────────────────
 
@@ -49,7 +51,13 @@ function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; 
 
 // ─── Owner menu ────────────────────────────────────────────────────────────────
 
-function OwnerMenu({ canEdit, onEdit, onDelete }: { canEdit: boolean; onEdit: () => void; onDelete: () => void }) {
+function PostMenu({ isOwner, canEdit, onEdit, onDelete, onReport }: {
+    isOwner: boolean;
+    canEdit: boolean;
+    onEdit: () => void;
+    onDelete: () => void;
+    onReport: () => void;
+}) {
     const [open, setOpen] = useState(false);
     const ref = useRef<HTMLDivElement>(null);
 
@@ -78,7 +86,7 @@ function OwnerMenu({ canEdit, onEdit, onDelete }: { canEdit: boolean; onEdit: ()
                     className="absolute right-0 top-full mt-1 w-40 rounded-xl border border-surface-200 bg-background p-1.5 z-20"
                     style={{ boxShadow: 'var(--shadow-panel)' }}
                 >
-                    {canEdit && (
+                    {isOwner && canEdit && (
                         <button
                             role="menuitem"
                             onClick={() => { setOpen(false); onEdit(); }}
@@ -88,14 +96,21 @@ function OwnerMenu({ canEdit, onEdit, onDelete }: { canEdit: boolean; onEdit: ()
                             Edit
                         </button>
                     )}
-                    <button
+                    {isOwner ? <button
                         role="menuitem"
                         onClick={() => { setOpen(false); onDelete(); }}
                         className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-error hover:bg-error/10 transition-colors text-left"
                     >
                         <Trash2 className="h-4 w-4 shrink-0" aria-hidden="true" />
                         Delete
-                    </button>
+                    </button> : <button
+                        role="menuitem"
+                        onClick={() => { setOpen(false); onReport(); }}
+                        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-error transition-colors text-left"
+                    >
+                        <Flag className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        Report
+                    </button>}
                 </div>
             )}
         </div>
@@ -114,6 +129,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
     const [likesModalOpen, setLikesModalOpen] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [reportPostOpen, setReportPostOpen] = useState(false);
 
     const { data: profile } = useUserProfile();
     const { mutate: likePost } = useLikePost();
@@ -124,6 +140,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
     const { mutate: deletePost, isPending: deleting } = useDeletePost();
 
     const isOwner = Boolean(profile && profile.id === item.userId);
+    const canReport = Boolean(profile && !isOwner);
 
     const handleLike = () => {
         const wasLiked = liked;
@@ -178,15 +195,13 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                         {formatRelativeTime(item.createdAt)}
                     </Link>
                 </div>
-                {isOwner && (
-                    <OwnerMenu canEdit={item.type === 'Text'} onEdit={() => setEditOpen(true)} onDelete={handleDelete} />
-                )}
+                {(isOwner || canReport) && <PostMenu isOwner={isOwner} canEdit={item.type === 'Text'} onEdit={() => setEditOpen(true)} onDelete={handleDelete} onReport={() => setReportPostOpen(true)} />}
             </div>
 
             {confirmDelete && (
                 <div className="px-4 pt-3">
                     <div className="flex items-center justify-between gap-3 rounded-xl bg-error/5 border border-error/20 px-3.5 py-2.5">
-                        <span className="text-xs font-medium text-error">Delete this post? This can't be undone.</span>
+                        <span className="text-xs font-medium text-error">Delete this post? This can&apos;t be undone.</span>
                         <div className="flex items-center gap-2 shrink-0">
                             <button onClick={handleDelete} disabled={deleting} className="text-xs font-bold text-error hover:opacity-70 disabled:opacity-50">
                                 {deleting ? 'Deleting…' : 'Delete'}
@@ -222,12 +237,16 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                 {item.media.length > 0 && (
                     <div className={item.media.length > 1 ? 'grid grid-cols-2 gap-1.5 mt-3' : 'mt-3'}>
                         {item.media.map(media => (
-                            <img
-                                key={media.id}
-                                src={media.primary?.url ?? media.thumbnail?.url}
-                                alt=""
-                                className="w-full rounded-xl object-cover max-h-96"
-                            />
+                            <div key={media.id} className="relative">
+                                {/* Azure SAS media has no stable optimization source or intrinsic dimensions. */}
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img src={media.primary?.url ?? media.thumbnail?.url} alt="" className="w-full rounded-xl object-cover max-h-96" />
+                                {canReport && (
+                                    <div className="absolute right-2 top-2 rounded-lg bg-surface/90">
+                                        <ReportTrigger target={{ targetType: 'Media', targetId: media.id, label: 'post image' }} compact />
+                                    </div>
+                                )}
+                            </div>
                         ))}
                     </div>
                 )}
@@ -339,6 +358,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
 
             <EditPostModal postId={item.id} initialContent={item.content ?? ''} open={editOpen} onClose={() => setEditOpen(false)} />
             <LikesModal target={{ kind: 'post', postId: item.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
+            <ReportContentDialog target={{ targetType: 'Post', targetId: item.id, label: 'post' }} open={reportPostOpen} onClose={() => setReportPostOpen(false)} />
         </Card>
     );
 }

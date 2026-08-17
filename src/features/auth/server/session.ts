@@ -1,4 +1,5 @@
 import { auth } from './auth';
+import { hasAdminRole } from '../lib/hasAdminRole';
 
 export async function getCurrentUser() {
     const session = await auth();
@@ -18,4 +19,9 @@ export async function requireAccessToken() {
     }
 
     return accessToken;
+}
+
+export async function isCurrentUserAdmin() {
+    const session = await auth();
+    return hasAdminRole(session?.roles);
 }

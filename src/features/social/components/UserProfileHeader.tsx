@@ -7,6 +7,7 @@ import { FeaturedBadgesStrip } from '@/features/badge/components/FeaturedBadgesS
 import { usePublicFeaturedBadges } from '../hooks/useSocialReads';
 import { FollowButton } from './FollowButton';
 import { FollowListModal } from './FollowListModal';
+import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 import type { SocialProfileResponse } from '../types';
 
 interface Props {
@@ -16,16 +17,24 @@ interface Props {
 export function UserProfileHeader({ profile }: Props) {
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
     const { data: featuredBadges } = usePublicFeaturedBadges(profile.id);
+    const canReport = profile.relationship !== 'self';
 
     return (
         <div className="pb-5 mb-1">
             <div className="flex items-start justify-between mb-4">
-                <Avatar
-                    displayName={profile.displayName}
-                    userName={profile.userName}
-                    avatarUrl={profile.profilePictureUrl}
-                    size="xl"
-                />
+                <div className="relative">
+                    <Avatar
+                        displayName={profile.displayName}
+                        userName={profile.userName}
+                        avatarUrl={profile.profilePictureUrl}
+                        size="xl"
+                    />
+                    {canReport && profile.profilePicture && (
+                        <div className="absolute -right-1 -top-1 rounded-lg bg-surface shadow-sm">
+                            <ReportTrigger target={{ targetType: 'Media', targetId: profile.profilePicture.id, label: 'profile image' }} compact />
+                        </div>
+                    )}
+                </div>
                 <FollowButton userId={profile.id} relationship={profile.relationship} isPrivate={profile.isPrivate} />
             </div>
 
@@ -64,6 +73,7 @@ export function UserProfileHeader({ profile }: Props) {
                     <span className="text-sm font-extrabold text-foreground tabular-nums">{profile.followingCount}</span>
                     <span className="text-xs text-surface-500">following</span>
                 </button>
+                {canReport && <ReportTrigger target={{ targetType: 'Profile', targetId: profile.id, label: 'profile' }} />}
             </div>
 
             {listMode && (
