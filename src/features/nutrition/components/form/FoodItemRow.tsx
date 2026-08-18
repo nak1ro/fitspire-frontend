@@ -3,10 +3,8 @@
 import { useId, useState } from 'react';
 import { Trash2, ChevronDown, ChevronUp } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
-import { QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
+import { QUANTITY_UNITS, QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
 import type { MealItemRequest, QuantityUnit } from '../../types';
-
-const UNITS: QuantityUnit[] = ['Grams', 'Millilitres', 'Serving', 'Piece', 'CustomServing'];
 
 interface Props {
     item: MealItemRequest;
@@ -104,7 +102,7 @@ export function FoodItemRow({ item, onChange, onRemove, onMoveUp, onMoveDown }: 
                                 })}
                                 className="w-full h-9 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none px-1 text-center"
                             >
-                                {UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
+                                {QUANTITY_UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
                             </select>
                         </div>
                     </div>

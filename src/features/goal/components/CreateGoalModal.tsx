@@ -4,7 +4,8 @@ import { useState, useMemo, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { Button, Input, Alert } from '@/shared/ui';
 import { useGoalTypes, useCreateGoal } from '../hooks/useGoals';
-import type { GoalSchedule, GoalType } from '../types';
+import { useExercises } from '@/features/workout/hooks/useExerciseCatalog';
+import type { GoalSchedule, GoalType, GoalWorkoutType } from '../types';
 
 interface Props {
     open: boolean;
@@ -12,6 +13,13 @@ interface Props {
 }
 
 const CATEGORY_ORDER = ['Fitness', 'Body', 'Nutrition', 'Habit', 'Social'] as const;
+const WORKOUT_TYPE_OPTIONS: { value: GoalWorkoutType; label: string }[] = [
+    { value: 'gym', label: 'Gym' },
+    { value: 'running', label: 'Running' },
+    { value: 'cycling', label: 'Cycling' },
+    { value: 'swimming', label: 'Swimming' },
+    { value: 'yoga', label: 'Yoga' },
+];
 
 function TypeStep({ onSelect }: { onSelect: (type: GoalType) => void }) {
     const { data: goalTypes, isLoading } = useGoalTypes();
@@ -70,8 +78,13 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
     const [deadline, setDeadline] = useState('');
     const [isPublic, setIsPublic] = useState(true);
     const [schedule, setSchedule] = useState<GoalSchedule>(goalType.allowedSchedules[0] ?? 'one-off');
+    const [selectedWorkoutType, setSelectedWorkoutType] = useState<GoalWorkoutType | ''>('');
+    const [selectedExerciseId, setSelectedExerciseId] = useState('');
     const { mutate, isPending, error } = useCreateGoal();
+    const { data: exercises, isLoading: areExercisesLoading } = useExercises();
     const isOneOff = schedule === 'one-off';
+    const requiresExercise = goalType.parameterKind === 'Exercise';
+    const acceptsWorkoutType = goalType.parameterKind === 'WorkoutType' && !goalType.relatedWorkoutType;
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
@@ -82,6 +95,8 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
                 schedule,
                 deadline: isOneOff ? deadline || null : null,
                 isPublic,
+                selectedWorkoutType: acceptsWorkoutType ? selectedWorkoutType || null : null,
+                selectedExerciseId: requiresExercise ? selectedExerciseId : null,
             },
             { onSuccess }
         );
@@ -132,6 +147,42 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
                 </label>
             )}
 
+            {acceptsWorkoutType && (
+                <label className="block space-y-1">
+                    <span className="text-sm font-medium text-foreground">Workout type <span className="text-surface-400">(optional)</span></span>
+                    <select
+                        value={selectedWorkoutType}
+                        onChange={(event) => setSelectedWorkoutType(event.target.value as GoalWorkoutType | '')}
+                        className="w-full rounded-xl border border-surface-200 bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500"
+                    >
+                        <option value="">Any workout type</option>
+                        {WORKOUT_TYPE_OPTIONS.map((workoutType) => (
+                            <option key={workoutType.value} value={workoutType.value}>{workoutType.label}</option>
+                        ))}
+                    </select>
+                </label>
+            )}
+
+            {requiresExercise && (
+                <label className="block space-y-1">
+                    <span className="text-sm font-medium text-foreground">Exercise</span>
+                    <select
+                        required
+                        value={selectedExerciseId}
+                        onChange={(event) => setSelectedExerciseId(event.target.value)}
+                        disabled={areExercisesLoading}
+                        className="w-full rounded-xl border border-surface-200 bg-surface px-3 py-2.5 text-sm text-foreground outline-none focus:border-primary-500 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                        <option value="">{areExercisesLoading ? 'Loading exercises…' : 'Choose an exercise'}</option>
+                        {exercises?.map((exercise) => (
+                            <option key={exercise.id} value={exercise.id}>
+                                {exercise.name}{exercise.categoryName ? ` · ${exercise.categoryName}` : ''}
+                            </option>
+                        ))}
+                    </select>
+                </label>
+            )}
+
             <label className="flex items-center gap-2.5 cursor-pointer">
                 <input
                     type="checkbox"
@@ -144,7 +195,7 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
 
             {error && <Alert variant="error">Something went wrong. Please try again.</Alert>}
 
-            <Button type="submit" loading={isPending} fullWidth>
+            <Button type="submit" loading={isPending} disabled={requiresExercise && (!selectedExerciseId || areExercisesLoading)} fullWidth>
                 Create goal
             </Button>
         </form>

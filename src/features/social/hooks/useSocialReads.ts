@@ -9,6 +9,7 @@ import {
     getFollowers,
     getFollowing,
     getIncomingFollowRequests,
+    getMySharedWorkoutIds,
     getOutgoingFollowRequests,
     getPostComments,
     getPostLikes,
@@ -181,5 +182,15 @@ export function usePublicChallengeResults(userId: string | null) {
         queryKey: socialQueryKeys.publicChallengeResults(userId ?? ''),
         queryFn: () => getPublicChallengeResults(requireAccessToken(accessToken), userId ?? ''),
         enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function useMySharedWorkoutIds() {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.sharedWorkoutIds(),
+        queryFn: () => getMySharedWorkoutIds(requireAccessToken(accessToken)),
+        enabled: Boolean(accessToken),
     });
 }

@@ -37,7 +37,7 @@ function GoalAchievedBlock({ content }: { content?: string | null }) {
 
 function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; userName: string; avatarUrl?: string | null; content: string }) {
     return (
-        <div className="flex items-start gap-2">
+        <div className="flex items-center gap-2">
             <Link href={`/profile/${userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
                 <Avatar displayName={userName} userName={userName} avatarUrl={avatarUrl} size="xs" />
             </Link>

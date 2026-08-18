@@ -259,6 +259,9 @@ export const shareWorkout = (accessToken: string, data: ShareWorkoutRequest) =>
         json: data,
     });
 
+export const getMySharedWorkoutIds = (accessToken: string) =>
+    http<string[]>(SOCIAL_ROUTES.myWorkoutShares, { accessToken });
+
 export const getPublicGoals = (accessToken: string, userId: string) =>
     http<PublicGoal[]>(SOCIAL_ROUTES.publicGoals(userId), { accessToken });
 

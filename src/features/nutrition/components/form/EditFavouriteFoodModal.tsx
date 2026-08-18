@@ -1,14 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { X } from 'lucide-react';
 import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUpdateFavouriteFood } from '../../hooks/useNutrition';
-import { QUANTITY_UNIT_LABELS } from '../../mealTypeConfig';
+import { QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from '../../mealTypeConfig';
 import type { FavouriteFood, MealItemRequest, QuantityUnit } from '../../types';
-
-const UNITS: QuantityUnit[] = ['Grams', 'Millilitres', 'Serving', 'Piece', 'CustomServing'];
 
 interface Props {
     favourite: FavouriteFood | null;
@@ -16,20 +14,13 @@ interface Props {
 }
 
 export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
-    const [draft, setDraft] = useState<MealItemRequest | null>(null);
+    const [draft, setDraft] = useState<MealItemRequest | null>(() => favourite ? {
+        name: favourite.name, quantity: favourite.quantity, quantityUnit: favourite.quantityUnit,
+        customUnitName: favourite.customUnitName ?? null, caloriesKcal: favourite.caloriesKcal ?? null,
+        proteinGrams: favourite.proteinGrams ?? null, carbsGrams: favourite.carbsGrams ?? null, fatGrams: favourite.fatGrams ?? null,
+    } : null);
     const [error, setError] = useState<string | null>(null);
     const { mutate: updateFavourite, isPending } = useUpdateFavouriteFood();
-
-    useEffect(() => {
-        if (favourite) {
-            setDraft({
-                name: favourite.name, quantity: favourite.quantity, quantityUnit: favourite.quantityUnit,
-                customUnitName: favourite.customUnitName ?? null, caloriesKcal: favourite.caloriesKcal ?? null,
-                proteinGrams: favourite.proteinGrams ?? null, carbsGrams: favourite.carbsGrams ?? null, fatGrams: favourite.fatGrams ?? null,
-            });
-            setError(null);
-        }
-    }, [favourite]);
 
     if (!favourite || !draft) return null;
 
@@ -91,7 +82,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                             })}
                             className="w-full h-9 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none px-2 text-center"
                         >
-                            {UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
+                            {QUANTITY_UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
                         </select>
                     </div>
 

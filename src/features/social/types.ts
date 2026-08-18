@@ -100,6 +100,7 @@ export interface FollowResponse {
 export interface ShareWorkoutRequest {
     workoutId: string;
     caption?: string | null;
+    mediaAssetIds?: string[] | null;
 }
 
 export interface SocialUserSummary {

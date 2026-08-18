@@ -1,6 +1,6 @@
 import type { PageRequest } from '@/shared/types';
 export type MealType = 'Breakfast' | 'Lunch' | 'Dinner' | 'Snack';
-export type QuantityUnit = 'Grams' | 'Millilitres' | 'Serving' | 'Piece' | 'CustomServing';
+export type QuantityUnit = 'Grams' | 'Millilitres' | 'Servings' | 'Pieces' | 'CustomServing';
 export interface MealItemRequest { name: string; quantity: number; quantityUnit: QuantityUnit; customUnitName?: string | null; caloriesKcal?: number | null; proteinGrams?: number | null; carbsGrams?: number | null; fatGrams?: number | null; }
 export interface MealItem extends MealItemRequest { id: string; orderIndex: number; favouriteFoodId?: string | null; createdAt: string; updatedAt?: string | null; }
 export interface MealMetadata { mealDate: string; consumedAtLocalTime?: string | null; mealType: MealType; name?: string | null; notes?: string | null; }

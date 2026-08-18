@@ -277,6 +277,7 @@ export function useShareWorkout() {
             await Promise.all([
                 invalidateFeedReads(queryClient),
                 queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
+                queryClient.invalidateQueries({ queryKey: socialQueryKeys.sharedWorkoutIds() }),
             ]);
         },
     });

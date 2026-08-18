@@ -9,6 +9,7 @@ export interface MealTypeConfig {
 }
 
 export const MEAL_TYPES: MealType[] = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
+export const QUANTITY_UNITS: QuantityUnit[] = ['Grams', 'Millilitres', 'Servings', 'Pieces', 'CustomServing'];
 
 export const MEAL_TYPE_CONFIG: Record<MealType, MealTypeConfig> = {
     Breakfast: { label: 'Breakfast', Icon: Coffee, color: '#C2703D', bg: 'rgba(194,112,61,0.10)' },
@@ -20,14 +21,14 @@ export const MEAL_TYPE_CONFIG: Record<MealType, MealTypeConfig> = {
 export const QUANTITY_UNIT_LABELS: Record<QuantityUnit, string> = {
     Grams: 'g',
     Millilitres: 'ml',
-    Serving: 'serving',
-    Piece: 'piece',
+    Servings: 'serving',
+    Pieces: 'piece',
     CustomServing: 'custom',
 };
 
 export function formatQuantity(quantity: number, unit: QuantityUnit, customUnitName?: string | null): string {
     if (unit === 'CustomServing') return `${quantity} ${customUnitName ?? 'unit'}`;
     const label = QUANTITY_UNIT_LABELS[unit];
-    const plural = quantity !== 1 && (unit === 'Serving' || unit === 'Piece') ? 's' : '';
+    const plural = quantity !== 1 && (unit === 'Servings' || unit === 'Pieces') ? 's' : '';
     return `${quantity}${unit === 'Grams' || unit === 'Millilitres' ? label : ` ${label}${plural}`}`;
 }

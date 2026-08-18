@@ -6,11 +6,9 @@ import { Button, EmptyState, Toggle } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useFavouriteFoods, useRecentFoods, useCreateFavouriteFood, useDeleteFavouriteFood } from '../../hooks/useNutrition';
-import { QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
+import { QUANTITY_UNITS, QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
 import { EditFavouriteFoodModal } from './EditFavouriteFoodModal';
 import type { FavouriteFood, MealItemRequest, QuantityUnit } from '../../types';
-
-const UNITS: QuantityUnit[] = ['Grams', 'Millilitres', 'Serving', 'Piece', 'CustomServing'];
 
 function toItemRequest(source: MealItemRequest): MealItemRequest {
     return {
@@ -171,7 +169,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
                     })}
                     className="w-full h-9 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none px-2 text-center"
                 >
-                    {UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
+                    {QUANTITY_UNITS.map(u => <option key={u} value={u}>{QUANTITY_UNIT_LABELS[u]}</option>)}
                 </select>
             </div>
 
@@ -294,7 +292,7 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
 
             {tab === 'custom' && <CustomFoodForm onAdd={onAdd} />}
 
-            <EditFavouriteFoodModal favourite={editingFavourite} onClose={() => setEditingFavourite(null)} />
+            <EditFavouriteFoodModal key={editingFavourite?.id ?? 'closed'} favourite={editingFavourite} onClose={() => setEditingFavourite(null)} />
         </div>
     );
 }
