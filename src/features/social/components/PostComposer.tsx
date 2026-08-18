@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { X, Image as ImageIcon, Loader2, Dumbbell } from 'lucide-react';
-import { useCreatePost, useShareWorkout } from '../hooks/useSocialMutations';
+import { X, Image as ImageIcon, Loader2, Dumbbell, Target, Trophy } from 'lucide-react';
+import { useCreatePost, useShareGoal, useShareWorkout } from '../hooks/useSocialMutations';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
 import { useAbortMediaUpload } from '@/features/media/hooks/useAbortMediaUpload';
@@ -10,7 +10,9 @@ import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { getTypeConfig } from '@/features/workout/typeConfig';
 import { Alert, Avatar, Button, Card, IconChip } from '@/shared/ui';
 import { AttachWorkoutPicker } from './AttachWorkoutPicker';
+import { AttachGoalPicker } from './AttachGoalPicker';
 import type { WorkoutHistoryItem } from '@/features/workout/types';
+import type { Goal } from '@/features/goal/types';
 
 export function PostComposer() {
     const [content, setContent] = useState('');
@@ -18,16 +20,19 @@ export function PostComposer() {
     const [imageMediaId, setImageMediaId] = useState<string | null>(null);
     const [imageError, setImageError] = useState<string | null>(null);
     const [attachedWorkout, setAttachedWorkout] = useState<WorkoutHistoryItem | null>(null);
-    const [pickerOpen, setPickerOpen] = useState(false);
+    const [attachedGoal, setAttachedGoal] = useState<Goal | null>(null);
+    const [workoutPickerOpen, setWorkoutPickerOpen] = useState(false);
+    const [goalPickerOpen, setGoalPickerOpen] = useState(false);
     const [postError, setPostError] = useState<string | null>(null);
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { mutate: createPost, isPending: creatingPost } = useCreatePost();
     const { mutate: shareWorkout, isPending: sharingWorkout } = useShareWorkout();
+    const { mutate: shareGoal, isPending: sharingGoal } = useShareGoal();
     const { mutateAsync: uploadImage, isPending: uploadingImage } = useUploadMedia();
     const { mutate: abortUpload } = useAbortMediaUpload();
     const { data: profile } = useUserProfile();
-    const isPending = creatingPost || sharingWorkout;
+    const isPending = creatingPost || sharingWorkout || sharingGoal;
 
     const handlePickImage = () => fileInputRef.current?.click();
 
@@ -56,23 +61,24 @@ export function PostComposer() {
 
     const handlePost = () => {
         const trimmed = content.trim();
-        if (!trimmed && !imageMediaId && !attachedWorkout) return;
+        if (!trimmed && !imageMediaId && !attachedWorkout && !attachedGoal) return;
         setPostError(null);
 
         const onSuccess = () => {
             setContent('');
             setAttachedWorkout(null);
+            setAttachedGoal(null);
             handleRemoveImage();
         };
         const onError = (err: unknown) => setPostError(getErrorMessage(err, 'Failed to post.'));
+        const mediaAssetIds = imageMediaId ? [imageMediaId] : undefined;
 
         if (attachedWorkout) {
-            shareWorkout(
-                { workoutId: attachedWorkout.id, caption: trimmed || undefined, mediaAssetIds: imageMediaId ? [imageMediaId] : undefined },
-                { onSuccess, onError }
-            );
+            shareWorkout({ workoutId: attachedWorkout.id, caption: trimmed || undefined, mediaAssetIds }, { onSuccess, onError });
+        } else if (attachedGoal) {
+            shareGoal({ goalId: attachedGoal.id, caption: trimmed || undefined, mediaAssetIds }, { onSuccess, onError });
         } else {
-            createPost({ content: trimmed || undefined, mediaAssetIds: imageMediaId ? [imageMediaId] : undefined }, { onSuccess, onError });
+            createPost({ content: trimmed || undefined, mediaAssetIds }, { onSuccess, onError });
         }
     };
 
@@ -82,7 +88,7 @@ export function PostComposer() {
         }
     };
 
-    const hasContent = content.trim().length > 0 || Boolean(imagePreview) || Boolean(attachedWorkout);
+    const hasContent = content.trim().length > 0 || Boolean(imagePreview) || Boolean(attachedWorkout) || Boolean(attachedGoal);
     const workoutTypeConfig = attachedWorkout ? getTypeConfig(attachedWorkout.workoutType) : null;
 
     return (
@@ -115,7 +121,7 @@ export function PostComposer() {
                 onChange={e => handleImageSelected(e.target.files?.[0])}
             />
 
-            {(imagePreview || attachedWorkout) && (
+            {(imagePreview || attachedWorkout || attachedGoal) && (
                 <div className="flex gap-2.5 mt-3 ml-11">
                     {imagePreview && (
                         <div className="relative w-20 h-20 shrink-0">
@@ -153,6 +159,24 @@ export function PostComposer() {
                             </button>
                         </div>
                     )}
+
+                    {attachedGoal && (
+                        <div className="relative w-20 h-20 shrink-0 rounded-xl bg-surface-100 flex flex-col items-center justify-center gap-1 px-1 text-center">
+                            <IconChip icon={Trophy} size="sm" variant="warning" />
+                            <p className="text-[10px] font-semibold text-foreground leading-tight truncate max-w-full">{attachedGoal.goalTypeName}</p>
+                            <p className="text-[9px] text-surface-500 leading-tight">
+                                {attachedGoal.targetValue} {attachedGoal.unit}
+                            </p>
+                            <button
+                                type="button"
+                                onClick={() => setAttachedGoal(null)}
+                                className="absolute -top-1.5 -right-1.5 flex items-center justify-center h-5 w-5 rounded-full bg-error text-white shadow-chip"
+                                aria-label="Remove attached goal"
+                            >
+                                <X className="h-3 w-3" aria-hidden="true" />
+                            </button>
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -173,12 +197,21 @@ export function PostComposer() {
                     </button>
                     <button
                         type="button"
-                        onClick={() => setPickerOpen(true)}
-                        disabled={Boolean(attachedWorkout)}
+                        onClick={() => setWorkoutPickerOpen(true)}
+                        disabled={Boolean(attachedWorkout) || Boolean(attachedGoal)}
                         className="flex items-center gap-1.5 text-xs font-semibold text-surface-500 hover:text-foreground transition-colors disabled:opacity-40"
                     >
                         <Dumbbell className="h-4 w-4" aria-hidden="true" />
                         Workout
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setGoalPickerOpen(true)}
+                        disabled={Boolean(attachedGoal) || Boolean(attachedWorkout)}
+                        className="flex items-center gap-1.5 text-xs font-semibold text-surface-500 hover:text-foreground transition-colors disabled:opacity-40"
+                    >
+                        <Target className="h-4 w-4" aria-hidden="true" />
+                        Goal
                     </button>
                 </div>
                 {hasContent && (
@@ -192,11 +225,20 @@ export function PostComposer() {
             </div>
 
             <AttachWorkoutPicker
-                open={pickerOpen}
-                onClose={() => setPickerOpen(false)}
+                open={workoutPickerOpen}
+                onClose={() => setWorkoutPickerOpen(false)}
                 onSelect={workout => {
                     setAttachedWorkout(workout);
-                    setPickerOpen(false);
+                    setWorkoutPickerOpen(false);
+                }}
+            />
+
+            <AttachGoalPicker
+                open={goalPickerOpen}
+                onClose={() => setGoalPickerOpen(false)}
+                onSelect={goal => {
+                    setAttachedGoal(goal);
+                    setGoalPickerOpen(false);
                 }}
             />
         </Card>

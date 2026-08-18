@@ -24,6 +24,8 @@ export const SOCIAL_ROUTES = {
     followRequest: (requestId: string) => `/api/social/follow-requests/${requestId}`,
     workoutShares: '/api/social/workout-shares',
     myWorkoutShares: '/api/social/workout-shares/mine',
+    goalShares: '/api/social/goal-shares',
+    myGoalShares: '/api/social/goal-shares/mine',
     publicGoals: (userId: string) => `/api/social/users/${userId}/goals`,
     publicGoalPeriods: (userId: string) => `/api/social/users/${userId}/goal-periods`,
     publicBadges: (userId: string) => `/api/social/users/${userId}/badges`,

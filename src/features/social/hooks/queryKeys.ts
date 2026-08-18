@@ -47,4 +47,5 @@ export const socialQueryKeys = {
     outgoingFollowRequests: (pagination?: FeedPagination) =>
         [...socialQueryKeys.followRequests(), 'outgoing', pagination ?? {}] as const,
     sharedWorkoutIds: () => [...socialQueryKeys.all, 'shared-workout-ids'] as const,
+    sharedGoalIds: () => [...socialQueryKeys.all, 'shared-goal-ids'] as const,
 };

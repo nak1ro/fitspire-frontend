@@ -19,6 +19,14 @@ export interface WorkoutSummary {
     completedAt?: string | null;
 }
 
+export interface GoalSummary {
+    id: string;
+    goalTypeName: string;
+    targetValue: number;
+    unit: string;
+    completedAt: string;
+}
+
 export interface CommentPreview {
     id: string;
     userId: string;
@@ -40,6 +48,7 @@ export interface FeedItem {
     content?: string | null;
     referenceEntityId?: string | null;
     workoutSummary?: WorkoutSummary | null;
+    goalSummary?: GoalSummary | null;
     likesCount: number;
     isLikedByCurrentUser: boolean;
     isSavedByCurrentUser: boolean;
@@ -99,6 +108,12 @@ export interface FollowResponse {
 
 export interface ShareWorkoutRequest {
     workoutId: string;
+    caption?: string | null;
+    mediaAssetIds?: string[] | null;
+}
+
+export interface ShareGoalRequest {
+    goalId: string;
     caption?: string | null;
     mediaAssetIds?: string[] | null;
 }

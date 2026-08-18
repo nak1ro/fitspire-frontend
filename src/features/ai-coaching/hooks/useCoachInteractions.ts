@@ -61,6 +61,7 @@ export function useCoachMessages(threadId: string | null, filter?: CoachMessageH
         queryFn: () => getCoachMessages(requireAccessToken(accessToken), threadId ?? '', filter),
         enabled: Boolean(accessToken && threadId),
         refetchInterval: (query) => query.state.data?.items.some((message) => isGenerating(message.status)) ? pollIntervalMs : false,
+        refetchIntervalInBackground: true,
     });
 }
 
@@ -71,6 +72,7 @@ export function useCoachMessage(threadId: string | null, messageId: string | nul
         queryFn: () => getCoachMessage(requireAccessToken(accessToken), threadId ?? '', messageId ?? ''),
         enabled: Boolean(accessToken && threadId && messageId),
         refetchInterval: (query) => isGenerating(query.state.data?.status) ? pollIntervalMs : false,
+        refetchIntervalInBackground: true,
     });
 }
 
@@ -82,6 +84,7 @@ export function useTodayDailyBriefing() {
         enabled: Boolean(accessToken),
         retry: false,
         refetchInterval: (query) => isGenerating(query.state.data?.status) ? pollIntervalMs : false,
+        refetchIntervalInBackground: true,
     });
 }
 
@@ -92,6 +95,7 @@ export function useDailyBriefing(briefingId: string | null) {
         queryFn: () => getDailyBriefing(requireAccessToken(accessToken), briefingId ?? ''),
         enabled: Boolean(accessToken && briefingId),
         refetchInterval: (query) => isGenerating(query.state.data?.status) ? pollIntervalMs : false,
+        refetchIntervalInBackground: true,
     });
 }
 

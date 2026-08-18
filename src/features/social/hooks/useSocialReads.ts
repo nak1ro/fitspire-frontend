@@ -9,6 +9,7 @@ import {
     getFollowers,
     getFollowing,
     getIncomingFollowRequests,
+    getMySharedGoalIds,
     getMySharedWorkoutIds,
     getOutgoingFollowRequests,
     getPostComments,
@@ -191,6 +192,16 @@ export function useMySharedWorkoutIds() {
     return useQuery({
         queryKey: socialQueryKeys.sharedWorkoutIds(),
         queryFn: () => getMySharedWorkoutIds(requireAccessToken(accessToken)),
+        enabled: Boolean(accessToken),
+    });
+}
+
+export function useMySharedGoalIds() {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.sharedGoalIds(),
+        queryFn: () => getMySharedGoalIds(requireAccessToken(accessToken)),
         enabled: Boolean(accessToken),
     });
 }

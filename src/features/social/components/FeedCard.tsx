@@ -2,36 +2,19 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Bookmark, Flag, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2, Trophy } from 'lucide-react';
-import { Alert, Avatar, Card, IconChip } from '@/shared/ui';
+import { Bookmark, Flag, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2 } from 'lucide-react';
+import { Alert, Avatar, Card } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import type { FeedItem } from '../types';
 import { useLikePost, useUnlikePost, useCommentOnPost, useSavePost, useUnsavePost, useDeletePost } from '../hooks/useSocialMutations';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
+import { GoalSummaryBlock } from './GoalSummaryBlock';
 import { EditPostModal } from './EditPostModal';
 import { LikesModal } from './LikesModal';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 import { ReportContentDialog } from '@/features/moderation/components/ReportContentDialog';
 import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
-
-// ─── Goal block ────────────────────────────────────────────────────────────────
-
-function GoalAchievedBlock({ content }: { content?: string | null }) {
-    return (
-        <div className="rounded-xl border border-warning/25 mt-3 overflow-hidden">
-            <div className="flex items-center gap-2.5 px-3.5 py-3 bg-warning/5">
-                <IconChip icon={Trophy} size="sm" variant="warning" />
-                <div className="min-w-0">
-                    <p className="text-sm font-bold text-warning">Goal Achieved!</p>
-                    {content && (
-                        <p className="text-xs mt-0.5 text-warning/70">{content}</p>
-                    )}
-                </div>
-            </div>
-        </div>
-    );
-}
 
 // ─── Comment row ───────────────────────────────────────────────────────────────
 
@@ -231,7 +214,12 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                 )}
 
                 {item.type === 'GoalAchieved' && (
-                    <GoalAchievedBlock content={item.content} />
+                    <>
+                        {item.goalSummary && <GoalSummaryBlock summary={item.goalSummary} />}
+                        {item.content && (
+                            <p className="text-sm text-surface-600 mt-2.5 leading-relaxed">{item.content}</p>
+                        )}
+                    </>
                 )}
 
                 {item.media.length > 0 && (

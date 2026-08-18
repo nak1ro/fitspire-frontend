@@ -14,6 +14,7 @@ import {
     PublicGoal,
     PublicGoalPeriod,
     SaveResponse,
+    ShareGoalRequest,
     ShareWorkoutRequest,
     SocialProfileResponse,
     SocialUserSummary,
@@ -261,6 +262,16 @@ export const shareWorkout = (accessToken: string, data: ShareWorkoutRequest) =>
 
 export const getMySharedWorkoutIds = (accessToken: string) =>
     http<string[]>(SOCIAL_ROUTES.myWorkoutShares, { accessToken });
+
+export const shareGoal = (accessToken: string, data: ShareGoalRequest) =>
+    http<string>(SOCIAL_ROUTES.goalShares, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const getMySharedGoalIds = (accessToken: string) =>
+    http<string[]>(SOCIAL_ROUTES.myGoalShares, { accessToken });
 
 export const getPublicGoals = (accessToken: string, userId: string) =>
     http<PublicGoal[]>(SOCIAL_ROUTES.publicGoals(userId), { accessToken });
