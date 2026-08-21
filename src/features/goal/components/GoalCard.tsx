@@ -20,18 +20,25 @@ interface GoalCardProps {
 }
 
 export function GoalCard({ goal, category, onClick }: GoalCardProps) {
-    const pct = Math.min(100, Math.round(goal.milestonePercent));
-    const done = pct >= 100;
-    const overdue = isOverdue(goal);
+    // goal.milestonePercent is bucketed to 0/25/50/75/100 on the backend for milestone-notification
+    // gating — compute the real continuous percentage here instead so the bar/label match currentValue.
+    const rawPct = goal.targetValue > 0 ? (goal.currentValue / goal.targetValue) * 100 : 0;
+    const pct = Math.min(100, Math.max(0, Math.round(rawPct)));
+    const done = goal.status === 'Completed' || pct >= 100;
+    const failed = goal.status === 'Failed';
+    const archived = goal.status === 'Archived';
+    const overdue = !done && !failed && !archived && isOverdue(goal);
     const { Icon, color, bg } = getCategoryConfig(category);
 
     const barClass = done
         ? 'bg-success'
-        : overdue
+        : failed || overdue
         ? 'bg-error'
+        : archived
+        ? 'bg-surface-400'
         : 'bg-gradient-primary';
 
-    const pctColor = done ? 'text-success' : overdue ? 'text-error' : 'text-primary-600';
+    const pctColor = done ? 'text-success' : failed || overdue ? 'text-error' : archived ? 'text-surface-500' : 'text-primary-600';
 
     return (
         <Card padding="sm" interactive onClick={onClick} className="space-y-3">
@@ -42,8 +49,10 @@ export function GoalCard({ goal, category, onClick }: GoalCardProps) {
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">
                     {done && <Badge variant="success" size="sm">Done</Badge>}
-                    {overdue && !done && <Badge variant="error" size="sm">Overdue</Badge>}
-                    {goal.deadline && !done && (
+                    {failed && !done && <Badge variant="error" size="sm">Failed</Badge>}
+                    {archived && !done && !failed && <Badge variant="default" size="sm">Archived</Badge>}
+                    {overdue && <Badge variant="error" size="sm">Overdue</Badge>}
+                    {goal.deadline && !done && !failed && !archived && !overdue && (
                         <span className="text-[11px] text-surface-400">by {formatDeadline(goal.deadline)}</span>
                     )}
                 </div>

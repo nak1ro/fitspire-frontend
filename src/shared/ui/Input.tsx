@@ -28,10 +28,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
                         'flex h-11 w-full rounded-xl border px-4 text-sm text-foreground',
                         'bg-surface-50 placeholder:text-surface-400',
                         'transition-colors duration-150',
-                        'focus:outline-none focus:bg-primary-50 focus:border-primary-500',
+                        'focus:outline-none focus:border-primary-500',
                         'disabled:cursor-not-allowed disabled:opacity-50',
                         error
-                            ? 'border-error focus:border-error focus:bg-red-50'
+                            ? 'border-error focus:border-error'
                             : 'border-surface-200',
                         className
                     )}

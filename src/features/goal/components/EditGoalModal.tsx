@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import { Alert, Button, Input } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { toLocalDateInput } from '@/shared/lib/localDate';
 import { useUpdateGoal } from '../hooks/useGoals';
 import type { Goal } from '../types';
 
@@ -16,7 +17,7 @@ interface Props {
 export function EditGoalModal({ goal, open, onClose }: Props) {
     const [targetValue, setTargetValue] = useState(String(goal.targetValue));
     const [isPublic, setIsPublic] = useState(goal.isPublic);
-    const [deadline, setDeadline] = useState(goal.deadline ? goal.deadline.slice(0, 10) : '');
+    const [deadline, setDeadline] = useState(goal.deadline ? toLocalDateInput(goal.deadline) : '');
     const [submitError, setSubmitError] = useState<string | null>(null);
 
     const { mutateAsync, isPending } = useUpdateGoal();
@@ -25,7 +26,7 @@ export function EditGoalModal({ goal, open, onClose }: Props) {
         if (!open) return;
         setTargetValue(String(goal.targetValue));
         setIsPublic(goal.isPublic);
-        setDeadline(goal.deadline ? goal.deadline.slice(0, 10) : '');
+        setDeadline(goal.deadline ? toLocalDateInput(goal.deadline) : '');
         setSubmitError(null);
     }, [open, goal]);
 

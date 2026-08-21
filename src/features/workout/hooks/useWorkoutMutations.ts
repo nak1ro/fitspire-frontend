@@ -33,6 +33,12 @@ export function useCompleteWorkout() {
         onSuccess: async (_result, variables) => {
             await invalidateWorkoutDerivedQueries(queryClient, variables.workoutId);
         },
+        // A failed finish still leaves the workout created (InProgress) server-side from the
+        // preceding create call — refetch the active session so "unfinished session" banners
+        // pick it up immediately instead of only after the query naturally goes stale.
+        onError: async (_error, variables) => {
+            await invalidateWorkoutDerivedQueries(queryClient, variables.workoutId);
+        },
     });
 }
 
@@ -95,7 +101,7 @@ export function useCreateWorkoutFromRoutine() {
         mutationFn: ({ routineId, data }: { routineId: string; data: CreateWorkoutFromRoutineRequest }) =>
             createWorkoutFromRoutine(requireAccessToken(accessToken), routineId, data),
         onSuccess: async () => {
-            await queryClient.invalidateQueries({ queryKey: workoutQueryKeys.lists() });
+            await invalidateWorkoutDerivedQueries(queryClient);
         },
     });
 }

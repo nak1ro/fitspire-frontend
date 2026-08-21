@@ -27,7 +27,7 @@ function NumCell({ draft, onChange, onBlur, placeholder }: { draft: string; onCh
             placeholder={placeholder}
             onChange={e => onChange(e.target.value)}
             onBlur={onBlur}
-            className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:bg-primary-50 focus:border-primary-500"
+            className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:border-primary-500"
             style={{ colorScheme: 'light' }}
         />
     );
@@ -162,7 +162,7 @@ function ExerciseNotesEditor({ workoutId, exerciseEntryId, notes, onClose }: {
             maxLength={500}
             rows={2}
             placeholder="Notes for this exercise…"
-            className="w-full text-sm bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 outline-none resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+            className="w-full text-sm bg-surface-50 border border-surface-200 rounded-lg px-3 py-2 outline-none resize-none text-foreground placeholder:text-surface-400 focus:border-primary-500"
         />
     );
 }

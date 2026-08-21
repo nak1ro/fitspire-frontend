@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { todayLocalDateInput } from '@/shared/lib/localDate';
 import {
     useCreateCyclingWorkout,
     useCreateRunningWorkout,
@@ -20,7 +21,7 @@ import type {
     YogaStyle,
 } from '../types';
 
-const today = () => new Date().toISOString().split('T')[0];
+const today = todayLocalDateInput;
 
 type CardioType = Exclude<KnownWorkoutType, 'Gym'>;
 
@@ -225,7 +226,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                         value={date}
                         max={today()}
                         onChange={e => setDate(e.target.value)}
-                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:border-primary-500"
                     />
                 </div>
             </FormSection>
@@ -239,7 +240,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                     onChange={e => setNotes(e.target.value)}
                     placeholder="How did it go?"
                     rows={2}
-                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400 focus:border-primary-500"
                 />
                 <p className="text-[11px] text-surface-400">
                     {isPrivate ? 'Visible only to you.' : "Shown on your post — leave blank to use a default caption."}

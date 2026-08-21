@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check, Pencil } from 'lucide-react';
+import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check, Pencil, BookmarkPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
 import { useWorkout } from '../hooks/useWorkouts';
-import { useDeleteWorkout } from '../hooks/useWorkoutMutations';
+import { useDeleteWorkout, useSaveWorkoutAsRoutine } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
 import { Alert, Button, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
@@ -188,10 +188,15 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
     const [shared, setShared] = useState(false);
     const [shareError, setShareError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
+    const [savingRoutine, setSavingRoutine] = useState(false);
+    const [routineName, setRoutineName] = useState('');
+    const [routineSaved, setRoutineSaved] = useState(false);
+    const [routineError, setRoutineError] = useState<string | null>(null);
 
     const { data: workout, isLoading } = useWorkout(workoutId);
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
     const { mutate: shareWorkout, isPending: sharing } = useShareWorkout();
+    const { mutate: saveAsRoutine, isPending: savingRoutinePending } = useSaveWorkoutAsRoutine();
 
     // The parent keeps this component mounted and only swaps `workoutId`, so local
     // state must be reset per-workout rather than relying on unmount to clear it.
@@ -201,6 +206,10 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
         setShared(false);
         setShareError(null);
         setEditOpen(false);
+        setSavingRoutine(false);
+        setRoutineName('');
+        setRoutineSaved(false);
+        setRoutineError(null);
     }, [workoutId]);
 
     const handleShare = () => {
@@ -211,6 +220,25 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
             {
                 onSuccess: () => setShared(true),
                 onError: (err) => setShareError(getErrorMessage(err, 'Failed to share workout.')),
+            }
+        );
+    };
+
+    const openSaveRoutine = () => {
+        if (!workout) return;
+        setRoutineError(null);
+        setRoutineName(getTypeConfig(workout.workoutType).label);
+        setSavingRoutine(true);
+    };
+
+    const handleSaveRoutine = () => {
+        if (!workoutId || !routineName.trim()) return;
+        setRoutineError(null);
+        saveAsRoutine(
+            { workoutId, data: { name: routineName.trim() } },
+            {
+                onSuccess: () => { setRoutineSaved(true); setSavingRoutine(false); },
+                onError: (err) => setRoutineError(getErrorMessage(err, 'Failed to save routine.')),
             }
         );
     };
@@ -329,6 +357,50 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                                 {shared ? 'Shared to feed' : 'Share to feed'}
                             </Button>
                         </>
+                    )}
+                    {workout && workout.status === 'Completed' && !savingRoutine && (
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            fullWidth
+                            disabled={routineSaved}
+                            onClick={openSaveRoutine}
+                            className="gap-2"
+                        >
+                            {routineSaved ? <Check className="h-4 w-4" aria-hidden="true" /> : <BookmarkPlus className="h-4 w-4" aria-hidden="true" />}
+                            {routineSaved ? 'Saved as routine' : 'Save as routine'}
+                        </Button>
+                    )}
+                    {savingRoutine && (
+                        <div className="space-y-3">
+                            <div className="space-y-1.5">
+                                <label className="block text-xs font-medium text-surface-700">Routine name</label>
+                                <input
+                                    type="text"
+                                    value={routineName}
+                                    onChange={e => setRoutineName(e.target.value)}
+                                    maxLength={100}
+                                    autoFocus
+                                    className="flex h-10 w-full rounded-xl border border-surface-200 px-3 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
+                                />
+                            </div>
+                            {routineError && <Alert variant="error">{routineError}</Alert>}
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="primary"
+                                    size="md"
+                                    fullWidth
+                                    loading={savingRoutinePending}
+                                    disabled={!routineName.trim()}
+                                    onClick={handleSaveRoutine}
+                                >
+                                    Save routine
+                                </Button>
+                                <Button variant="secondary" size="md" fullWidth onClick={() => setSavingRoutine(false)}>
+                                    Cancel
+                                </Button>
+                            </div>
+                        </div>
                     )}
                     {!confirmDelete ? (
                         <button

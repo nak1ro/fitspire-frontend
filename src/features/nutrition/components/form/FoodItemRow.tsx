@@ -26,7 +26,7 @@ function MiniNumField({ label, value, onChange }: { label: string; value: number
                 value={value ?? ''}
                 onChange={e => onChange(e.target.value === '' ? null : Math.max(0, parseFloat(e.target.value)))}
                 placeholder="—"
-                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:bg-primary-50 focus:border-primary-500"
+                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:border-primary-500"
                 style={{ colorScheme: 'light' }}
             />
         </div>
@@ -88,7 +88,7 @@ export function FoodItemRow({ item, onChange, onRemove, onMoveUp, onMoveDown }: 
                         type="text"
                         value={item.name}
                         onChange={e => onChange({ name: e.target.value })}
-                        className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                     />
                     <div className="grid grid-cols-2 gap-2.5">
                         <MiniNumField label="Quantity" value={item.quantity} onChange={v => onChange({ quantity: v ?? 0 })} />
@@ -113,7 +113,7 @@ export function FoodItemRow({ item, onChange, onRemove, onMoveUp, onMoveDown }: 
                             onChange={e => onChange({ customUnitName: e.target.value })}
                             placeholder="Unit name (e.g. bowl)"
                             maxLength={50}
-                            className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                            className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                         />
                     )}
                     <div className="grid grid-cols-4 gap-2">

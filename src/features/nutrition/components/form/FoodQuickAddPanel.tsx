@@ -123,6 +123,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
         setError(null);
         if (!draft.name.trim()) { setError('Enter a food name.'); return; }
         if (!draft.quantity || draft.quantity <= 0) { setError('Enter a quantity.'); return; }
+        if (draft.quantityUnit === 'CustomServing' && !draft.customUnitName?.trim()) { setError('Enter a unit name.'); return; }
         if (!hasNutrition) { setError('Enter at least one nutrition value.'); return; }
 
         const item = toItemRequest(draft);
@@ -149,7 +150,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
                 placeholder="Food name"
                 maxLength={200}
                 autoFocus
-                className="w-full h-10 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                className="w-full h-10 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
             />
 
             <div className="grid grid-cols-2 gap-2.5">
@@ -159,7 +160,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
                     value={draft.quantity || ''}
                     onChange={e => patch({ quantity: parseFloat(e.target.value) || 0 })}
                     placeholder="Quantity"
-                    className="w-full h-9 px-3 text-sm text-center bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-9 px-3 text-sm text-center bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                 />
                 <select
                     value={draft.quantityUnit}
@@ -180,7 +181,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
                     onChange={e => patch({ customUnitName: e.target.value })}
                     placeholder="Unit name (e.g. bowl)"
                     maxLength={50}
-                    className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                 />
             )}
 
@@ -200,7 +201,7 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
                                 value={draft[field] ?? ''}
                                 onChange={e => patch({ [field]: e.target.value === '' ? null : Math.max(0, parseFloat(e.target.value)) })}
                                 placeholder="—"
-                                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                             />
                         </div>
                     );

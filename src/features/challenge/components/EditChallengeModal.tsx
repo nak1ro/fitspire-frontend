@@ -69,7 +69,7 @@ function CopyForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     maxLength={120}
-                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:border-primary-500"
                 />
             </div>
 
@@ -80,7 +80,7 @@ function CopyForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     onChange={e => setDescription(e.target.value)}
                     rows={3}
                     maxLength={1000}
-                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:border-primary-500"
                 />
             </div>
 
@@ -152,7 +152,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     value={title}
                     onChange={e => setTitle(e.target.value)}
                     maxLength={120}
-                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:border-primary-500"
                 />
             </div>
 
@@ -163,7 +163,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     onChange={e => setDescription(e.target.value)}
                     rows={2}
                     maxLength={1000}
-                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:border-primary-500"
                 />
             </div>
 
@@ -186,7 +186,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                         min={0}
                         value={targetValue}
                         onChange={e => setTargetValue(e.target.value)}
-                        className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:border-primary-500"
                     />
                 </div>
             )}
@@ -214,7 +214,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                             setStartDate(value);
                             if (endDate <= value) setEndDate(addDaysToDate(value, 1));
                         }}
-                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
                     />
                 </div>
                 <div className="space-y-1.5">
@@ -224,7 +224,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                         value={endDate}
                         min={addDaysToDate(startDate, 1)}
                         onChange={e => setEndDate(e.target.value)}
-                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
                     />
                 </div>
             </div>
@@ -248,7 +248,7 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
                     max={100}
                     value={participantLimit}
                     onChange={e => setParticipantLimit(e.target.value)}
-                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-11 px-4 text-sm bg-surface-50 border border-surface-200 rounded-xl outline-none focus:border-primary-500"
                 />
             </div>
 

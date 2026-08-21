@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { X, Plus, ChevronUp, Trash2 } from 'lucide-react';
 import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { todayLocalDateInput } from '@/shared/lib/localDate';
 import {
     useCreateMeal, useUpdateMeal, useDeleteMeal,
     useAddMealItem, useUpdateMealItem, useDeleteMealItem, useReorderMealItems,
@@ -107,6 +108,19 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
 
         if (items.length === 0) {
             setSubmitError('Add at least one food item.');
+            return;
+        }
+
+        const invalidItem = items.find(i =>
+            (i.data.quantityUnit === 'CustomServing' && !i.data.customUnitName?.trim()) ||
+            (!i.data.caloriesKcal && !i.data.proteinGrams && !i.data.carbsGrams && !i.data.fatGrams)
+        );
+        if (invalidItem) {
+            setSubmitError(
+                invalidItem.data.quantityUnit === 'CustomServing' && !invalidItem.data.customUnitName?.trim()
+                    ? `"${invalidItem.data.name}" is missing a unit name.`
+                    : `"${invalidItem.data.name}" needs at least one nutrition value.`
+            );
             return;
         }
 
@@ -214,9 +228,9 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
                             <input
                                 type="date"
                                 value={mealDate}
-                                max={new Date().toISOString().split('T')[0]}
+                                max={todayLocalDateInput()}
                                 onChange={e => setMealDate(e.target.value)}
-                                className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
+                                className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
                             />
                         </div>
                         <div className="space-y-1.5">
@@ -225,7 +239,7 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
                                 type="time"
                                 value={time}
                                 onChange={e => setTime(e.target.value)}
-                                className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:bg-primary-50 focus:border-primary-500"
+                                className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
                             />
                         </div>
                     </div>
@@ -281,7 +295,7 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
                             placeholder="Anything worth remembering…"
                             rows={2}
                             maxLength={1000}
-                            className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                            className="w-full text-sm bg-surface-50 border border-surface-200 rounded-xl px-4 py-2.5 outline-none resize-none text-foreground placeholder:text-surface-400 focus:border-primary-500"
                         />
                     </div>
 

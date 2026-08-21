@@ -30,6 +30,11 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
         setError(null);
         if (!draft.name.trim()) { setError('Enter a food name.'); return; }
         if (!draft.quantity || draft.quantity <= 0) { setError('Enter a quantity.'); return; }
+        if (draft.quantityUnit === 'CustomServing' && !draft.customUnitName?.trim()) { setError('Enter a unit name.'); return; }
+        if (!draft.caloriesKcal && !draft.proteinGrams && !draft.carbsGrams && !draft.fatGrams) {
+            setError('Enter at least one nutrition value.');
+            return;
+        }
 
         updateFavourite(
             { id: favourite.id, data: draft },
@@ -62,7 +67,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                         onChange={e => patch({ name: e.target.value })}
                         placeholder="Food name"
                         maxLength={200}
-                        className="w-full h-10 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                        className="w-full h-10 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                     />
 
                     <div className="grid grid-cols-2 gap-2.5">
@@ -72,7 +77,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                             value={draft.quantity || ''}
                             onChange={e => patch({ quantity: parseFloat(e.target.value) || 0 })}
                             placeholder="Quantity"
-                            className="w-full h-9 px-3 text-sm text-center bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                            className="w-full h-9 px-3 text-sm text-center bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                         />
                         <select
                             value={draft.quantityUnit}
@@ -93,7 +98,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                             onChange={e => patch({ customUnitName: e.target.value })}
                             placeholder="Unit name (e.g. bowl)"
                             maxLength={50}
-                            className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                            className="w-full h-9 px-3 text-sm bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                         />
                     )}
 
@@ -109,7 +114,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                                         value={draft[field] ?? ''}
                                         onChange={e => patch({ [field]: e.target.value === '' ? null : Math.max(0, parseFloat(e.target.value)) })}
                                         placeholder="—"
-                                        className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:bg-primary-50 focus:border-primary-500"
+                                        className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none focus:border-primary-500"
                                     />
                                 </div>
                             );

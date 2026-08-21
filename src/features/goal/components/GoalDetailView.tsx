@@ -142,7 +142,10 @@ export function GoalDetailView({ goalId }: { goalId: string }) {
     const { goal, currentPeriod, canEdit, canArchive } = detail;
     const category = goalTypes?.find((type) => type.id === goal.goalTypeId)?.category;
     const { Icon, color, bg } = getCategoryConfig(category);
-    const pct = Math.min(100, Math.round(goal.milestonePercent));
+    // goal.milestonePercent is bucketed to 0/25/50/75/100 on the backend for milestone-notification
+    // gating — compute the real continuous percentage here instead so the bar/label match currentValue.
+    const rawPct = goal.targetValue > 0 ? (goal.currentValue / goal.targetValue) * 100 : 0;
+    const pct = Math.min(100, Math.max(0, Math.round(rawPct)));
 
     const handleArchive = () => {
         if (!archiveConfirming) { setArchiveConfirming(true); return; }

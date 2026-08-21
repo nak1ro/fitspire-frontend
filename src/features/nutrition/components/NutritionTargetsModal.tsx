@@ -22,7 +22,7 @@ function Field({ label, unit, value, onChange }: { label: string; unit: string; 
                     value={value}
                     onChange={e => onChange(e.target.value)}
                     placeholder="—"
-                    className="w-full h-11 pl-4 pr-14 text-sm font-medium bg-background border border-surface-200 rounded-xl outline-none transition-colors text-foreground placeholder:text-surface-400 focus:bg-primary-50 focus:border-primary-500"
+                    className="w-full h-11 pl-4 pr-14 text-sm font-medium bg-background border border-surface-200 rounded-xl outline-none transition-colors text-foreground placeholder:text-surface-400 focus:border-primary-500"
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm text-surface-400 pointer-events-none">{unit}</span>
             </div>

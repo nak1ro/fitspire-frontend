@@ -23,7 +23,7 @@ export function NumField({ label, value, onChange, unit, required, step = 1, min
                     value={value}
                     onChange={e => onChange(e.target.value)}
                     placeholder="—"
-                    className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:bg-primary-50 focus:border-primary-500"
+                    className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 transition-colors duration-150 outline-none focus:border-primary-500"
                     style={unit ? { paddingRight: '3.25rem' } : undefined}
                 />
                 {unit && (

@@ -12,6 +12,7 @@ import { WorkoutTypeStep } from './WorkoutTypeStep';
 import { GymWorkoutForm } from './GymWorkoutForm';
 import { CardioWorkoutForm } from './CardioWorkoutForm';
 import { LiveSessionModal } from './LiveSessionModal';
+import { RoutinesSection } from './RoutinesSection';
 
 function ActiveSessionBanner({ onResume }: { onResume: () => void }) {
     const { data: activeSession } = useActiveWorkoutSession();
@@ -142,6 +143,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                     {step === 'type' && (
                         <>
                             <ActiveSessionBanner onResume={handleResume} />
+                            <RoutinesSection onStarted={handleResume} />
                             <WorkoutTypeStep onSelect={handleTypeSelect} />
                         </>
                     )}

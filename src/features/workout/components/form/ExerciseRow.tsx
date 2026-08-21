@@ -19,7 +19,7 @@ function Cell({ label, value, onChange, step = 1 }: { label: string; value: numb
                 step={step}
                 value={value}
                 onChange={e => onChange(e.target.value)}
-                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:bg-primary-50 focus:border-primary-500"
+                className="w-full h-9 text-center text-sm font-semibold bg-surface-50 border border-surface-200 rounded-lg outline-none transition-colors focus:border-primary-500"
                 style={{ colorScheme: 'light' }}
             />
         </div>
