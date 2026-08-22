@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { X, Camera, Trash2, Loader2 } from 'lucide-react';
 import { Alert, Button } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { todayLocalDateInput } from '@/shared/lib/localDate';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
 import { useAbortMediaUpload } from '@/features/media/hooks/useAbortMediaUpload';
 import { useCreateBodyCheckIn, useUpdateBodyCheckIn, useDeleteBodyCheckIn } from '../hooks/useBodyCheckIns';
@@ -14,10 +15,6 @@ interface Props {
     onClose: () => void;
     checkIn?: BodyCheckIn | null;
     defaultDate: string;
-}
-
-function today(): string {
-    return new Date().toISOString().split('T')[0];
 }
 
 function toNumberOrNull(v: string): number | null {
@@ -207,10 +204,9 @@ export function CheckInFormModal({ open, onClose, checkIn, defaultDate }: Props)
                         <input
                             type="date"
                             value={checkInDate}
-                            max={today()}
+                            max={todayLocalDateInput()}
                             onChange={e => setCheckInDate(e.target.value)}
-                            disabled={isEdit}
-                            className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500 disabled:opacity-60"
+                            className="flex h-11 w-full rounded-xl border border-surface-200 px-4 text-sm text-foreground bg-surface-50 outline-none focus:border-primary-500"
                         />
                     </div>
 
