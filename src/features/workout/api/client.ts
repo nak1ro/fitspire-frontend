@@ -177,6 +177,13 @@ export const getPersonalRecords = (accessToken: string) =>
         accessToken,
     });
 
+export const setFeaturedPersonalRecord = (accessToken: string, personalRecordId: string | null) =>
+    http<void>(WORKOUT_ROUTES.featuredPersonalRecord, {
+        method: 'PUT',
+        accessToken,
+        json: { personalRecordId },
+    });
+
 export const getActiveWorkoutSession = async (accessToken: string): Promise<WorkoutSession | null> =>
     (await http<WorkoutSession | undefined>(WORKOUT_ROUTES.activeSession, { accessToken })) ?? null;
 

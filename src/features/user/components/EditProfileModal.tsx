@@ -5,8 +5,10 @@ import { X, Camera, Loader2 } from 'lucide-react';
 import { Alert, Avatar } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
+import { KNOWN_TYPES, TYPE_CONFIG } from '@/features/workout/typeConfig';
 import { useUpdateUserProfile, useAttachUserProfilePicture, useRemoveUserProfilePicture } from '../hooks/useUserProfile';
-import type { UserProfile } from '../types';
+import { FITNESS_LEVELS, FITNESS_LEVEL_LABELS } from '../fitnessLevelConfig';
+import type { UserProfile, FavoriteSport, FitnessLevel } from '../types';
 
 interface Props {
     profile: UserProfile;
@@ -17,6 +19,9 @@ interface Props {
 export function EditProfileModal({ profile, open, onClose }: Props) {
     const [displayName, setDisplayName] = useState(profile.displayName);
     const [bio, setBio] = useState(profile.bio ?? '');
+    const [favoriteSport, setFavoriteSport] = useState<FavoriteSport | null>(profile.favoriteSport ?? null);
+    const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(profile.fitnessLevel ?? null);
+    const [heightCm, setHeightCm] = useState(profile.heightCm?.toString() ?? '');
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [photoError, setPhotoError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,13 +58,23 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
     useEffect(() => {
         setDisplayName(profile.displayName);
         setBio(profile.bio ?? '');
-    }, [profile.displayName, profile.bio]);
+        setFavoriteSport(profile.favoriteSport ?? null);
+        setFitnessLevel(profile.fitnessLevel ?? null);
+        setHeightCm(profile.heightCm?.toString() ?? '');
+    }, [profile.displayName, profile.bio, profile.favoriteSport, profile.fitnessLevel, profile.heightCm]);
 
     const handleSubmit = async () => {
         if (!displayName.trim()) return;
         setSubmitError(null);
         try {
-            await mutateAsync({ displayName: displayName.trim(), bio: bio.trim() || null });
+            const parsedHeight = heightCm.trim() === '' ? undefined : Number(heightCm);
+            await mutateAsync({
+                displayName: displayName.trim(),
+                bio: bio.trim() || null,
+                favoriteSport: favoriteSport ?? undefined,
+                fitnessLevel: fitnessLevel ?? undefined,
+                heightCm: parsedHeight,
+            });
             onClose();
         } catch (err) {
             setSubmitError(getErrorMessage(err, 'Failed to update profile. Please try again.'));
@@ -160,6 +175,75 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                             className="w-full text-sm bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400"
                         />
                         <p className="text-[11px] text-surface-400 text-right">{bio.length}/200</p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
+                            Favorite sport <span className="normal-case font-normal">(optional)</span>
+                        </label>
+                        <div className="flex gap-1.5">
+                            {KNOWN_TYPES.map(sport => {
+                                const { label, Icon, color, bg } = TYPE_CONFIG[sport];
+                                const selected = favoriteSport === sport;
+                                return (
+                                    <button
+                                        key={sport}
+                                        type="button"
+                                        onClick={() => setFavoriteSport(selected ? null : sport)}
+                                        title={label}
+                                        className="flex-1 flex flex-col items-center gap-1 py-2 rounded-xl border transition-all"
+                                        style={selected
+                                            ? { borderColor: color, backgroundColor: bg, color }
+                                            : { borderColor: 'var(--color-surface-200)' }}
+                                    >
+                                        <Icon className="h-4 w-4" aria-hidden="true" />
+                                        <span className="text-[10px] font-semibold">{label}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
+                            Fitness level <span className="normal-case font-normal">(optional)</span>
+                        </label>
+                        <div className="flex gap-1.5">
+                            {FITNESS_LEVELS.map(level => {
+                                const selected = fitnessLevel === level;
+                                return (
+                                    <button
+                                        key={level}
+                                        type="button"
+                                        onClick={() => setFitnessLevel(selected ? null : level)}
+                                        className={
+                                            'flex-1 py-2 rounded-xl text-xs font-semibold border transition-all ' +
+                                            (selected ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-surface-200 text-surface-500 hover:bg-surface-100')
+                                        }
+                                    >
+                                        {FITNESS_LEVEL_LABELS[level]}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
+                            Height <span className="normal-case font-normal">(optional, private)</span>
+                        </label>
+                        <div className="relative">
+                            <input
+                                type="number"
+                                min={50}
+                                max={260}
+                                value={heightCm}
+                                onChange={e => setHeightCm(e.target.value)}
+                                placeholder="—"
+                                className="w-full text-sm font-medium bg-background border border-surface-200 rounded-xl pl-3 pr-10 py-2.5 outline-none transition-colors text-foreground placeholder:text-surface-400"
+                            />
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-surface-400 pointer-events-none">cm</span>
+                        </div>
                     </div>
 
                     {submitError && <Alert variant="error">{submitError}</Alert>}

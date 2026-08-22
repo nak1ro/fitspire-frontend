@@ -3,6 +3,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 import { requireAccessToken } from '@/features/auth/lib/requireAccessToken';
+import { socialQueryKeys } from '@/features/social/hooks/queryKeys';
 import {
     completeWorkout,
     createWorkoutFromRoutine,
@@ -10,6 +11,7 @@ import {
     deleteWorkoutRoutine,
     restoreWorkout,
     saveWorkoutAsRoutine,
+    setFeaturedPersonalRecord,
     updateWorkout,
     updateWorkoutRoutine,
 } from '../api/client';
@@ -130,6 +132,22 @@ export function useUpdateWorkoutRoutine() {
             await Promise.all([
                 queryClient.invalidateQueries({ queryKey: workoutQueryKeys.routine(variables.routineId) }),
                 queryClient.invalidateQueries({ queryKey: workoutQueryKeys.routines() }),
+            ]);
+        },
+    });
+}
+
+export function useSetFeaturedPersonalRecord() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (personalRecordId: string | null) =>
+            setFeaturedPersonalRecord(requireAccessToken(accessToken), personalRecordId),
+        onSuccess: async () => {
+            await Promise.all([
+                queryClient.invalidateQueries({ queryKey: workoutQueryKeys.personalRecords() }),
+                queryClient.invalidateQueries({ queryKey: socialQueryKeys.all }),
             ]);
         },
     });

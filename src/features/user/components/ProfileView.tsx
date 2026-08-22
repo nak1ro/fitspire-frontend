@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useWorkouts } from '@/features/workout/hooks/useWorkouts';
 import { usePersonalRecords } from '@/features/workout/hooks/usePersonalRecords';
+import { useSetFeaturedPersonalRecord } from '@/features/workout/hooks/useWorkoutMutations';
 import { useSocialProfile, useIncomingFollowRequests } from '@/features/social/hooks/useSocialReads';
 import { FollowListModal } from '@/features/social/components/FollowListModal';
 import { FollowRequestsModal } from '@/features/social/components/FollowRequestsModal';
@@ -83,8 +84,11 @@ export function ProfileView() {
     const { data: socialProfile } = useSocialProfile(profile?.id ?? null);
     const { data: incomingRequests } = useIncomingFollowRequests();
     const { data: featuredBadgesPage } = useMyBadges({ featured: true, pageSize: 5 });
+    const { mutate: setFeaturedPersonalRecord } = useSetFeaturedPersonalRecord();
 
     const streak = useMemo(() => getCurrentStreak(workouts ?? []), [workouts]);
+    const featuredRecord = useMemo(() => personalRecords?.find(r => r.isFeatured) ?? null, [personalRecords]);
+    const handleTogglePin = (id: string) => setFeaturedPersonalRecord(id === featuredRecord?.id ? null : id);
     const featuredBadges = useMemo(
         () => (featuredBadgesPage?.items ?? []).map(item => ({
             id: item.badge.badgeId, name: item.badge.name, tier: item.badge.tier, iconUrl: item.badge.iconUrl,
@@ -107,6 +111,7 @@ export function ProfileView() {
                 followingCount={socialProfile?.followingCount}
                 incomingRequestCount={incomingRequests?.length ?? 0}
                 featuredBadges={featuredBadges}
+                featuredPersonalRecord={featuredRecord}
                 onEdit={() => setEditOpen(true)}
                 onShowFollowers={() => setListMode('followers')}
                 onShowFollowing={() => setListMode('following')}
@@ -122,7 +127,11 @@ export function ProfileView() {
                 <ProfileWorkoutsTab workouts={workouts ?? []} />
             )}
             {activeTab === 'records' && (
-                <ProfileRecordsTab records={personalRecords ?? []} />
+                <ProfileRecordsTab
+                    records={personalRecords ?? []}
+                    featuredRecordId={featuredRecord?.id}
+                    onTogglePin={handleTogglePin}
+                />
             )}
             {activeTab === 'body' && <BodyTrackingTab />}
             {activeTab === 'badges' && <BadgesTab />}

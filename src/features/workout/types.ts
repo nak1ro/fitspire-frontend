@@ -305,6 +305,7 @@ export interface PersonalRecord {
     exerciseId?: string | null;
     exerciseName?: string | null;
     achievedAt: string;
+    isFeatured: boolean;
 }
 
 export interface WorkoutSession {

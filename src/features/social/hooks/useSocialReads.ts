@@ -17,6 +17,7 @@ import {
     getPublicBadges,
     getPublicChallengeResults,
     getPublicFeaturedBadges,
+    getPublicFeaturedPersonalRecord,
     getPublicGoalPeriods,
     getPublicGoals,
     getSocialProfile,
@@ -172,6 +173,16 @@ export function usePublicFeaturedBadges(userId: string | null) {
     return useQuery({
         queryKey: socialQueryKeys.publicFeaturedBadges(userId ?? ''),
         queryFn: () => getPublicFeaturedBadges(requireAccessToken(accessToken), userId ?? ''),
+        enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicFeaturedPersonalRecord(userId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicFeaturedPersonalRecord(userId ?? ''),
+        queryFn: () => getPublicFeaturedPersonalRecord(requireAccessToken(accessToken), userId ?? ''),
         enabled: Boolean(accessToken && userId),
     });
 }

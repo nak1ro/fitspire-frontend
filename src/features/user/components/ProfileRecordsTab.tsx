@@ -1,40 +1,23 @@
-import { Trophy } from 'lucide-react';
+import { Trophy, Pin } from 'lucide-react';
 import { EmptyState, IconChip } from '@/shared/ui';
 import { getTypeConfig, resolveKnownType, KNOWN_TYPES } from '@/features/workout/typeConfig';
+import { formatMetric, formatDate, formatValue } from '@/features/workout/personalRecordFormat';
 import type { PersonalRecord } from '@/features/workout/types';
-
-function formatMetric(metric: string): string {
-    return metric.replace(/([A-Z])/g, ' $1').trim();
-}
-
-function formatDate(dateStr: string): string {
-    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function formatValue(metric: string, value: number): string {
-    const m = metric.toLowerCase();
-    if (m.includes('weight') || m.includes('volume')) return `${value} kg`;
-    if (m.includes('distance') && m.includes('km')) return `${value} km`;
-    if (m.includes('distance')) return `${value} m`;
-    if (m.includes('duration') || m.includes('time') || m.includes('minutes')) return `${value} min`;
-    if (m.includes('step')) return value.toLocaleString();
-    if (m.includes('calor')) return `${value} kcal`;
-    if (m.includes('elevation')) return `${value} m`;
-    return String(value);
-}
 
 interface PRCardProps {
     record: PersonalRecord;
     color: string;
     bg: string;
     border: string;
+    featured: boolean;
+    onTogglePin?: (id: string) => void;
 }
 
-function PRCard({ record, color, bg, border }: PRCardProps) {
+function PRCard({ record, color, bg, border, featured, onTogglePin }: PRCardProps) {
     return (
         <div
             className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
-            style={{ borderColor: border }}
+            style={{ borderColor: featured ? color : border }}
         >
             <IconChip icon={Trophy} size="sm" color={color} bg={bg} />
             <div className="flex-1 min-w-0">
@@ -44,15 +27,29 @@ function PRCard({ record, color, bg, border }: PRCardProps) {
             <span className="text-base font-extrabold shrink-0 tabular-nums" style={{ color }}>
                 {formatValue(record.metric, record.value)}
             </span>
+            {onTogglePin && (
+                <button
+                    type="button"
+                    onClick={() => onTogglePin(record.id)}
+                    aria-label={featured ? 'Unpin from profile' : 'Pin to profile'}
+                    title={featured ? 'Unpin from profile' : 'Pin to profile'}
+                    className="shrink-0 p-1.5 rounded-lg transition-colors"
+                    style={featured ? { color } : undefined}
+                >
+                    <Pin className={featured ? 'h-4 w-4 fill-current' : 'h-4 w-4 text-surface-300'} aria-hidden="true" />
+                </button>
+            )}
         </div>
     );
 }
 
 interface Props {
     records: PersonalRecord[];
+    featuredRecordId?: string | null;
+    onTogglePin?: (id: string) => void;
 }
 
-export function ProfileRecordsTab({ records }: Props) {
+export function ProfileRecordsTab({ records, featuredRecordId, onTogglePin }: Props) {
     if (records.length === 0) {
         return (
             <EmptyState
@@ -95,7 +92,15 @@ export function ProfileRecordsTab({ records }: Props) {
                         </p>
                         <div className="space-y-2">
                             {typeRecords.map(r => (
-                                <PRCard key={r.id} record={r} color={color} bg={bg} border={border} />
+                                <PRCard
+                                    key={r.id}
+                                    record={r}
+                                    color={color}
+                                    bg={bg}
+                                    border={border}
+                                    featured={r.id === featuredRecordId}
+                                    onTogglePin={onTogglePin}
+                                />
                             ))}
                         </div>
                     </div>

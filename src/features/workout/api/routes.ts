@@ -22,6 +22,7 @@ export const WORKOUT_ROUTES = {
     routines: '/api/workout/routines',
     routineById: (routineId: string) => `/api/workout/routines/${routineId}`,
     personalRecords: '/api/workout/personal-records',
+    featuredPersonalRecord: '/api/workout/personal-records/featured',
     gymExercises: (workoutId: string) => `/api/workout/gym/${workoutId}/exercises`,
     gymExercise: (workoutId: string, exerciseEntryId: string) => `/api/workout/gym/${workoutId}/exercises/${exerciseEntryId}`,
     gymExerciseOrder: (workoutId: string) => `/api/workout/gym/${workoutId}/exercises/order`,

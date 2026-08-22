@@ -1,4 +1,5 @@
 import { Media } from '@/features/media/types';
+import type { FavoriteSport, FitnessLevel } from '@/features/user/types';
 
 export interface FeedPagination {
     page?: number;
@@ -144,6 +145,18 @@ export interface SocialProfileResponse {
     followersCount: number;
     followingCount: number;
     relationship: SocialRelationship;
+    favoriteSport?: FavoriteSport | null;
+    fitnessLevel?: FitnessLevel | null;
+}
+
+export interface PublicPersonalRecord {
+    id: string;
+    workoutType: string;
+    metric: string;
+    unit: string;
+    value: number;
+    exerciseName?: string | null;
+    achievedAt: string;
 }
 
 export interface FollowRequestResponse {

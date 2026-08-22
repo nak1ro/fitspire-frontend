@@ -13,6 +13,7 @@ import {
     PublicChallengeResult,
     PublicGoal,
     PublicGoalPeriod,
+    PublicPersonalRecord,
     SaveResponse,
     ShareGoalRequest,
     ShareWorkoutRequest,
@@ -294,6 +295,9 @@ export const getPublicBadges = (
 
 export const getPublicFeaturedBadges = (accessToken: string, userId: string) =>
     http<PublicBadge[]>(SOCIAL_ROUTES.publicFeaturedBadges(userId), { accessToken });
+
+export const getPublicFeaturedPersonalRecord = async (accessToken: string, userId: string): Promise<PublicPersonalRecord | null> =>
+    (await http<PublicPersonalRecord | undefined>(SOCIAL_ROUTES.publicFeaturedPersonalRecord(userId), { accessToken })) ?? null;
 
 export const getPublicChallengeResults = (accessToken: string, userId: string) =>
     http<PublicChallengeResult[]>(SOCIAL_ROUTES.publicChallengeResults(userId), { accessToken });

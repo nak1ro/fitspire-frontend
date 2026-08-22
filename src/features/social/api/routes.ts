@@ -30,5 +30,6 @@ export const SOCIAL_ROUTES = {
     publicGoalPeriods: (userId: string) => `/api/social/users/${userId}/goal-periods`,
     publicBadges: (userId: string) => `/api/social/users/${userId}/badges`,
     publicFeaturedBadges: (userId: string) => `/api/social/users/${userId}/badges/featured`,
+    publicFeaturedPersonalRecord: (userId: string) => `/api/social/users/${userId}/personal-records/featured`,
     publicChallengeResults: (userId: string) => `/api/social/users/${userId}/challenge-results`,
 } as const;

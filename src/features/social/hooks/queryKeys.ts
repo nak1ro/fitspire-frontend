@@ -40,6 +40,7 @@ export const socialQueryKeys = {
     publicBadges: (userId: string, category?: string, pagination?: FeedPagination) =>
         [...socialQueryKeys.gamification(userId), 'badges', category ?? null, pagination ?? {}] as const,
     publicFeaturedBadges: (userId: string) => [...socialQueryKeys.gamification(userId), 'badges', 'featured'] as const,
+    publicFeaturedPersonalRecord: (userId: string) => [...socialQueryKeys.gamification(userId), 'personal-records', 'featured'] as const,
     publicChallengeResults: (userId: string) => [...socialQueryKeys.gamification(userId), 'challenge-results'] as const,
     followRequests: () => [...socialQueryKeys.all, 'follow-requests'] as const,
     incomingFollowRequests: (pagination?: FeedPagination) =>

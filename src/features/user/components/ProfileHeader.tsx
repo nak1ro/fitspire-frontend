@@ -3,6 +3,8 @@ import Link from 'next/link';
 import { Pencil, Dumbbell, Flame, Trophy, UserCheck, Sparkles } from 'lucide-react';
 import { Avatar, Badge } from '@/shared/ui';
 import { FeaturedBadgesStrip, type FeaturedBadgeItem } from '@/features/badge/components/FeaturedBadgesStrip';
+import { FeaturedPersonalRecordCard, type FeaturedPersonalRecordItem } from '@/features/workout/components/FeaturedPersonalRecordCard';
+import { FitnessProfileChips } from './FitnessProfileChips';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -14,6 +16,7 @@ interface Props {
     followingCount?: number;
     incomingRequestCount?: number;
     featuredBadges?: FeaturedBadgeItem[];
+    featuredPersonalRecord?: FeaturedPersonalRecordItem | null;
     onEdit: () => void;
     onShowFollowers?: () => void;
     onShowFollowing?: () => void;
@@ -44,7 +47,7 @@ function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
 
 export function ProfileHeader({
     profile, totalWorkouts, streak, totalPRs,
-    followersCount, followingCount, incomingRequestCount, featuredBadges,
+    followersCount, followingCount, incomingRequestCount, featuredBadges, featuredPersonalRecord,
     onEdit, onShowFollowers, onShowFollowing, onShowRequests,
 }: Props) {
     return (
@@ -100,10 +103,15 @@ export function ProfileHeader({
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
             )}
 
+            <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
+
             {/* Featured badges */}
             {featuredBadges && featuredBadges.length > 0 && (
                 <FeaturedBadgesStrip badges={featuredBadges} />
             )}
+
+            {/* Pinned personal record */}
+            {featuredPersonalRecord && <FeaturedPersonalRecordCard record={featuredPersonalRecord} />}
 
             {/* Followers / following */}
             {(followersCount !== undefined || followingCount !== undefined) && (

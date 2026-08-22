@@ -4,7 +4,9 @@ import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Avatar } from '@/shared/ui';
 import { FeaturedBadgesStrip } from '@/features/badge/components/FeaturedBadgesStrip';
-import { usePublicFeaturedBadges } from '../hooks/useSocialReads';
+import { FeaturedPersonalRecordCard } from '@/features/workout/components/FeaturedPersonalRecordCard';
+import { FitnessProfileChips } from '@/features/user/components/FitnessProfileChips';
+import { usePublicFeaturedBadges, usePublicFeaturedPersonalRecord } from '../hooks/useSocialReads';
 import { FollowButton } from './FollowButton';
 import { FollowListModal } from './FollowListModal';
 import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
@@ -17,6 +19,7 @@ interface Props {
 export function UserProfileHeader({ profile }: Props) {
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
     const { data: featuredBadges } = usePublicFeaturedBadges(profile.id);
+    const { data: featuredRecord } = usePublicFeaturedPersonalRecord(profile.id);
     const canReport = profile.relationship !== 'self';
 
     return (
@@ -50,11 +53,15 @@ export function UserProfileHeader({ profile }: Props) {
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
             )}
 
+            <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
+
             {featuredBadges && featuredBadges.length > 0 && (
                 <FeaturedBadgesStrip
                     badges={featuredBadges.map(badge => ({ id: badge.badgeId, name: badge.name, tier: badge.tier, iconUrl: badge.iconUrl }))}
                 />
             )}
+
+            {featuredRecord && <FeaturedPersonalRecordCard record={featuredRecord} />}
 
             <div className="flex items-center gap-5">
                 <button
