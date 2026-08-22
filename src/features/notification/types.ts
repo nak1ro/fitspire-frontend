@@ -15,7 +15,7 @@ export type NotificationType =
     | 'ChallengeWon'
     | 'BadgeEarned'
     | 'ChallengeUpdated';
-export type NotificationReferenceType = 'user' | 'post' | 'comment' | 'goal' | 'challenge' | 'badge';
+export type NotificationReferenceType = 'user' | 'post' | 'goal' | 'challenge' | 'badge';
 
 export interface NotificationPagination {
     page?: number;

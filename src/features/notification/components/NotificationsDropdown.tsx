@@ -1,14 +1,24 @@
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkAllNotificationsRead, useMarkNotificationRead } from '../hooks/useNotificationMutations';
+import { resolveNotificationHref } from '../lib/resolveNotificationHref';
 import { NotificationRow } from './NotificationRow';
+import type { AppNotification } from '../types';
 
 export function NotificationsDropdown() {
+    const router = useRouter();
     const { data: notifications } = useNotifications({ pageSize: 6 });
     const markAllRead = useMarkAllNotificationsRead();
     const markRead = useMarkNotificationRead();
     const hasUnread = (notifications ?? []).some((n) => !n.isRead);
+
+    const handleClick = (notification: AppNotification) => {
+        if (!notification.isRead) markRead.mutate(notification.id);
+        const href = resolveNotificationHref(notification);
+        if (href) router.push(href);
+    };
 
     return (
         <div
@@ -40,7 +50,7 @@ export function NotificationsDropdown() {
                         <NotificationRow
                             key={notification.id}
                             notification={notification}
-                            onClick={() => { if (!notification.isRead) markRead.mutate(notification.id); }}
+                            onClick={() => handleClick(notification)}
                         />
                     ))
                 )}
