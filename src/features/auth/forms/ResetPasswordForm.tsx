@@ -8,6 +8,7 @@ import { useSearchParams } from 'next/navigation';
 import { Button, Input, Alert } from '@/shared/ui';
 import { Typography } from '@/shared/ui/Typography';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { STRONG_PASSWORD_HINT } from '@/shared/lib/strongPassword';
 import { ResetPasswordData, resetPasswordSchema } from '../schemas/reset-password.schema';
 import { useResetPassword } from '../hooks/useResetPassword';
 
@@ -75,6 +76,7 @@ export function ResetPasswordForm() {
                     type="password"
                     placeholder="********"
                     autoComplete="new-password"
+                    hint={STRONG_PASSWORD_HINT}
                     error={errors.newPassword?.message}
                     {...register('newPassword')}
                 />

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { X, Camera, Loader2 } from 'lucide-react';
-import { Alert, Avatar } from '@/shared/ui';
+import { Alert, Avatar, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUploadMedia } from '@/features/media/hooks/useUploadMedia';
 import { KNOWN_TYPES, TYPE_CONFIG } from '@/features/workout/typeConfig';
@@ -22,6 +22,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
     const [favoriteSport, setFavoriteSport] = useState<FavoriteSport | null>(profile.favoriteSport ?? null);
     const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(profile.fitnessLevel ?? null);
     const [heightCm, setHeightCm] = useState(profile.heightCm?.toString() ?? '');
+    const [isPrivate, setIsPrivate] = useState(profile.isPrivate);
     const [submitError, setSubmitError] = useState<string | null>(null);
     const [photoError, setPhotoError] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -61,7 +62,8 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
         setFavoriteSport(profile.favoriteSport ?? null);
         setFitnessLevel(profile.fitnessLevel ?? null);
         setHeightCm(profile.heightCm?.toString() ?? '');
-    }, [profile.displayName, profile.bio, profile.favoriteSport, profile.fitnessLevel, profile.heightCm]);
+        setIsPrivate(profile.isPrivate);
+    }, [profile.displayName, profile.bio, profile.favoriteSport, profile.fitnessLevel, profile.heightCm, profile.isPrivate]);
 
     const handleSubmit = async () => {
         if (!displayName.trim()) return;
@@ -74,6 +76,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                 favoriteSport: favoriteSport ?? undefined,
                 fitnessLevel: fitnessLevel ?? undefined,
                 heightCm: parsedHeight,
+                isPrivate,
             });
             onClose();
         } catch (err) {
@@ -157,7 +160,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                             value={displayName}
                             onChange={e => setDisplayName(e.target.value)}
                             placeholder="Your name"
-                            maxLength={60}
+                            maxLength={30}
                             className="w-full text-sm font-medium bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors text-foreground placeholder:text-surface-400"
                         />
                     </div>
@@ -171,10 +174,10 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                             onChange={e => setBio(e.target.value)}
                             placeholder="A short bio…"
                             rows={3}
-                            maxLength={200}
+                            maxLength={300}
                             className="w-full text-sm bg-background border border-surface-200 rounded-xl px-3 py-2.5 outline-none transition-colors resize-none text-foreground placeholder:text-surface-400"
                         />
-                        <p className="text-[11px] text-surface-400 text-right">{bio.length}/200</p>
+                        <p className="text-[11px] text-surface-400 text-right">{bio.length}/300</p>
                     </div>
 
                     <div className="space-y-1.5">
@@ -244,6 +247,15 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                             />
                             <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-surface-400 pointer-events-none">cm</span>
                         </div>
+                    </div>
+
+                    <div className="px-3 py-2.5 bg-background border border-surface-200 rounded-xl">
+                        <Toggle
+                            label="Private account"
+                            subtitle="Only approved followers can see your posts and activity"
+                            checked={isPrivate}
+                            onChange={setIsPrivate}
+                        />
                     </div>
 
                     {submitError && <Alert variant="error">{submitError}</Alert>}

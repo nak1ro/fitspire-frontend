@@ -10,6 +10,7 @@ import { SignUpData, signUpSchema } from '../schemas/sign-up.schema';
 import { useEmailSignUp } from '../hooks/useEmailSignUp';
 import { Button, Input, Alert, Divider, OAuthButton } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { STRONG_PASSWORD_HINT } from '@/shared/lib/strongPassword';
 
 // ─── Step indicator ────────────────────────────────────────────────────────────
 
@@ -174,6 +175,7 @@ export function SignUpForm() {
                         type="password"
                         placeholder="••••••••"
                         autoComplete="new-password"
+                        hint={STRONG_PASSWORD_HINT}
                         error={errors.password?.message}
                         {...register('password')}
                     />

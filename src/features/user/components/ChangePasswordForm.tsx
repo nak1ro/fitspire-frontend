@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { Alert, Button, Input } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { STRONG_PASSWORD_HINT } from '@/shared/lib/strongPassword';
 import { useChangePassword } from '@/features/auth/hooks/useChangePassword';
-
-const STRONG_PASSWORD_HINT = 'At least 8 characters, with an uppercase letter, a lowercase letter, a digit, and a special character.';
 
 function validateNewPassword(password: string): string | null {
     if (password.length < 8) return STRONG_PASSWORD_HINT;
