@@ -18,3 +18,16 @@ export function toLocalDateInput(date: Date | string): string {
     const d = typeof date === 'string' ? new Date(date) : date;
     return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
+
+/**
+ * Converts a date-only workout field into the local datetime expected by the API.
+ * Workouts logged for today use the actual submission time so that newly created
+ * goals and challenges can include them; historical entries stay at local midnight.
+ */
+export function toWorkoutOccurrenceInput(date: string, now = new Date()): string {
+    if (date !== toLocalDateInput(now)) {
+        return `${date}T00:00:00`;
+    }
+
+    return `${date}T${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+}

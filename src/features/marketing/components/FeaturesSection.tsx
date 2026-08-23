@@ -1,36 +1,67 @@
-import { Users, Dumbbell, Trophy, TrendingUp, type LucideIcon } from 'lucide-react';
+import { Sparkles, Users, Dumbbell, Apple, Trophy, Award, Flame, type LucideIcon } from 'lucide-react';
 import { FadeIn } from '@/shared/ui/FadeIn';
 import { IconChip, EyebrowBadge } from '@/shared/ui';
 import React from 'react';
 
-// ─── Per-card color palette ────────────────────────────────────────────────────
+// ─── Per-card color palette — sourced from the same accents used inside the app ─
+// (workouts blue / streak+goal orange / AI violet / nutrition terracotta / badge gold)
 
 const COLORS = {
+    coach: {
+        iconBg: 'rgba(124,58,237,0.08)',
+        iconFg: '#7C3AED',
+        bar: 'linear-gradient(to right, #7C3AED, #A78BFA, transparent)',
+    },
     feed: {
         iconBg: 'rgba(5,150,105,0.08)',
         iconFg: '#059669',
         bar: 'linear-gradient(to right, #059669, #34D399, transparent)',
     },
     workout: {
-        iconBg: 'rgba(74,124,95,0.08)',
-        iconFg: '#4A7C5F',
-        bar: 'linear-gradient(to right, #4A7C5F, #7AB895, transparent)',
+        iconBg: 'rgba(37,99,235,0.08)',
+        iconFg: '#2563EB',
+        bar: 'linear-gradient(to right, #2563EB, #60A5FA, transparent)',
     },
-    challenges: {
-        iconBg: 'rgba(184,134,11,0.08)',
-        iconFg: '#B8860B',
-        bar: 'linear-gradient(to right, #B8860B, #D4A843, transparent)',
+    nutrition: {
+        iconBg: 'rgba(194,112,61,0.08)',
+        iconFg: '#C2703D',
+        bar: 'linear-gradient(to right, #C2703D, #E0A672, transparent)',
     },
-    progress: {
-        iconBg: 'rgba(58,122,138,0.08)',
-        iconFg: '#3A7A8A',
-        bar: 'linear-gradient(to right, #3A7A8A, #6AAABB, transparent)',
+    goals: {
+        iconBg: 'rgba(234,88,12,0.08)',
+        iconFg: '#EA580C',
+        bar: 'linear-gradient(to right, #EA580C, #FB923C, transparent)',
+    },
+    badges: {
+        iconBg: 'rgba(201,162,39,0.08)',
+        iconFg: '#C9A227',
+        bar: 'linear-gradient(to right, #C9A227, #E4C766, transparent)',
     },
 } as const;
 
 type ColorKey = keyof typeof COLORS;
 
 // ─── Mockup visuals ────────────────────────────────────────────────────────────
+
+function CoachMockup() {
+    return (
+        <div className="mt-4 rounded-xl border border-surface-100 bg-surface p-3 space-y-2.5">
+            <div className="flex items-center gap-1.5">
+                <Sparkles className="h-3 w-3" style={{ color: '#7C3AED' }} aria-hidden="true" />
+                <span className="text-[9px] font-bold uppercase tracking-wide" style={{ color: '#7C3AED' }}>
+                    Today&apos;s guidance
+                </span>
+            </div>
+            <p className="text-xs font-semibold text-foreground leading-snug">
+                Recovery looks low — ease into today&apos;s session.
+            </p>
+            <div className="flex items-center gap-2 rounded-lg border border-surface-100 bg-background px-2.5 py-2">
+                <span className="text-[9px] font-medium text-surface-400 shrink-0">Next action</span>
+                <span className="text-[10px] font-semibold text-foreground truncate">15-min mobility + protein-rich breakfast</span>
+            </div>
+        </div>
+    );
+}
 
 function FeedMockup() {
     const posts = [
@@ -85,7 +116,39 @@ function WorkoutMockup() {
     );
 }
 
-function ChallengeMockup() {
+function NutritionMockup() {
+    const macros = [
+        { label: 'Protein', value: '142g', pct: 78 },
+        { label: 'Carbs', value: '210g', pct: 55 },
+        { label: 'Fat', value: '58g', pct: 64 },
+    ];
+    return (
+        <div className="mt-4 space-y-2.5">
+            <div className="flex items-baseline justify-between">
+                <p className="text-[10px] font-semibold uppercase tracking-wide text-surface-500">Today</p>
+                <p className="text-sm font-bold text-foreground">
+                    1,840 <span className="text-xs font-medium text-surface-400">/ 2,200 kcal</span>
+                </p>
+            </div>
+            <div className="space-y-1.5">
+                {macros.map(macro => (
+                    <div key={macro.label} className="flex items-center gap-2">
+                        <span className="text-[10px] text-surface-500 w-11 shrink-0">{macro.label}</span>
+                        <div className="flex-1 h-1.5 rounded-full bg-surface overflow-hidden">
+                            <div
+                                className="h-full rounded-full"
+                                style={{ width: `${macro.pct}%`, background: 'linear-gradient(to right, #C2703D, #E0A672)' }}
+                            />
+                        </div>
+                        <span className="text-[10px] font-semibold text-foreground w-9 text-right shrink-0">{macro.value}</span>
+                    </div>
+                ))}
+            </div>
+        </div>
+    );
+}
+
+function GoalsMockup() {
     return (
         <div className="mt-4 rounded-xl border border-surface-100 bg-surface p-3 space-y-3">
             <div className="flex items-start gap-2">
@@ -94,7 +157,7 @@ function ChallengeMockup() {
                 </p>
                 <span
                     className="text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide shrink-0 border"
-                    style={{ background: 'rgba(184,134,11,0.08)', color: '#B8860B', borderColor: 'rgba(184,134,11,0.25)' }}
+                    style={{ background: 'rgba(234,88,12,0.08)', color: '#EA580C', borderColor: 'rgba(234,88,12,0.25)' }}
                 >
                     Active
                 </span>
@@ -104,7 +167,7 @@ function ChallengeMockup() {
                     <div
                         key={init}
                         className="w-6 h-6 rounded-full border-2 border-background flex items-center justify-center text-[9px] font-bold"
-                        style={{ backgroundColor: 'rgba(184,134,11,0.10)', color: '#B8860B' }}
+                        style={{ backgroundColor: 'rgba(234,88,12,0.10)', color: '#EA580C' }}
                     >
                         {init}
                     </div>
@@ -121,7 +184,7 @@ function ChallengeMockup() {
                 <div className="h-2 rounded-full bg-background overflow-hidden">
                     <div
                         className="h-full rounded-full"
-                        style={{ width: '60%', background: 'linear-gradient(to right, #B8860B, #D4A843)' }}
+                        style={{ width: '60%', background: 'linear-gradient(to right, #EA580C, #FB923C)' }}
                     />
                 </div>
             </div>
@@ -129,53 +192,29 @@ function ChallengeMockup() {
     );
 }
 
-function ProgressMockup() {
-    const data = [70, 75, 72, 80, 82, 85, 88, 92];
-    const labels = ['W1', 'W2', 'W3', 'W4', 'W5', 'W6', 'W7', 'W8'];
-    const max = Math.max(...data);
-    const min = Math.min(...data);
-    const W = 240, H = 56, PAD = 6;
-    const points = data.map((v, i): [number, number] => [
-        (i / (data.length - 1)) * W,
-        H - PAD - ((v - min) / (max - min)) * (H - PAD * 2),
-    ]);
-    const polylineStr = points.map(([x, y]) => `${x},${y}`).join(' ');
-    const areaStr = `0,${H} ${polylineStr} ${W},${H}`;
-    const [lastX, lastY] = points[points.length - 1];
-
+function BadgesMockup() {
+    const badges = [
+        { tier: 'Bronze', color: '#B87333', bg: 'rgba(184,115,51,0.10)' },
+        { tier: 'Silver', color: '#8B95A1', bg: 'rgba(139,149,161,0.12)' },
+        { tier: 'Gold', color: '#C9A227', bg: 'rgba(201,162,39,0.12)' },
+    ];
     return (
-        <div className="mt-4 space-y-2">
-            <div className="flex items-baseline justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-wide text-surface-500">Bench 1RM</p>
-                <p className="text-sm font-bold text-foreground">
-                    92 kg{' '}
-                    <span className="text-xs font-medium" style={{ color: '#3A7A8A' }}>↑ +22 kg</span>
-                </p>
-            </div>
-            <div className="rounded-xl bg-surface p-3 overflow-hidden">
-                <svg viewBox={`0 0 ${W} ${H}`} className="w-full" preserveAspectRatio="none" style={{ height: H }}>
-                    <defs>
-                        <linearGradient id="fitspire-progress-fill" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="rgba(58,122,138,0.22)" />
-                            <stop offset="100%" stopColor="rgba(58,122,138,0)" />
-                        </linearGradient>
-                    </defs>
-                    <polygon points={areaStr} fill="url(#fitspire-progress-fill)" />
-                    <polyline
-                        points={polylineStr}
-                        fill="none"
-                        stroke="#3A7A8A"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                    />
-                    <circle cx={lastX} cy={lastY} r="3.5" fill="#3A7A8A" />
-                </svg>
-            </div>
-            <div className="flex justify-between px-0.5">
-                {labels.map(l => (
-                    <span key={l} className="text-[9px] text-surface-400">{l}</span>
+        <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex items-center gap-2">
+                {badges.map(badge => (
+                    <div
+                        key={badge.tier}
+                        className="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-chip"
+                        style={{ backgroundColor: badge.bg }}
+                    >
+                        <Award className="h-5 w-5" style={{ color: badge.color }} aria-hidden="true" />
+                    </div>
                 ))}
+            </div>
+            <div className="flex-1 flex items-center gap-2 rounded-xl border border-surface-100 bg-surface px-3 py-2.5">
+                <Flame className="h-4 w-4 shrink-0" style={{ color: '#EA580C' }} aria-hidden="true" />
+                <span className="text-xs font-semibold text-foreground">12-day streak</span>
+                <span className="ml-auto text-[10px] text-surface-400 shrink-0">Personal best</span>
             </div>
         </div>
     );
@@ -234,6 +273,16 @@ export function FeaturesSection() {
 
                         <div className="sm:col-span-2">
                             <FeatureCard
+                                Icon={Sparkles}
+                                title="AI Coach"
+                                description="Daily guidance, weekly reports, and answers to your training questions — powered by AI, grounded in your actual data."
+                                visual={<CoachMockup />}
+                                colorKey="coach"
+                            />
+                        </div>
+
+                        <div>
+                            <FeatureCard
                                 Icon={Users}
                                 title="Social Feed"
                                 description="See every PR, milestone, and session from your community. Cheer them on or let your numbers do the talking."
@@ -254,21 +303,31 @@ export function FeaturesSection() {
 
                         <div>
                             <FeatureCard
-                                Icon={Trophy}
-                                title="Challenges"
-                                description="Create a challenge, set the goal, invite friends — and see who rises to it."
-                                visual={<ChallengeMockup />}
-                                colorKey="challenges"
+                                Icon={Apple}
+                                title="Nutrition Tracking"
+                                description="Log meals, hit your macros, and see exactly how your plate lines up with your training."
+                                visual={<NutritionMockup />}
+                                colorKey="nutrition"
                             />
                         </div>
 
-                        <div className="sm:col-span-2">
+                        <div>
                             <FeatureCard
-                                Icon={TrendingUp}
-                                title="Progress Tracking"
-                                description="Watch your numbers climb over weeks and months. Every session adds another point to your story."
-                                visual={<ProgressMockup />}
-                                colorKey="progress"
+                                Icon={Trophy}
+                                title="Goals & Challenges"
+                                description="Set a target, invite a friend, and race each other to it — or chase your own goal at your own pace."
+                                visual={<GoalsMockup />}
+                                colorKey="goals"
+                            />
+                        </div>
+
+                        <div className="sm:col-span-3">
+                            <FeatureCard
+                                Icon={Award}
+                                title="Badges & Streaks"
+                                description="Earn badges for the milestones that matter and keep your streak alive, one workout at a time."
+                                visual={<BadgesMockup />}
+                                colorKey="badges"
                             />
                         </div>
 

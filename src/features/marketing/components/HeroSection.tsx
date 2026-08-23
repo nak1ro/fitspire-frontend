@@ -88,7 +88,7 @@ function WorkoutCard() {
     );
 }
 
-const statChips = ['Free to join', 'Workout tracking', 'Live challenges', 'Community feed'];
+const statChips = ['Free to join', 'AI coaching', 'Workout tracking', 'Live challenges', 'Community feed'];
 
 export function HeroSection() {
     return (

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { todayLocalDateInput } from '@/shared/lib/localDate';
+import { toWorkoutOccurrenceInput, todayLocalDateInput } from '@/shared/lib/localDate';
 import {
     useCreateCyclingWorkout,
     useCreateRunningWorkout,
@@ -86,13 +86,13 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
 
     const handleSubmit = async () => {
         setSubmitError(null);
-        const isoDate = new Date(date).toISOString();
+        const occurredAt = toWorkoutOccurrenceInput(date);
 
         try {
             if (type === 'Running') {
                 if (!runDistance) { setSubmitError('Distance is required.'); return; }
                 await createRunning({
-                    date: isoDate,
+                    date: occurredAt,
                     distanceKm: parseFloat(runDistance),
                     durationMinutes: num(duration),
                     elevationGainMeters: num(runElevation),
@@ -104,7 +104,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
             } else if (type === 'Cycling') {
                 if (!cycleDistance) { setSubmitError('Distance is required.'); return; }
                 await createCycling({
-                    date: isoDate,
+                    date: occurredAt,
                     distanceKm: parseFloat(cycleDistance),
                     durationMinutes: num(duration),
                     elevationGainMeters: num(cycleElevation),
@@ -123,7 +123,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                     return;
                 }
                 await createSwimming({
-                    date: isoDate,
+                    date: occurredAt,
                     distanceMeters: swimMode === 'distance' ? num(swimDistance) : null,
                     laps: swimMode === 'laps' ? int(swimLaps) : null,
                     poolLengthMeters: swimMode === 'laps' ? num(swimPoolLength) : null,
@@ -135,7 +135,7 @@ export function CardioWorkoutForm({ type, onSuccess }: Props) {
                 });
             } else {
                 await createYoga({
-                    date: isoDate,
+                    date: occurredAt,
                     durationMinutes: num(duration),
                     style: yogaStyle || null,
                     intensity: yogaIntensity || null,

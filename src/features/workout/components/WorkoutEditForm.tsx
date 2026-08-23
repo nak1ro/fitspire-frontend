@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { todayLocalDateInput } from '@/shared/lib/localDate';
+import { toLocalDateInput, toWorkoutOccurrenceInput, todayLocalDateInput } from '@/shared/lib/localDate';
 import { useUpdateWorkout } from '../hooks/useWorkoutMutations';
 import { resolveKnownType } from '../typeConfig';
 import { FormSection } from './form/FormSection';
@@ -55,7 +55,8 @@ export function WorkoutEditForm({ workout, onSuccess }: Props) {
     const knownType = resolveKnownType(workout.workoutType);
 
     // Common
-    const [date, setDate] = useState(workout.date.slice(0, 10));
+    const initialDate = toLocalDateInput(workout.date);
+    const [date, setDate] = useState(initialDate);
     const [duration, setDuration] = useState(numToStr(workout.durationMinutes));
     const [notes, setNotes] = useState(workout.notes ?? '');
     const [isPrivate, setIsPrivate] = useState(workout.isPrivate);
@@ -109,7 +110,7 @@ export function WorkoutEditForm({ workout, onSuccess }: Props) {
         }
 
         const data: UpdateWorkoutRequest = {
-            date: new Date(date).toISOString(),
+            date: date === initialDate ? workout.date : toWorkoutOccurrenceInput(date),
             durationMinutes: num(duration),
             notes: notes || null,
             isPrivate,

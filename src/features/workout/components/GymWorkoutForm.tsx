@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Plus, ChevronUp } from 'lucide-react';
 import { Alert, Button, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { todayLocalDateInput } from '@/shared/lib/localDate';
+import { toWorkoutOccurrenceInput, todayLocalDateInput } from '@/shared/lib/localDate';
 import { useCreateGymWorkout } from '../hooks/useCreateWorkout';
 import { useCompleteWorkout } from '../hooks/useWorkoutMutations';
 import { ExerciseSearchPanel } from './ExerciseSearchPanel';
@@ -87,7 +87,7 @@ export function GymWorkoutForm({ onSuccess }: Props) {
 
         try {
             const workoutId = await createGym({
-                date: new Date(date).toISOString(),
+                date: toWorkoutOccurrenceInput(date),
                 splitType: splitType || null,
                 intensityLevel: intensityLevel || null,
                 exercises: exercises.map(e => ({

@@ -5,7 +5,7 @@ import { Play, Trash2 } from 'lucide-react';
 import { cn } from '@/shared/lib/cn';
 import { Button, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { todayLocalDateInput } from '@/shared/lib/localDate';
+import { toWorkoutOccurrenceInput, todayLocalDateInput } from '@/shared/lib/localDate';
 import { useWorkoutRoutines } from '../hooks/useWorkoutRoutines';
 import { useCreateWorkoutFromRoutine, useDeleteWorkoutRoutine } from '../hooks/useWorkoutMutations';
 import { getTypeConfig } from '../typeConfig';
@@ -21,7 +21,7 @@ function RoutineRow({ routine, onStarted }: { routine: WorkoutRoutine; onStarted
     const handleStart = () => {
         setStartError(null);
         startFromRoutine(
-            { routineId: routine.id, data: { date: new Date(todayLocalDateInput()).toISOString() } },
+            { routineId: routine.id, data: { date: toWorkoutOccurrenceInput(todayLocalDateInput()) } },
             { onSuccess: onStarted, onError: (err) => setStartError(getErrorMessage(err, 'Failed to start workout from routine.')) }
         );
     };
