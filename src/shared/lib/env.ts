@@ -11,7 +11,16 @@ const envSchema = z.object({
 
 // Use safeParse to allow client-side build without server secrets
 // In a real app, you might distinguish client/server validation
-const _env = envSchema.safeParse(process.env);
+// Next.js replaces direct `process.env.NEXT_PUBLIC_*` access in browser bundles
+// during the build. Passing the full `process.env` object prevents that
+// replacement and incorrectly falls back to the local API URL in production.
+const _env = envSchema.safeParse({
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    AUTH_SECRET: process.env.AUTH_SECRET,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
+    GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
+});
 
 if (!_env.success) {
     console.error('❌ Invalid environment variables:', _env.error.format());
