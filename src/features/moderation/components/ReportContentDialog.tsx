@@ -1,8 +1,9 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+
 import { X } from 'lucide-react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useReportContent } from '../hooks/useReportContent';
 import type { CreateModerationReportRequest, ModerationReportReason } from '../types';
@@ -47,16 +48,11 @@ export function ReportContentDialog({ target, open, onClose }: Props) {
         if (open) reasonInputRef.current?.focus();
     }, [open]);
 
-    useEffect(() => {
-        if (!open) return;
-        const handleKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape' && !isPending) handleClose();
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [handleClose, isPending, open]);
-
-    if (!open) return null;
+    // Guards backdrop click, the X button, and Modal's own Escape handler alike —
+    // none of them should be able to dismiss the dialog mid-submit.
+    const guardedClose = useCallback(() => {
+        if (!isPending) handleClose();
+    }, [handleClose, isPending]);
 
     const handleSubmit = () => {
         setError(null);
@@ -74,15 +70,13 @@ export function ReportContentDialog({ target, open, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="presentation">
-            <button className="absolute inset-0 bg-foreground/40" onClick={handleClose} disabled={isPending} aria-label="Close report dialog" />
-            <section className="relative z-10 w-full rounded-t-3xl bg-surface sm:max-w-lg sm:rounded-2xl" role="dialog" aria-modal="true" aria-labelledby="report-content-title">
+        <Modal open={open} onClose={guardedClose} maxWidthClassName="sm:max-w-lg" closeOnBackdrop={!isPending} labelledBy="report-content-title">
                 <div className="flex items-center gap-3 px-5 pb-2 pt-5">
                     <div className="min-w-0 flex-1">
                         <h2 id="report-content-title" className="text-base font-bold text-foreground">Report {target.label}</h2>
                         <p className="mt-0.5 text-xs text-surface-500">Tell us what is wrong. The report is private.</p>
                     </div>
-                    <button onClick={handleClose} disabled={isPending} className="rounded-xl p-1.5 text-surface-500 transition-colors hover:bg-surface-100 hover:text-foreground disabled:opacity-50" aria-label="Close">
+                    <button onClick={guardedClose} disabled={isPending} className="rounded-xl p-1.5 text-surface-500 transition-colors hover:bg-surface-100 hover:text-foreground disabled:opacity-50" aria-label="Close">
                         <X className="h-5 w-5" aria-hidden="true" />
                     </button>
                 </div>
@@ -114,7 +108,6 @@ export function ReportContentDialog({ target, open, onClose }: Props) {
                         </>
                     )}
                 </div>
-            </section>
-        </div>
+        </Modal>
     );
 }

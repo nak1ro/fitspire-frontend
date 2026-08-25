@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X, Plus, ChevronUp, Trash2 } from 'lucide-react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { todayLocalDateInput } from '@/shared/lib/localDate';
 import {
@@ -173,18 +173,10 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
         }
     };
 
-    if (!open) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-xl max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-xl" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="meal-form-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
-                    <h2 className="flex-1 text-base font-bold text-foreground">{isEdit ? 'Edit meal' : 'Log meal'}</h2>
+                    <h2 id="meal-form-title" className="flex-1 text-base font-bold text-foreground">{isEdit ? 'Edit meal' : 'Log meal'}</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
@@ -317,7 +309,6 @@ export function MealFormModal({ open, onClose, meal, defaultDate }: Props) {
                         </button>
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

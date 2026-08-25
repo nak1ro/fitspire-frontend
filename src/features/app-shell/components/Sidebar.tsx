@@ -28,6 +28,8 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
     const isActive = (href: string) =>
         pathname === href || pathname.startsWith(href + '/');
 
+    const items = isAdmin ? [...NAV_ITEMS, { href: '/admin', label: 'Admin', Icon: Shield }] : NAV_ITEMS;
+
     return (
         <aside className="hidden lg:flex flex-col w-60 h-full shrink-0 border-r border-surface-200 bg-surface">
 
@@ -44,26 +46,28 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
 
             {/* Primary nav */}
             <nav className="shrink-0 px-3 pt-3 pb-6 space-y-1.5" aria-label="Main navigation">
-                {NAV_ITEMS.map(({ href, label, Icon }) => {
+                {items.map(({ href, label, Icon }) => {
                     const active = isActive(href);
                     return (
                         <Link
                             key={href}
                             href={href}
                             className={cn(
-                                'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all',
+                                'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-colors duration-200',
                                 active ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
                             )}
                         >
                             <Icon
-                                className={cn('h-[18px] w-[18px] shrink-0', active ? 'text-primary-500' : 'text-surface-500')}
+                                className={cn(
+                                    'h-[18px] w-[18px] shrink-0 transition-all duration-200',
+                                    active ? 'text-primary-500 scale-110' : 'text-surface-500'
+                                )}
                                 aria-hidden="true"
                             />
                             {label}
                         </Link>
                     );
                 })}
-                {isAdmin && <Link href="/admin" className={cn('flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all', isActive('/admin') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100')}><Shield className={cn('h-[18px] w-[18px] shrink-0', isActive('/admin') ? 'text-primary-500' : 'text-surface-500')} aria-hidden="true" />Admin</Link>}
             </nav>
 
             {/* Log Workout CTA */}
@@ -84,12 +88,15 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 <Link
                     href="/profile"
                     className={cn(
-                        'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-all',
+                        'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-colors duration-200',
                         isActive('/profile') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
                     )}
                 >
                     <User
-                        className={cn('h-[18px] w-[18px] shrink-0', isActive('/profile') ? 'text-primary-500' : 'text-surface-500')}
+                        className={cn(
+                            'h-[18px] w-[18px] shrink-0 transition-all duration-200',
+                            isActive('/profile') ? 'text-primary-500 scale-110' : 'text-surface-500'
+                        )}
                         aria-hidden="true"
                     />
                     Profile

@@ -7,11 +7,11 @@ interface Props {
     level?: FitnessLevel | null;
 }
 
+/** Renders bare pills — no wrapper or margin — so callers can compose them
+ *  into a single row alongside other pills (e.g. follower/following counts). */
 export function FitnessProfileChips({ sport, level }: Props) {
-    if (!sport && !level) return null;
-
     return (
-        <div className="flex flex-wrap items-center gap-1.5 mb-4">
+        <>
             {sport && (() => {
                 const { label, Icon, color, bg } = TYPE_CONFIG[sport];
                 return (
@@ -29,6 +29,6 @@ export function FitnessProfileChips({ sport, level }: Props) {
                     {FITNESS_LEVEL_LABELS[level]}
                 </span>
             )}
-        </div>
+        </>
     );
 }

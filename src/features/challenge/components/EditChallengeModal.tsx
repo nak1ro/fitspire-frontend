@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { X } from 'lucide-react';
-import { Alert, Button, IconChip } from '@/shared/ui';
+import { Alert, Button, IconChip, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUpdateActiveChallengeCopy, useUpdateChallenge } from '../hooks/useChallenges';
 import { getMetricConfig } from '../metricConfig';
@@ -262,20 +262,12 @@ function FullForm({ challenge, onSuccess }: { challenge: ChallengeDetail; onSucc
 }
 
 export function EditChallengeModal({ challenge, open, onClose }: Props) {
-    if (!open) return null;
-
     const isUpcoming = challenge.status === 'Upcoming';
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="edit-challenge-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
-                    <h2 className="flex-1 text-base font-bold text-foreground">Edit challenge</h2>
+                    <h2 id="edit-challenge-title" className="flex-1 text-base font-bold text-foreground">Edit challenge</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
@@ -292,7 +284,6 @@ export function EditChallengeModal({ challenge, open, onClose }: Props) {
                         <CopyForm challenge={challenge} onSuccess={onClose} />
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

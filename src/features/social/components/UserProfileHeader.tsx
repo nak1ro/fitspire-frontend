@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { Avatar } from '@/shared/ui';
-import { FeaturedBadgesStrip } from '@/features/badge/components/FeaturedBadgesStrip';
-import { FeaturedPersonalRecordCard } from '@/features/workout/components/FeaturedPersonalRecordCard';
+import { ProfileHighlights } from '@/features/user/components/ProfileHighlights';
 import { FitnessProfileChips } from '@/features/user/components/FitnessProfileChips';
 import { usePublicFeaturedBadges, usePublicFeaturedPersonalRecord } from '../hooks/useSocialReads';
 import { FollowButton } from './FollowButton';
@@ -18,13 +17,17 @@ interface Props {
 
 export function UserProfileHeader({ profile }: Props) {
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
+    // Kept separate from listMode so the follow-list panel keeps showing the
+    // right tab while it plays its close animation.
+    const [lastListMode, setLastListMode] = useState<'followers' | 'following'>('followers');
     const { data: featuredBadges } = usePublicFeaturedBadges(profile.id);
     const { data: featuredRecord } = usePublicFeaturedPersonalRecord(profile.id);
     const canReport = profile.relationship !== 'self';
 
     return (
         <div className="pb-5 mb-1">
-            <div className="flex items-start justify-between mb-4">
+            {/* Avatar row: avatar on left, follower/following + follow/report on right */}
+            <div className="flex items-center justify-between gap-4 mb-4">
                 <div className="relative">
                     <Avatar
                         displayName={profile.displayName}
@@ -38,9 +41,29 @@ export function UserProfileHeader({ profile }: Props) {
                         </div>
                     )}
                 </div>
-                <FollowButton userId={profile.id} relationship={profile.relationship} isPrivate={profile.isPrivate} />
+                <div className="flex items-center gap-1 flex-wrap justify-end">
+                    <button
+                        type="button"
+                        onClick={() => { setListMode('followers'); setLastListMode('followers'); }}
+                        className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl hover:bg-surface-100 transition-colors"
+                    >
+                        <span className="text-lg font-extrabold text-foreground tabular-nums leading-none">{profile.followersCount}</span>
+                        <span className="text-[11px] font-medium text-surface-500">followers</span>
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => { setListMode('following'); setLastListMode('following'); }}
+                        className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl hover:bg-surface-100 transition-colors"
+                    >
+                        <span className="text-lg font-extrabold text-foreground tabular-nums leading-none">{profile.followingCount}</span>
+                        <span className="text-[11px] font-medium text-surface-500">following</span>
+                    </button>
+                    {canReport && <ReportTrigger target={{ targetType: 'Profile', targetId: profile.id, label: 'profile' }} />}
+                    <FollowButton userId={profile.id} relationship={profile.relationship} isPrivate={profile.isPrivate} />
+                </div>
             </div>
 
+            {/* Name + username */}
             <div className="mb-2">
                 <div className="flex items-center gap-1.5">
                     <h1 className="text-xl font-extrabold text-foreground leading-tight">{profile.displayName}</h1>
@@ -53,39 +76,19 @@ export function UserProfileHeader({ profile }: Props) {
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
             )}
 
-            <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
-
-            {featuredBadges && featuredBadges.length > 0 && (
-                <FeaturedBadgesStrip
-                    badges={featuredBadges.map(badge => ({ id: badge.badgeId, name: badge.name, tier: badge.tier, iconUrl: badge.iconUrl }))}
-                />
+            {(profile.favoriteSport || profile.fitnessLevel) && (
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
+                </div>
             )}
 
-            {featuredRecord && <FeaturedPersonalRecordCard record={featuredRecord} />}
+            {/* Highlights: featured badges + pinned personal record, consolidated */}
+            <ProfileHighlights
+                badges={(featuredBadges ?? []).map(badge => ({ id: badge.badgeId, name: badge.name, tier: badge.tier, iconUrl: badge.iconUrl }))}
+                record={featuredRecord}
+            />
 
-            <div className="flex items-center gap-5">
-                <button
-                    type="button"
-                    onClick={() => setListMode('followers')}
-                    className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
-                >
-                    <span className="text-sm font-extrabold text-foreground tabular-nums">{profile.followersCount}</span>
-                    <span className="text-xs text-surface-500">followers</span>
-                </button>
-                <button
-                    type="button"
-                    onClick={() => setListMode('following')}
-                    className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
-                >
-                    <span className="text-sm font-extrabold text-foreground tabular-nums">{profile.followingCount}</span>
-                    <span className="text-xs text-surface-500">following</span>
-                </button>
-                {canReport && <ReportTrigger target={{ targetType: 'Profile', targetId: profile.id, label: 'profile' }} />}
-            </div>
-
-            {listMode && (
-                <FollowListModal userId={profile.id} mode={listMode} open onClose={() => setListMode(null)} />
-            )}
+            <FollowListModal userId={profile.id} mode={lastListMode} open={listMode !== null} onClose={() => setListMode(null)} />
         </div>
     );
 }

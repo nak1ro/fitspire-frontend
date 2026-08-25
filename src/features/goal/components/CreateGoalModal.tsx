@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, type FormEvent } from 'react';
+import { useState, useMemo, useEffect, type FormEvent } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Button, Input, Alert } from '@/shared/ui';
+import { Button, Input, Alert, Modal } from '@/shared/ui';
 import { useGoalTypes, useCreateGoal } from '../hooks/useGoals';
 import { useExercises } from '@/features/workout/hooks/useExerciseCatalog';
 import type { GoalSchedule, GoalType, GoalWorkoutType } from '../types';
@@ -205,21 +205,16 @@ function DetailsStep({ goalType, onSuccess }: { goalType: GoalType; onSuccess: (
 export function CreateGoalModal({ open, onClose }: Props) {
     const [selectedType, setSelectedType] = useState<GoalType | null>(null);
 
-    if (!open) return null;
-
-    const handleClose = () => {
-        onClose();
-        setSelectedType(null);
-    };
+    // Reset to the first step only after the close animation finishes, so the
+    // panel doesn't visibly jump back to type selection while fading out.
+    useEffect(() => {
+        if (open) return;
+        const timeout = setTimeout(() => setSelectedType(null), 200);
+        return () => clearTimeout(timeout);
+    }, [open]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="create-goal-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
                     {selectedType && (
                         <button
@@ -230,11 +225,11 @@ export function CreateGoalModal({ open, onClose }: Props) {
                             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                         </button>
                     )}
-                    <h2 className="flex-1 text-base font-bold text-foreground">
+                    <h2 id="create-goal-title" className="flex-1 text-base font-bold text-foreground">
                         {selectedType ? selectedType.name : 'New Goal'}
                     </h2>
                     <button
-                        onClick={handleClose}
+                        onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
                         aria-label="Close"
                     >
@@ -244,12 +239,11 @@ export function CreateGoalModal({ open, onClose }: Props) {
 
                 <div className="flex-1 overflow-y-auto px-5 pb-5 pt-1">
                     {selectedType ? (
-                        <DetailsStep goalType={selectedType} onSuccess={handleClose} />
+                        <DetailsStep goalType={selectedType} onSuccess={onClose} />
                     ) : (
                         <TypeStep onSelect={setSelectedType} />
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

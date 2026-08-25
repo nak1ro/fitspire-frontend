@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUpdateFavouriteFood } from '../../hooks/useNutrition';
 import { QUANTITY_UNITS, QUANTITY_UNIT_LABELS } from '../../mealTypeConfig';
@@ -13,20 +13,36 @@ interface Props {
     onClose: () => void;
 }
 
-export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
-    const [draft, setDraft] = useState<MealItemRequest | null>(() => favourite ? {
+function toDraft(favourite: FavouriteFood): MealItemRequest {
+    return {
         name: favourite.name, quantity: favourite.quantity, quantityUnit: favourite.quantityUnit,
         customUnitName: favourite.customUnitName ?? null, caloriesKcal: favourite.caloriesKcal ?? null,
         proteinGrams: favourite.proteinGrams ?? null, carbsGrams: favourite.carbsGrams ?? null, fatGrams: favourite.fatGrams ?? null,
-    } : null);
+    };
+}
+
+export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
+    // Both kept alive through the close animation — favourite itself goes
+    // null immediately on close, but the form should keep showing its last
+    // content while it fades out instead of going blank.
+    const [lastFavouriteId, setLastFavouriteId] = useState<string | null>(favourite?.id ?? null);
+    const [draft, setDraft] = useState<MealItemRequest | null>(favourite ? toDraft(favourite) : null);
     const [error, setError] = useState<string | null>(null);
     const { mutate: updateFavourite, isPending } = useUpdateFavouriteFood();
 
-    if (!favourite || !draft) return null;
+    useEffect(() => {
+        if (!favourite) return;
+        setLastFavouriteId(favourite.id);
+        setDraft(toDraft(favourite));
+        setError(null);
+    }, [favourite]);
+
+    if (!draft) return null;
 
     const patch = (fields: Partial<MealItemRequest>) => setDraft(prev => (prev ? { ...prev, ...fields } : prev));
 
     const handleSave = () => {
+        if (!lastFavouriteId) return;
         setError(null);
         if (!draft.name.trim()) { setError('Enter a food name.'); return; }
         if (!draft.quantity || draft.quantity <= 0) { setError('Enter a quantity.'); return; }
@@ -37,7 +53,7 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
         }
 
         updateFavourite(
-            { id: favourite.id, data: draft },
+            { id: lastFavouriteId, data: draft },
             {
                 onSuccess: () => onClose(),
                 onError: (err) => setError(getErrorMessage(err, 'Failed to update favourite.')),
@@ -46,15 +62,9 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-md bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={Boolean(favourite)} onClose={onClose} maxWidthClassName="sm:max-w-md" labelledBy="edit-favourite-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1">
-                    <h2 className="flex-1 text-base font-bold text-foreground">Edit favourite</h2>
+                    <h2 id="edit-favourite-title" className="flex-1 text-base font-bold text-foreground">Edit favourite</h2>
                     <button onClick={onClose} className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all" aria-label="Close">
                         <X className="h-5 w-5" aria-hidden="true" />
                     </button>
@@ -127,7 +137,6 @@ export function EditFavouriteFoodModal({ favourite, onClose }: Props) {
                         Save
                     </Button>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

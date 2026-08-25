@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { X, RotateCcw } from 'lucide-react';
-import { Alert, Button, Card, IconChip } from '@/shared/ui';
+import { Alert, Button, Card, IconChip, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useRestoreWorkout } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
@@ -59,37 +59,36 @@ interface Props {
 export function ArchivedWorkoutDetailModal({ item, onClose }: Props) {
     const [restoreError, setRestoreError] = useState<string | null>(null);
     const { mutate: restore, isPending } = useRestoreWorkout();
+    // Kept alive through the close animation so the panel doesn't go blank
+    // while it fades out — item itself goes null immediately on close.
+    const [lastItem, setLastItem] = useState(item);
 
-    if (!item) return null;
+    useEffect(() => {
+        if (item) setLastItem(item);
+    }, [item]);
 
-    const { Icon: TypeIcon, label: typeLabel, color, bg } = getTypeConfig(item.workoutType);
-    const stats = getStats(item);
-    const willResumeAs = item.completedAt != null ? 'Completed' : 'In Progress';
+    if (!lastItem) return null;
+
+    const { Icon: TypeIcon, label: typeLabel, color, bg } = getTypeConfig(lastItem.workoutType);
+    const stats = getStats(lastItem);
+    const willResumeAs = lastItem.completedAt != null ? 'Completed' : 'In Progress';
 
     const handleRestore = () => {
         setRestoreError(null);
-        restore(item.id, {
+        restore(lastItem.id, {
             onSuccess: onClose,
             onError: (err) => setRestoreError(getErrorMessage(err, 'Failed to restore workout.')),
         });
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            {/* Panel */}
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={Boolean(item)} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="archived-workout-title">
                 {/* Header */}
                 <div className="flex items-center gap-3.5 px-5 pt-5 pb-2 shrink-0">
                     <IconChip icon={TypeIcon} size="sm" color={color} bg={bg} />
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-base font-bold text-foreground truncate">{typeLabel}</h2>
-                        <p className="text-xs text-surface-400">{formatDate(item.date)}</p>
+                        <h2 id="archived-workout-title" className="text-base font-bold text-foreground truncate">{typeLabel}</h2>
+                        <p className="text-xs text-surface-400">{formatDate(lastItem.date)}</p>
                     </div>
                     <button
                         onClick={onClose}
@@ -102,8 +101,8 @@ export function ArchivedWorkoutDetailModal({ item, onClose }: Props) {
 
                 {/* Body */}
                 <div className="flex-1 overflow-y-auto px-5 pb-6 pt-2 space-y-5">
-                    {item.durationMinutes != null && (
-                        <StatBox label="Duration" value={formatDuration(item.durationMinutes)!} />
+                    {lastItem.durationMinutes != null && (
+                        <StatBox label="Duration" value={formatDuration(lastItem.durationMinutes)!} />
                     )}
 
                     {stats.length > 0 && (
@@ -112,12 +111,12 @@ export function ArchivedWorkoutDetailModal({ item, onClose }: Props) {
                         </div>
                     )}
 
-                    {item.notesPreview && (
+                    {lastItem.notesPreview && (
                         <Card variant="outlined" padding="sm">
                             <p className="text-xs font-semibold uppercase tracking-wider text-surface-400 mb-1.5">
-                                {item.isPrivate ? 'Notes' : 'Caption'}
+                                {lastItem.isPrivate ? 'Notes' : 'Caption'}
                             </p>
-                            <p className="text-sm text-foreground leading-relaxed">{item.notesPreview}</p>
+                            <p className="text-sm text-foreground leading-relaxed">{lastItem.notesPreview}</p>
                         </Card>
                     )}
                 </div>
@@ -138,7 +137,6 @@ export function ArchivedWorkoutDetailModal({ item, onClose }: Props) {
                         Restore workout
                     </Button>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

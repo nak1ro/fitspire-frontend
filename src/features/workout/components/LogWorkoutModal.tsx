@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { X, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/shared/ui';
+import { Button, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import type { KnownWorkoutType } from '../types';
 import { useActiveWorkoutSession, useAbandonWorkout } from '../hooks/useWorkoutSessions';
@@ -102,21 +102,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
 
     return (
         <>
-        {open && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-
-            {/* Backdrop */}
-            <div
-                className="absolute inset-0 bg-black/40"
-                onClick={onClose}
-                aria-hidden="true"
-            />
-
-            {/* Modal panel — bottom-sheet on mobile, centered card on desktop */}
-            <div
-                className="relative w-full sm:max-w-xl max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-xl" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="log-workout-title">
                 {/* Header */}
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
                     {step === 'form' && (
@@ -128,7 +114,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                         </button>
                     )}
-                    <h2 className="flex-1 text-base font-bold text-foreground">{title}</h2>
+                    <h2 id="log-workout-title" className="flex-1 text-base font-bold text-foreground">{title}</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
@@ -154,9 +140,7 @@ export function LogWorkoutModal({ open, onClose }: Props) {
                         <CardioWorkoutForm type={selectedType as CardioType} onSuccess={handleSuccess} />
                     )}
                 </div>
-            </div>
-        </div>
-        )}
+        </Modal>
 
         <LiveSessionModal open={liveSessionOpen} onClose={() => setLiveSessionOpen(false)} />
         </>

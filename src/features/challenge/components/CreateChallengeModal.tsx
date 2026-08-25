@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { Alert, Button, IconChip } from '@/shared/ui';
+import { Alert, Button, IconChip, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { todayLocalDateInput } from '@/shared/lib/localDate';
 import { useCreateChallenge } from '../hooks/useChallenges';
@@ -250,21 +250,16 @@ function DetailsStep({ metric, onSuccess }: { metric: ChallengeMetricOption; onS
 export function CreateChallengeModal({ open, onClose }: Props) {
     const [selectedMetric, setSelectedMetric] = useState<ChallengeMetricOption | null>(null);
 
-    if (!open) return null;
-
-    const handleClose = () => {
-        onClose();
-        setSelectedMetric(null);
-    };
+    // Reset to the first step only after the close animation finishes, so the
+    // panel doesn't visibly jump back to metric selection while fading out.
+    useEffect(() => {
+        if (open) return;
+        const timeout = setTimeout(() => setSelectedMetric(null), 200);
+        return () => clearTimeout(timeout);
+    }, [open]);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="create-challenge-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
                     {selectedMetric && (
                         <button
@@ -275,11 +270,11 @@ export function CreateChallengeModal({ open, onClose }: Props) {
                             <ChevronLeft className="h-5 w-5" aria-hidden="true" />
                         </button>
                     )}
-                    <h2 className="flex-1 text-base font-bold text-foreground">
+                    <h2 id="create-challenge-title" className="flex-1 text-base font-bold text-foreground">
                         {selectedMetric ? 'New Challenge' : 'Choose a metric'}
                     </h2>
                     <button
-                        onClick={handleClose}
+                        onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
                         aria-label="Close"
                     >
@@ -289,12 +284,11 @@ export function CreateChallengeModal({ open, onClose }: Props) {
 
                 <div className="flex-1 overflow-y-auto px-5 pb-5 pt-1">
                     {selectedMetric ? (
-                        <DetailsStep metric={selectedMetric} onSuccess={handleClose} />
+                        <DetailsStep metric={selectedMetric} onSuccess={onClose} />
                     ) : (
                         <MetricStep onSelect={setSelectedMetric} />
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

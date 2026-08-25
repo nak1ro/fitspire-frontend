@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Bookmark, Flag, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2 } from 'lucide-react';
-import { Alert, Avatar, Card } from '@/shared/ui';
+import { Alert, Avatar, Card, ImageLightbox } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import type { FeedItem } from '../types';
@@ -113,6 +113,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [reportPostOpen, setReportPostOpen] = useState(false);
+    const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
     const { data: profile } = useUserProfile();
     const { mutate: likePost } = useLikePost();
@@ -206,36 +207,52 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
 
                 {item.type === 'WorkoutShare' && (
                     <>
-                        {item.workoutSummary && <WorkoutSummaryBlock summary={item.workoutSummary} />}
                         {item.content && (
-                            <p className="text-sm text-surface-600 mt-2.5 leading-relaxed">{item.content}</p>
+                            <p className="text-sm text-foreground leading-relaxed mb-2.5">{item.content}</p>
                         )}
+                        {item.workoutSummary && <WorkoutSummaryBlock summary={item.workoutSummary} />}
                     </>
                 )}
 
                 {item.type === 'GoalAchieved' && (
                     <>
-                        {item.goalSummary && <GoalSummaryBlock summary={item.goalSummary} />}
                         {item.content && (
-                            <p className="text-sm text-surface-600 mt-2.5 leading-relaxed">{item.content}</p>
+                            <p className="text-sm text-foreground leading-relaxed mb-2.5">{item.content}</p>
                         )}
+                        {item.goalSummary && <GoalSummaryBlock summary={item.goalSummary} />}
                     </>
                 )}
 
                 {item.media.length > 0 && (
                     <div className={item.media.length > 1 ? 'grid grid-cols-2 gap-1.5 mt-3' : 'mt-3'}>
-                        {item.media.map(media => (
-                            <div key={media.id} className="relative">
-                                {/* Azure SAS media has no stable optimization source or intrinsic dimensions. */}
-                                {/* eslint-disable-next-line @next/next/no-img-element */}
-                                <img src={media.primary?.url ?? media.thumbnail?.url} alt="" className="w-full rounded-xl object-cover max-h-96" />
-                                {canReport && (
-                                    <div className="absolute right-2 top-2 rounded-lg bg-surface/90">
-                                        <ReportTrigger target={{ targetType: 'Media', targetId: media.id, label: 'post image' }} compact />
-                                    </div>
-                                )}
-                            </div>
-                        ))}
+                        {item.media.map(media => {
+                            const fullSrc = media.primary?.url ?? media.thumbnail?.url;
+                            return (
+                                <div key={media.id} className="relative">
+                                    {/* Azure SAS media has no stable optimization source or intrinsic dimensions;
+                                        the fixed aspect ratio + object-cover keeps every post image the same
+                                        bounded size in the feed without stretching it. */}
+                                    <button
+                                        type="button"
+                                        onClick={() => fullSrc && setLightboxSrc(fullSrc)}
+                                        className="block w-full aspect-square overflow-hidden rounded-xl bg-surface-100"
+                                        aria-label="Expand image"
+                                    >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={media.thumbnail?.url ?? media.primary?.url}
+                                            alt=""
+                                            className="w-full h-full object-cover"
+                                        />
+                                    </button>
+                                    {canReport && (
+                                        <div className="absolute right-2 top-2 rounded-lg bg-surface/90">
+                                            <ReportTrigger target={{ targetType: 'Media', targetId: media.id, label: 'post image' }} compact />
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
                     </div>
                 )}
             </div>
@@ -347,6 +364,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
             <EditPostModal postId={item.id} initialContent={item.content ?? ''} open={editOpen} onClose={() => setEditOpen(false)} />
             <LikesModal target={{ kind: 'post', postId: item.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
             <ReportContentDialog target={{ targetType: 'Post', targetId: item.id, label: 'post' }} open={reportPostOpen} onClose={() => setReportPostOpen(false)} />
+            <ImageLightbox src={lightboxSrc ?? ''} open={Boolean(lightboxSrc)} onClose={() => setLightboxSrc(null)} />
         </Card>
     );
 }

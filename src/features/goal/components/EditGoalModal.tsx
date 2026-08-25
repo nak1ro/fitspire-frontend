@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { Alert, Button, Input } from '@/shared/ui';
+import { Alert, Button, Input, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { toLocalDateInput } from '@/shared/lib/localDate';
 import { useUpdateGoal } from '../hooks/useGoals';
@@ -30,8 +30,6 @@ export function EditGoalModal({ goal, open, onClose }: Props) {
         setSubmitError(null);
     }, [open, goal]);
 
-    if (!open) return null;
-
     const handleSubmit = async () => {
         const parsed = Number(targetValue);
         if (!Number.isFinite(parsed) || parsed <= 0) {
@@ -55,15 +53,9 @@ export function EditGoalModal({ goal, open, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-md bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-md" labelledBy="edit-goal-title">
                 <div className="flex items-center justify-between px-5 pt-4 pb-1">
-                    <h2 className="text-base font-bold text-foreground">Edit goal</h2>
+                    <h2 id="edit-goal-title" className="text-base font-bold text-foreground">Edit goal</h2>
                     <button onClick={onClose} className="p-1.5 rounded-xl text-surface-500 hover:text-foreground transition-colors" aria-label="Close">
                         <X className="h-5 w-5" aria-hidden="true" />
                     </button>
@@ -103,7 +95,6 @@ export function EditGoalModal({ goal, open, onClose }: Props) {
                         Save changes
                     </Button>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

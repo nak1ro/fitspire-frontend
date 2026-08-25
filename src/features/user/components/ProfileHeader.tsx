@@ -1,10 +1,10 @@
 import type React from 'react';
-import Link from 'next/link';
-import { Pencil, Dumbbell, Flame, Trophy, UserCheck, Sparkles } from 'lucide-react';
+import { Pencil, Dumbbell, Flame, Trophy, UserCheck } from 'lucide-react';
 import { Avatar, Badge } from '@/shared/ui';
-import { FeaturedBadgesStrip, type FeaturedBadgeItem } from '@/features/badge/components/FeaturedBadgesStrip';
-import { FeaturedPersonalRecordCard, type FeaturedPersonalRecordItem } from '@/features/workout/components/FeaturedPersonalRecordCard';
+import { type FeaturedBadgeItem } from '@/features/badge/components/FeaturedBadgesStrip';
+import { type FeaturedPersonalRecordItem } from '@/features/workout/components/FeaturedPersonalRecordCard';
 import { FitnessProfileChips } from './FitnessProfileChips';
+import { ProfileHighlights } from './ProfileHighlights';
 import type { UserProfile } from '../types';
 
 interface Props {
@@ -45,6 +45,19 @@ function StatPill({ value, label, Icon, iconColor, iconBg }: StatPillProps) {
     );
 }
 
+function SocialCountButton({ value, label, onClick }: { value: number; label: string; onClick?: () => void }) {
+    return (
+        <button
+            type="button"
+            onClick={onClick}
+            className="flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl hover:bg-surface-100 transition-colors"
+        >
+            <span className="text-lg font-extrabold text-foreground tabular-nums leading-none">{value}</span>
+            <span className="text-[11px] font-medium text-surface-500">{label}</span>
+        </button>
+    );
+}
+
 export function ProfileHeader({
     profile, totalWorkouts, streak, totalPRs,
     followersCount, followingCount, incomingRequestCount, featuredBadges, featuredPersonalRecord,
@@ -52,16 +65,24 @@ export function ProfileHeader({
 }: Props) {
     return (
         <div className="pb-5 mb-1">
-            {/* Top row: avatar + edit button */}
-            <div className="flex items-start justify-between mb-4">
+            {/* Stats row: Workouts / Day streak / Records — its own row, full width */}
+            <div className="flex items-center justify-around py-3.5 px-4 mb-5 rounded-2xl border border-surface-200 bg-surface">
+                <StatPill value={totalWorkouts} label="Workouts" Icon={Dumbbell} iconColor="#2563EB" iconBg="rgba(37,99,235,0.10)" />
+                <div className="w-px h-8 bg-surface-200" />
+                <StatPill value={streak} label="Day streak" Icon={Flame} iconColor="#EA580C" iconBg="rgba(234,88,12,0.10)" />
+                <div className="w-px h-8 bg-surface-200" />
+                <StatPill value={totalPRs} label="Records" Icon={Trophy} iconColor="#7C3AED" iconBg="rgba(124,58,237,0.10)" />
+            </div>
+
+            {/* Avatar row: avatar on left, follower/following + edit-profile on right */}
+            <div className="flex items-center justify-between gap-4 mb-4">
                 <Avatar
                     displayName={profile.displayName}
                     userName={profile.userName}
                     avatarUrl={profile.profilePictureUrl}
                     size="xl"
                 />
-
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 flex-wrap justify-end">
                     {Boolean(incomingRequestCount) && onShowRequests && (
                         <button
                             onClick={onShowRequests}
@@ -72,16 +93,8 @@ export function ProfileHeader({
                             <Badge variant="primary" size="sm">{incomingRequestCount}</Badge>
                         </button>
                     )}
-
-                    <Link
-                        href="/coach"
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
-                    >
-                        <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                        Coach
-                    </Link>
-
-                    {/* Edit button */}
+                    <SocialCountButton value={followersCount ?? 0} label="followers" onClick={onShowFollowers} />
+                    <SocialCountButton value={followingCount ?? 0} label="following" onClick={onShowFollowing} />
                     <button
                         onClick={onEdit}
                         className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all"
@@ -92,59 +105,24 @@ export function ProfileHeader({
                 </div>
             </div>
 
-            {/* Name + username */}
+            {/* Name + username + bio — same column as the avatar above */}
             <div className="mb-2">
                 <h1 className="text-xl font-extrabold text-foreground leading-tight">{profile.displayName}</h1>
                 <p className="text-sm text-surface-500 mt-0.5">@{profile.userName}</p>
             </div>
 
-            {/* Bio */}
             {profile.bio && (
                 <p className="text-sm text-surface-600 leading-relaxed mb-4">{profile.bio}</p>
             )}
 
-            <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
-
-            {/* Featured badges */}
-            {featuredBadges && featuredBadges.length > 0 && (
-                <FeaturedBadgesStrip badges={featuredBadges} />
-            )}
-
-            {/* Pinned personal record */}
-            {featuredPersonalRecord && <FeaturedPersonalRecordCard record={featuredPersonalRecord} />}
-
-            {/* Followers / following */}
-            {(followersCount !== undefined || followingCount !== undefined) && (
-                <div className="flex items-center gap-5 mb-4">
-                    <button
-                        type="button"
-                        onClick={onShowFollowers}
-                        className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
-                    >
-                        <span className="text-sm font-extrabold text-foreground tabular-nums">{followersCount ?? 0}</span>
-                        <span className="text-xs text-surface-500">followers</span>
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onShowFollowing}
-                        className="flex items-baseline gap-1.5 hover:opacity-70 transition-opacity"
-                    >
-                        <span className="text-sm font-extrabold text-foreground tabular-nums">{followingCount ?? 0}</span>
-                        <span className="text-xs text-surface-500">following</span>
-                    </button>
+            {(profile.favoriteSport || profile.fitnessLevel) && (
+                <div className="flex flex-wrap items-center gap-2 mb-4">
+                    <FitnessProfileChips sport={profile.favoriteSport} level={profile.fitnessLevel} />
                 </div>
             )}
 
-            {/* Stats row */}
-            <div
-                className="flex items-center justify-around py-3.5 px-4 rounded-2xl border border-surface-200 bg-surface"
-            >
-                <StatPill value={totalWorkouts} label="Workouts" Icon={Dumbbell} iconColor="#2563EB" iconBg="rgba(37,99,235,0.10)" />
-                <div className="w-px h-8 bg-surface-200" />
-                <StatPill value={streak} label="Day streak" Icon={Flame} iconColor="#EA580C" iconBg="rgba(234,88,12,0.10)" />
-                <div className="w-px h-8 bg-surface-200" />
-                <StatPill value={totalPRs} label="Records" Icon={Trophy} iconColor="#7C3AED" iconBg="rgba(124,58,237,0.10)" />
-            </div>
+            {/* Highlights: featured badges + pinned personal record, consolidated */}
+            <ProfileHighlights badges={featuredBadges ?? []} record={featuredPersonalRecord} />
         </div>
     );
 }

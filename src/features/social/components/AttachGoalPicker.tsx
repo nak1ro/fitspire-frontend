@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { Loader2, Target, Trophy, X } from 'lucide-react';
 import { useGoals } from '@/features/goal/hooks/useGoals';
-import { Button, Card, EmptyState, IconChip } from '@/shared/ui';
+import { Button, Card, EmptyState, IconChip, Modal } from '@/shared/ui';
 import { useMySharedGoalIds } from '../hooks/useSocialReads';
 import type { Goal } from '@/features/goal/types';
 
@@ -46,21 +46,13 @@ export function AttachGoalPicker({ open, onClose, onSelect }: Props) {
         });
     }, [data, page]);
 
-    if (!open) return null;
-
     const eligible = allItems.filter(goal => goal.isPublic && !(sharedIds ?? []).includes(goal.id));
     const canLoadMore = Boolean(data && data.page * data.pageSize < data.totalCount);
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-md max-h-[85dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-md" className="max-h-[85dvh] flex flex-col" labelledBy="attach-goal-title">
                 <div className="flex items-center justify-between px-5 pt-5 pb-3 shrink-0">
-                    <h2 className="text-base font-bold text-foreground">Attach a goal</h2>
+                    <h2 id="attach-goal-title" className="text-base font-bold text-foreground">Attach a goal</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
@@ -101,7 +93,6 @@ export function AttachGoalPicker({ open, onClose, onSelect }: Props) {
                         </Button>
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

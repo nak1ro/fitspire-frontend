@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
-import { Alert, Button } from '@/shared/ui';
+import { Alert, Button, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUpdatePost } from '../hooks/useSocialMutations';
 
@@ -25,8 +25,6 @@ export function EditPostModal({ postId, initialContent, open, onClose }: Props) 
         }
     }, [open, initialContent]);
 
-    if (!open) return null;
-
     const handleSave = () => {
         const trimmed = content.trim();
         if (!trimmed) return;
@@ -41,15 +39,9 @@ export function EditPostModal({ postId, initialContent, open, onClose }: Props) 
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-lg bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="flex flex-col" labelledBy="edit-post-title">
                 <div className="flex items-center gap-2 px-5 pt-4 pb-1 shrink-0">
-                    <h2 className="flex-1 text-base font-bold text-foreground">Edit post</h2>
+                    <h2 id="edit-post-title" className="flex-1 text-base font-bold text-foreground">Edit post</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all"
@@ -79,7 +71,6 @@ export function EditPostModal({ postId, initialContent, open, onClose }: Props) 
                         </Button>
                     </div>
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

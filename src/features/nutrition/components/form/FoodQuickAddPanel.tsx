@@ -293,7 +293,7 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
 
             {tab === 'custom' && <CustomFoodForm onAdd={onAdd} />}
 
-            <EditFavouriteFoodModal key={editingFavourite?.id ?? 'closed'} favourite={editingFavourite} onClose={() => setEditingFavourite(null)} />
+            <EditFavouriteFoodModal favourite={editingFavourite} onClose={() => setEditingFavourite(null)} />
         </div>
     );
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Pause, Play, X } from 'lucide-react';
-import { Alert, Button, IconChip, Toggle } from '@/shared/ui';
+import { Alert, Button, IconChip, Modal, Toggle } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useActiveWorkoutSession, useAbandonWorkout, usePauseWorkout, useResumeWorkout } from '../hooks/useWorkoutSessions';
 import { useWorkout } from '../hooks/useWorkouts';
@@ -85,7 +85,7 @@ export function LiveSessionModal({ open, onClose }: Props) {
         }
     }, [open]);
 
-    if (!open || !session) return null;
+    if (!session) return null;
 
     const { Icon: TypeIcon, label: typeLabel, color, bg } = getTypeConfig(session.workoutType);
 
@@ -124,18 +124,12 @@ export function LiveSessionModal({ open, onClose }: Props) {
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="live-session-title">
                 {/* Header */}
                 <div className="flex items-center gap-3.5 px-5 pt-5 pb-2 shrink-0">
                     <IconChip icon={TypeIcon} size="sm" color={color} bg={bg} />
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-base font-bold text-foreground truncate">{typeLabel} session</h2>
+                        <h2 id="live-session-title" className="text-base font-bold text-foreground truncate">{typeLabel} session</h2>
                         <p className="text-xs text-surface-400">
                             {session.status === 'Paused' ? 'Paused at ' : ''}{elapsed.formatted}
                         </p>
@@ -240,7 +234,6 @@ export function LiveSessionModal({ open, onClose }: Props) {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }

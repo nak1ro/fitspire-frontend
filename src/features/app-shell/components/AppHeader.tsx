@@ -1,7 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { Plus } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { ChevronLeft, Plus } from 'lucide-react';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { NotificationsBell } from '@/features/notification/components/NotificationsBell';
 import { UserSearch } from '@/features/social/components/UserSearch';
@@ -34,13 +34,24 @@ interface AppHeaderProps {
 
 export function AppHeader({ onLogWorkout }: AppHeaderProps) {
     const pathname = usePathname();
+    const router = useRouter();
     const title = resolveTitle(pathname);
     const { data: profile } = useUserProfile();
 
     return (
         <header className="h-14 shrink-0 flex items-center justify-between px-6 bg-background border-b border-surface-200">
 
-            <h1 className="text-lg font-bold text-foreground tracking-tight">{title}</h1>
+            <div className="flex items-center gap-2 min-w-0">
+                <button
+                    type="button"
+                    onClick={() => router.back()}
+                    aria-label="Go back"
+                    className="flex items-center justify-center h-8 w-8 -ml-1.5 rounded-full text-surface-500 hover:bg-surface-100 hover:text-foreground transition-colors shrink-0"
+                >
+                    <ChevronLeft className="h-5 w-5" aria-hidden="true" />
+                </button>
+                <h1 key={title} className="text-lg font-bold text-foreground tracking-tight truncate animate-fade-in">{title}</h1>
+            </div>
 
             <div className="flex items-center gap-1">
 

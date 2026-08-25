@@ -7,7 +7,7 @@ import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout, useSaveWorkoutAsRoutine } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
-import { Alert, Button, Card, IconChip } from '@/shared/ui';
+import { Alert, Button, Card, IconChip, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { formatDate, formatDuration, humanize, StatBox, TypeBadge } from './workoutDetailFormatters';
 import { EditWorkoutModal } from './EditWorkoutModal';
@@ -264,28 +264,19 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
         onClose();
     };
 
-    if (!workoutId) return null;
-
     const cfg = workout ? getTypeConfig(workout.workoutType) : null;
     const { Icon: TypeIcon, label: typeLabel, color, bg } = cfg ?? {
         Icon: Dumbbell, label: '', color: '#059669', bg: 'rgba(5,150,105,0.08)',
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/40" onClick={handleClose} aria-hidden="true" />
-
-            {/* Panel */}
-            <div
-                className="relative w-full sm:max-w-lg max-h-[92dvh] sm:max-h-[88dvh] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden flex flex-col z-10"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <>
+        <Modal open={Boolean(workoutId)} onClose={handleClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="workout-detail-title">
                 {/* Header */}
                 <div className="flex items-center gap-3.5 px-5 pt-5 pb-2 shrink-0">
                     {cfg && <IconChip icon={TypeIcon} size="sm" color={color} bg={bg} />}
                     <div className="flex-1 min-w-0">
-                        <h2 className="text-base font-bold text-foreground truncate">
+                        <h2 id="workout-detail-title" className="text-base font-bold text-foreground truncate">
                             {workout?.isRoutine && workout.routineName ? workout.routineName : typeLabel}
                         </h2>
                         {workout && (
@@ -429,11 +420,11 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                         </div>
                     )}
                 </div>
-            </div>
+        </Modal>
 
             {workout && (
                 <EditWorkoutModal workout={workout} open={editOpen} onClose={() => setEditOpen(false)} />
             )}
-        </div>
+        </>
     );
 }

@@ -76,6 +76,10 @@ export function ProfileView() {
     const [activeTab, setActiveTab] = useState<Tab>('posts');
     const [editOpen, setEditOpen] = useState(false);
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
+    // Kept separate from listMode so the follow-list panel keeps showing the
+    // right tab while it plays its close animation, instead of flashing back
+    // to 'followers' the instant listMode is nulled out.
+    const [lastListMode, setLastListMode] = useState<'followers' | 'following'>('followers');
     const [requestsOpen, setRequestsOpen] = useState(false);
 
     const { data: profile, isLoading: profileLoading } = useUserProfile();
@@ -113,8 +117,8 @@ export function ProfileView() {
                 featuredBadges={featuredBadges}
                 featuredPersonalRecord={featuredRecord}
                 onEdit={() => setEditOpen(true)}
-                onShowFollowers={() => setListMode('followers')}
-                onShowFollowing={() => setListMode('following')}
+                onShowFollowers={() => { setListMode('followers'); setLastListMode('followers'); }}
+                onShowFollowing={() => { setListMode('following'); setLastListMode('following'); }}
                 onShowRequests={() => setRequestsOpen(true)}
             />
 
@@ -136,21 +140,15 @@ export function ProfileView() {
             {activeTab === 'body' && <BodyTrackingTab />}
             {activeTab === 'badges' && <BadgesTab />}
 
-            {editOpen && (
-                <EditProfileModal
-                    profile={profile}
-                    open={editOpen}
-                    onClose={() => setEditOpen(false)}
-                />
-            )}
+            <EditProfileModal
+                profile={profile}
+                open={editOpen}
+                onClose={() => setEditOpen(false)}
+            />
 
-            {listMode && (
-                <FollowListModal userId={profile.id} mode={listMode} open onClose={() => setListMode(null)} />
-            )}
+            <FollowListModal userId={profile.id} mode={lastListMode} open={listMode !== null} onClose={() => setListMode(null)} />
 
-            {requestsOpen && (
-                <FollowRequestsModal open={requestsOpen} onClose={() => setRequestsOpen(false)} />
-            )}
+            <FollowRequestsModal open={requestsOpen} onClose={() => setRequestsOpen(false)} />
         </>
     );
 }

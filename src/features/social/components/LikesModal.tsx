@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { X, Heart } from 'lucide-react';
-import { Avatar, EmptyState } from '@/shared/ui';
+import { Avatar, EmptyState, Modal } from '@/shared/ui';
 import { usePostLikes, useCommentLikes } from '../hooks/useSocialReads';
 import type { SocialUserSummary } from '../types';
 
@@ -58,18 +58,10 @@ export function LikesModal({ target, open, onClose }: Props) {
 
     const { data: users, isLoading } = target.kind === 'post' ? postLikesQuery : commentLikesQuery;
 
-    if (!open) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
-            <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden="true" />
-
-            <div
-                className="relative w-full sm:max-w-sm h-[70vh] sm:h-[32rem] bg-surface rounded-t-3xl sm:rounded-2xl overflow-hidden z-10 flex flex-col"
-                style={{ boxShadow: '0 24px 80px rgba(28,21,16,0.22)' }}
-            >
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-sm" className="h-[70vh] sm:h-[32rem] flex flex-col" labelledBy="likes-title">
                 <div className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
-                    <h2 className="text-base font-bold text-foreground">Likes</h2>
+                    <h2 id="likes-title" className="text-base font-bold text-foreground">Likes</h2>
                     <button
                         onClick={onClose}
                         className="p-1.5 rounded-xl text-surface-500 hover:text-foreground transition-colors"
@@ -92,7 +84,6 @@ export function LikesModal({ target, open, onClose }: Props) {
                         </div>
                     )}
                 </div>
-            </div>
-        </div>
+        </Modal>
     );
 }
