@@ -12,3 +12,5 @@ export * from './Avatar';
 export * from './Toggle';
 export * from './ChipGroup';
 export * from './EmptyState';
+export * from './ImageLightbox';
+export * from './Modal';
