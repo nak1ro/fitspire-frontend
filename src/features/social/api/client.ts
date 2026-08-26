@@ -1,4 +1,5 @@
 import { http } from '@/shared/lib/http';
+import type { WorkoutDetail } from '@/features/workout/types';
 import { SOCIAL_ROUTES } from './routes';
 import {
     CommentRequest,
@@ -276,6 +277,12 @@ export const getMySharedGoalIds = (accessToken: string) =>
 
 export const getPublicGoals = (accessToken: string, userId: string) =>
     http<PublicGoal[]>(SOCIAL_ROUTES.publicGoals(userId), { accessToken });
+
+export const getPublicGoalDetail = (accessToken: string, userId: string, goalId: string) =>
+    http<PublicGoal>(SOCIAL_ROUTES.publicGoalDetail(userId, goalId), { accessToken });
+
+export const getPublicWorkoutDetail = (accessToken: string, userId: string, workoutId: string) =>
+    http<WorkoutDetail>(SOCIAL_ROUTES.publicWorkoutDetail(userId, workoutId), { accessToken });
 
 export const getPublicGoalPeriods = (accessToken: string, userId: string, pagination?: FeedPagination) =>
     http<{ items: PublicGoalPeriod[]; page: number; pageSize: number; totalCount: number }>(

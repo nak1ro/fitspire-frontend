@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Search, Plus, Utensils, Pencil, Trash2 } from 'lucide-react';
 import { Button, EmptyState, Toggle } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { useFavouriteFoods, useRecentFoods, useCreateFavouriteFood, useDeleteFavouriteFood } from '../../hooks/useNutrition';
+import { useCommonFoods, useFavouriteFoods, useRecentFoods, useCreateFavouriteFood, useDeleteFavouriteFood } from '../../hooks/useNutrition';
 import { QUANTITY_UNITS, QUANTITY_UNIT_LABELS, formatQuantity } from '../../mealTypeConfig';
 import { EditFavouriteFoodModal } from './EditFavouriteFoodModal';
-import type { FavouriteFood, MealItemRequest, QuantityUnit } from '../../types';
+import type { CommonFood, FavouriteFood, MealItemRequest, QuantityUnit } from '../../types';
 
 function toItemRequest(source: MealItemRequest): MealItemRequest {
     return {
@@ -28,7 +28,7 @@ const EMPTY_DRAFT: MealItemRequest = {
     caloriesKcal: null, proteinGrams: null, carbsGrams: null, fatGrams: null,
 };
 
-type Tab = 'favourites' | 'recent' | 'custom';
+type Tab = 'common' | 'favourites' | 'recent' | 'custom';
 
 function RowsSkeleton() {
     return (
@@ -221,17 +221,29 @@ function CustomFoodForm({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
 }
 
 export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) => void }) {
-    const [tab, setTab] = useState<Tab>('recent');
+    const [tab, setTab] = useState<Tab>('common');
     const [query, setQuery] = useState('');
+    const [commonQuery, setCommonQuery] = useState('');
+    const [commonCategory, setCommonCategory] = useState<string | null>(null);
     const [editingFavourite, setEditingFavourite] = useState<FavouriteFood | null>(null);
 
     const { data: favourites, isLoading: loadingFavourites } = useFavouriteFoods({ query: query || undefined, pageSize: 30 });
     const { data: recent, isLoading: loadingRecent } = useRecentFoods(20);
+    const { data: commonFoods, isLoading: loadingCommon } = useCommonFoods();
+
+    const categories = useMemo(() => Array.from(new Set((commonFoods ?? []).map(food => food.category))), [commonFoods]);
+    const filteredCommon = useMemo(() => {
+        const term = commonQuery.trim().toLowerCase();
+        return (commonFoods ?? []).filter(food =>
+            (!commonCategory || food.category === commonCategory) &&
+            (!term || food.name.toLowerCase().includes(term))
+        );
+    }, [commonFoods, commonQuery, commonCategory]);
 
     return (
         <div className="rounded-2xl border border-surface-200 bg-background overflow-hidden shadow-chip">
             <div className="flex gap-1.5 px-3.5 py-2.5 border-b border-surface-100 bg-surface-50">
-                {(['recent', 'favourites', 'custom'] as Tab[]).map(t => (
+                {(['common', 'recent', 'favourites', 'custom'] as Tab[]).map(t => (
                     <button
                         key={t}
                         type="button"
@@ -245,6 +257,59 @@ export function FoodQuickAddPanel({ onAdd }: { onAdd: (item: MealItemRequest) =>
                     </button>
                 ))}
             </div>
+
+            {tab === 'common' && (
+                <>
+                    <div className="flex items-center gap-2 px-3.5 py-2.5 border-b border-surface-100">
+                        <Search className="h-4 w-4 text-surface-400 shrink-0" aria-hidden="true" />
+                        <input
+                            type="text"
+                            value={commonQuery}
+                            onChange={e => setCommonQuery(e.target.value)}
+                            placeholder="Search foods…"
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-surface-400 outline-none"
+                        />
+                    </div>
+                    {categories.length > 0 && (
+                        <div className="flex gap-1.5 px-3.5 py-2 border-b border-surface-100 overflow-x-auto">
+                            <button
+                                type="button"
+                                onClick={() => setCommonCategory(null)}
+                                className={cn(
+                                    'shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold border transition-all',
+                                    commonCategory === null ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-surface-200 text-surface-500 hover:bg-surface-100'
+                                )}
+                            >
+                                All
+                            </button>
+                            {categories.map(category => (
+                                <button
+                                    key={category}
+                                    type="button"
+                                    onClick={() => setCommonCategory(category)}
+                                    className={cn(
+                                        'shrink-0 px-2.5 py-1 rounded-full text-xs font-semibold border whitespace-nowrap transition-all',
+                                        commonCategory === category ? 'bg-primary-50 border-primary-500 text-primary-600' : 'border-surface-200 text-surface-500 hover:bg-surface-100'
+                                    )}
+                                >
+                                    {category}
+                                </button>
+                            ))}
+                        </div>
+                    )}
+                    <div className="max-h-48 overflow-y-auto">
+                        {loadingCommon ? (
+                            <RowsSkeleton />
+                        ) : filteredCommon.length === 0 ? (
+                            <EmptyState icon={Utensils} title="No foods found" className="py-6" />
+                        ) : (
+                            filteredCommon.map((item: CommonFood) => (
+                                <FoodListRow key={item.id} item={item} onSelect={() => onAdd(toItemRequest(item))} />
+                            ))
+                        )}
+                    </div>
+                </>
+            )}
 
             {tab === 'favourites' && (
                 <>

@@ -1,9 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Archive, Flame, History, Pencil, TrendingUp } from 'lucide-react';
+import { Archive, Flame, History, Pencil, Target, TrendingUp } from 'lucide-react';
 import { Alert, Badge, Button, Card, ChipGroup, EmptyState, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { usePublicGoalDetail } from '@/features/social/hooks/useSocialReads';
 import { useArchiveGoal, useGoal, useGoalPeriods, useGoalProgress, useGoalTargetHistory, useGoalTypes } from '../hooks/useGoals';
 import { getCategoryConfig } from '../categoryConfig';
 import { EditGoalModal } from './EditGoalModal';
@@ -119,7 +120,60 @@ function TargetsTab({ goalId }: { goalId: string }) {
     );
 }
 
-export function GoalDetailView({ goalId }: { goalId: string }) {
+// Read-only view for someone else's goal, reached from a feed post's goal badge —
+// only the snapshot fields the social API exposes (no periods/progress/target history,
+// no edit/archive actions).
+function PublicGoalDetail({ goalId, ownerId }: { goalId: string; ownerId: string }) {
+    const { data: goal, isLoading, isError } = usePublicGoalDetail(ownerId, goalId);
+
+    if (isLoading) return <DetailSkeleton />;
+
+    if (isError || !goal) {
+        return (
+            <div className="rounded-2xl border border-surface-200 bg-surface px-6 py-10 text-center">
+                <p className="text-sm font-medium text-foreground">Couldn&apos;t load this goal</p>
+                <p className="text-xs text-surface-400 mt-1">It may no longer be available.</p>
+            </div>
+        );
+    }
+
+    const pct = goal.targetValue > 0 ? Math.min(100, Math.max(0, Math.round((goal.currentValue / goal.targetValue) * 100))) : 0;
+    const done = goal.status === 'Completed';
+
+    return (
+        <Card padding="md" className="space-y-4">
+            <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                    <IconChip icon={Target} />
+                    <h1 className="text-lg font-extrabold text-foreground leading-tight truncate">{goal.templateName}</h1>
+                </div>
+                <Badge variant={done ? 'success' : 'primary'} size="sm">{goal.status}</Badge>
+            </div>
+
+            <div className="w-full h-2 rounded-full bg-surface-200 overflow-hidden">
+                <div
+                    className={done ? 'h-full rounded-full bg-success transition-all duration-500' : 'h-full rounded-full bg-gradient-primary transition-all duration-500'}
+                    style={{ width: `${pct}%` }}
+                />
+            </div>
+
+            <div className="flex items-center justify-between">
+                <span className="text-sm text-surface-500">{goal.currentValue} / {goal.targetValue} {goal.unit}</span>
+                <span className="text-sm font-bold text-primary-600">{pct}%</span>
+            </div>
+        </Card>
+    );
+}
+
+export function GoalDetailView({ goalId, ownerId }: { goalId: string; ownerId?: string }) {
+    if (ownerId) {
+        return <PublicGoalDetail goalId={goalId} ownerId={ownerId} />;
+    }
+
+    return <PrivateGoalDetail goalId={goalId} />;
+}
+
+function PrivateGoalDetail({ goalId }: { goalId: string }) {
     const { data: detail, isLoading, isError } = useGoal(goalId);
     const { data: goalTypes } = useGoalTypes();
     const { mutate: archiveGoal, isPending: archiving } = useArchiveGoal();

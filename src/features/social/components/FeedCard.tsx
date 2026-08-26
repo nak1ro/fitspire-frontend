@@ -1,158 +1,44 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { Bookmark, Flag, Heart, MessageCircle, MoreVertical, Pencil, Send, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Bookmark, Heart, MessageCircle } from 'lucide-react';
 import { Alert, Avatar, Card, ImageLightbox } from '@/shared/ui';
+import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
+import { WorkoutDetailModal } from '@/features/workout/components/WorkoutDetailModal';
 import type { FeedItem } from '../types';
-import { useLikePost, useUnlikePost, useCommentOnPost, useSavePost, useUnsavePost, useDeletePost } from '../hooks/useSocialMutations';
+import { useDeletePost } from '../hooks/useSocialMutations';
+import { usePostEngagement } from '../hooks/usePostEngagement';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { GoalSummaryBlock } from './GoalSummaryBlock';
 import { EditPostModal } from './EditPostModal';
 import { LikesModal } from './LikesModal';
+import { PostMenu } from './PostMenu';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 import { ReportContentDialog } from '@/features/moderation/components/ReportContentDialog';
 import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 
-// ─── Comment row ───────────────────────────────────────────────────────────────
-
-function CommentRow({ userId, userName, avatarUrl, content }: { userId: string; userName: string; avatarUrl?: string | null; content: string }) {
-    return (
-        <div className="flex items-center gap-2">
-            <Link href={`/profile/${userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
-                <Avatar displayName={userName} userName={userName} avatarUrl={avatarUrl} size="xs" />
-            </Link>
-            <div className="min-w-0 rounded-xl bg-background px-3 py-2 flex-1">
-                <Link href={`/profile/${userId}`} className="text-xs font-semibold text-foreground hover:underline">{userName} </Link>
-                <span className="text-xs text-surface-600">{content}</span>
-            </div>
-        </div>
-    );
-}
-
-// ─── Owner menu ────────────────────────────────────────────────────────────────
-
-function PostMenu({ isOwner, canEdit, onEdit, onDelete, onReport }: {
-    isOwner: boolean;
-    canEdit: boolean;
-    onEdit: () => void;
-    onDelete: () => void;
-    onReport: () => void;
-}) {
-    const [open, setOpen] = useState(false);
-    const ref = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        if (!open) return;
-        function handleOutside(event: MouseEvent) {
-            if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
-        }
-        document.addEventListener('mousedown', handleOutside);
-        return () => document.removeEventListener('mousedown', handleOutside);
-    }, [open]);
-
-    return (
-        <div ref={ref} className="relative shrink-0">
-            <button
-                onClick={() => setOpen(v => !v)}
-                className="p-1.5 rounded-lg text-surface-400 hover:text-foreground hover:bg-surface-100 transition-all"
-                aria-label="Post options"
-                aria-expanded={open}
-            >
-                <MoreVertical className="h-4 w-4" aria-hidden="true" />
-            </button>
-            {open && (
-                <div
-                    role="menu"
-                    className="absolute right-0 top-full mt-1 w-40 rounded-xl border border-surface-200 bg-background p-1.5 z-20"
-                    style={{ boxShadow: 'var(--shadow-panel)' }}
-                >
-                    {isOwner && canEdit && (
-                        <button
-                            role="menuitem"
-                            onClick={() => { setOpen(false); onEdit(); }}
-                            className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-foreground transition-colors text-left"
-                        >
-                            <Pencil className="h-4 w-4 shrink-0" aria-hidden="true" />
-                            Edit
-                        </button>
-                    )}
-                    {isOwner ? <button
-                        role="menuitem"
-                        onClick={() => { setOpen(false); onDelete(); }}
-                        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-error hover:bg-error/10 transition-colors text-left"
-                    >
-                        <Trash2 className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        Delete
-                    </button> : <button
-                        role="menuitem"
-                        onClick={() => { setOpen(false); onReport(); }}
-                        className="w-full flex items-center gap-2.5 h-9 px-2.5 rounded-lg text-sm font-medium text-surface-600 hover:bg-surface-100 hover:text-error transition-colors text-left"
-                    >
-                        <Flag className="h-4 w-4 shrink-0" aria-hidden="true" />
-                        Report
-                    </button>}
-                </div>
-            )}
-        </div>
-    );
-}
-
 // ─── Main card ─────────────────────────────────────────────────────────────────
 
 export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () => void }) {
-    const [liked, setLiked] = useState(item.isLikedByCurrentUser);
-    const [likesCount, setLikesCount] = useState(item.likesCount);
-    const [saved, setSaved] = useState(item.isSavedByCurrentUser);
-    const [showCommentBox, setShowCommentBox] = useState(false);
-    const [commentText, setCommentText] = useState('');
+    const router = useRouter();
     const [editOpen, setEditOpen] = useState(false);
     const [likesModalOpen, setLikesModalOpen] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [reportPostOpen, setReportPostOpen] = useState(false);
     const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
+    const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
 
     const { data: profile } = useUserProfile();
-    const { mutate: likePost } = useLikePost();
-    const { mutate: unlikePost } = useUnlikePost();
-    const { mutate: savePost } = useSavePost();
-    const { mutate: unsavePost } = useUnsavePost();
-    const { mutate: postComment, isPending: isSendingComment } = useCommentOnPost();
+    const { liked, likesCount, toggleLike, saved, toggleSave } = usePostEngagement(item);
     const { mutate: deletePost, isPending: deleting } = useDeletePost();
 
     const isOwner = Boolean(profile && profile.id === item.userId);
     const canReport = Boolean(profile && !isOwner);
-
-    const handleLike = () => {
-        const wasLiked = liked;
-        setLiked(!wasLiked);
-        setLikesCount(c => c + (wasLiked ? -1 : 1));
-        const mutateLike = wasLiked ? unlikePost : likePost;
-        mutateLike(item.id, {
-            onError: () => {
-                setLiked(wasLiked);
-                setLikesCount(c => c + (wasLiked ? 1 : -1));
-            },
-        });
-    };
-
-    const handleSave = () => {
-        const wasSaved = saved;
-        setSaved(!wasSaved);
-        const mutateSave = wasSaved ? unsavePost : savePost;
-        mutateSave(item.id, { onError: () => setSaved(wasSaved) });
-    };
-
-    const handleSendComment = () => {
-        if (!commentText.trim()) return;
-        postComment(
-            { postId: item.id, data: { content: commentText.trim() } },
-            { onSuccess: () => setCommentText('') }
-        );
-    };
 
     const handleDelete = () => {
         if (!confirmDelete) { setConfirmDelete(true); return; }
@@ -175,7 +61,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                     <Link href={`/profile/${item.userId}`} className="text-sm font-semibold text-foreground leading-tight hover:underline">
                         {item.userName}
                     </Link>
-                    <Link href={`/feed/${item.id}`} className="text-[11px] text-surface-400 leading-tight mt-0.5 hover:underline block w-fit">
+                    <Link href={`/feed/${item.id}`} scroll={false} className="text-[11px] text-surface-400 leading-tight mt-0.5 hover:underline block w-fit">
                         {formatRelativeTime(item.createdAt)}
                     </Link>
                 </div>
@@ -187,10 +73,10 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                     <div className="flex items-center justify-between gap-3 rounded-xl bg-error/5 border border-error/20 px-3.5 py-2.5">
                         <span className="text-xs font-medium text-error">Delete this post? This can&apos;t be undone.</span>
                         <div className="flex items-center gap-2 shrink-0">
-                            <button onClick={handleDelete} disabled={deleting} className="text-xs font-bold text-error hover:opacity-70 disabled:opacity-50">
+                            <button onClick={handleDelete} disabled={deleting} className="text-xs font-bold text-error hover:opacity-70 disabled:opacity-50 cursor-pointer disabled:cursor-default">
                                 {deleting ? 'Deleting…' : 'Delete'}
                             </button>
-                            <button onClick={() => setConfirmDelete(false)} className="text-xs font-bold text-surface-500 hover:text-foreground">
+                            <button onClick={() => setConfirmDelete(false)} className="text-xs font-bold text-surface-500 hover:text-foreground cursor-pointer">
                                 Cancel
                             </button>
                         </div>
@@ -210,7 +96,15 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                         {item.content && (
                             <p className="text-sm text-foreground leading-relaxed mb-2.5">{item.content}</p>
                         )}
-                        {item.workoutSummary && <WorkoutSummaryBlock summary={item.workoutSummary} />}
+                        {item.workoutSummary && (
+                            <button
+                                type="button"
+                                onClick={() => setSelectedWorkoutId(item.workoutSummary!.id)}
+                                className="block w-full text-left transition-opacity hover:opacity-90 cursor-pointer"
+                            >
+                                <WorkoutSummaryBlock summary={item.workoutSummary} />
+                            </button>
+                        )}
                     </>
                 )}
 
@@ -219,7 +113,14 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                         {item.content && (
                             <p className="text-sm text-foreground leading-relaxed mb-2.5">{item.content}</p>
                         )}
-                        {item.goalSummary && <GoalSummaryBlock summary={item.goalSummary} />}
+                        {item.goalSummary && (
+                            <Link
+                                href={isOwner ? `/goals/${item.goalSummary.id}` : `/goals/${item.goalSummary.id}?ownerId=${item.userId}`}
+                                className="block transition-opacity hover:opacity-90"
+                            >
+                                <GoalSummaryBlock summary={item.goalSummary} />
+                            </Link>
+                        )}
                     </>
                 )}
 
@@ -235,7 +136,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                                     <button
                                         type="button"
                                         onClick={() => fullSrc && setLightboxSrc(fullSrc)}
-                                        className="block w-full aspect-square overflow-hidden rounded-xl bg-surface-100"
+                                        className="block w-full aspect-square overflow-hidden rounded-xl bg-surface-100 cursor-pointer"
                                         aria-label="Expand image"
                                     >
                                         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -259,104 +160,66 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
 
             {/* Footer */}
             <div className="px-4 pt-3 pb-0">
-                <div className="flex items-center gap-4 border-t border-surface-100 pt-3">
-
-                    {/* Like */}
-                    <div className="flex items-center gap-1">
-                        <button
-                            onClick={handleLike}
-                            className="flex items-center gap-1.5 transition-all hover:opacity-70"
-                            aria-label={liked ? 'Unlike post' : 'Like post'}
-                        >
-                            <Heart
-                                className={liked ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
-                                aria-hidden="true"
-                            />
-                        </button>
-                        <button
-                            onClick={() => setLikesModalOpen(true)}
-                            disabled={likesCount === 0}
-                            className={liked ? 'text-xs font-medium tabular-nums text-primary-500 hover:underline disabled:no-underline' : 'text-xs font-medium tabular-nums text-surface-500 hover:underline disabled:no-underline'}
-                            aria-label="See who liked this post"
-                        >
-                            {likesCount}
-                        </button>
+                {/* Counts summary */}
+                {(likesCount > 0 || item.commentsCount > 0) && (
+                    <div className="flex items-center gap-4 border-t border-surface-100 pt-3 pb-3 text-xs text-surface-400">
+                        {likesCount > 0 && (
+                            <button
+                                onClick={() => setLikesModalOpen(true)}
+                                className="flex items-center gap-1.5 hover:underline cursor-pointer"
+                                aria-label="See who liked this post"
+                            >
+                                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-primary-500">
+                                    <Heart className="h-2.5 w-2.5 text-white fill-white" aria-hidden="true" />
+                                </span>
+                                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
+                            </button>
+                        )}
+                        {item.commentsCount > 0 && (
+                            <Link href={`/feed/${item.id}`} scroll={false} className="flex items-center gap-1.5 hover:underline">
+                                <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
+                                {item.commentsCount} {item.commentsCount === 1 ? 'comment' : 'comments'}
+                            </Link>
+                        )}
                     </div>
+                )}
 
-                    {/* Comment toggle */}
+                {/* Actions */}
+                <div className={cn('grid grid-cols-3', likesCount === 0 && item.commentsCount === 0 && 'border-t border-surface-100 pt-3')}>
                     <button
-                        onClick={() => setShowCommentBox(v => !v)}
-                        className="flex items-center gap-1.5 transition-all hover:opacity-70"
-                        aria-label="Comment on post"
+                        onClick={toggleLike}
+                        className={cn(
+                            'flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-surface-100 cursor-pointer',
+                            liked ? 'text-primary-500' : 'text-surface-500'
+                        )}
+                        aria-label={liked ? 'Unlike post' : 'Like post'}
                     >
-                        <MessageCircle className="h-[18px] w-[18px] text-surface-500" aria-hidden="true" />
-                        <span className="text-xs font-medium text-surface-500 tabular-nums">
-                            {item.commentsCount}
-                        </span>
+                        <Heart className={cn('h-[18px] w-[18px] transition-transform active:scale-125', liked && 'fill-primary-500')} aria-hidden="true" />
+                        Like
                     </button>
 
-                    {/* Save */}
                     <button
-                        onClick={handleSave}
-                        className="ml-auto transition-all hover:opacity-70"
+                        onClick={() => router.push(`/feed/${item.id}?focus=comment`, { scroll: false })}
+                        className="flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold text-surface-500 hover:bg-surface-100 transition-colors cursor-pointer"
+                        aria-label="Comment on post"
+                    >
+                        <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
+                        Comment
+                    </button>
+
+                    <button
+                        onClick={toggleSave}
+                        className={cn(
+                            'flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold transition-colors hover:bg-surface-100 cursor-pointer',
+                            saved ? 'text-primary-500' : 'text-surface-500'
+                        )}
                         aria-label={saved ? 'Unsave post' : 'Save post'}
                     >
-                        <Bookmark
-                            className={saved ? 'h-[18px] w-[18px] transition-transform active:scale-125 text-primary-500 fill-primary-500' : 'h-[18px] w-[18px] transition-transform active:scale-125 text-surface-500'}
-                            aria-hidden="true"
-                        />
+                        <Bookmark className={cn('h-[18px] w-[18px] transition-transform active:scale-125', saved && 'fill-primary-500')} aria-hidden="true" />
+                        Save
                     </button>
                 </div>
             </div>
-
-            {/* Recent comments */}
-            {item.recentComments.length > 0 && (
-                <div className="px-4 pt-3 pb-0 space-y-2">
-                    {item.recentComments.map(c => (
-                        <CommentRow
-                            key={c.id}
-                            userId={c.userId}
-                            userName={c.userName}
-                            avatarUrl={c.userAvatarUrl}
-                            content={c.content}
-                        />
-                    ))}
-                    {item.commentsCount > item.recentComments.length && (
-                        <Link href={`/feed/${item.id}`} className="block text-xs font-semibold text-surface-400 hover:text-foreground transition-colors">
-                            View all {item.commentsCount} comments
-                        </Link>
-                    )}
-                </div>
-            )}
-
-            {/* Inline comment box */}
-            {showCommentBox && (
-                <div className="px-4 pt-3 pb-0">
-                    <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 shrink-0" aria-hidden="true" />
-                        <div className="flex-1 flex items-center gap-2 rounded-xl bg-background border border-surface-200 px-3 py-2">
-                            <input
-                                type="text"
-                                value={commentText}
-                                onChange={e => setCommentText(e.target.value)}
-                                onKeyDown={e => { if (e.key === 'Enter') handleSendComment(); }}
-                                placeholder="Add a comment…"
-                                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-surface-400 outline-none"
-                            />
-                            {commentText.trim() && (
-                                <button
-                                    onClick={handleSendComment}
-                                    disabled={isSendingComment}
-                                    className="shrink-0 transition-opacity hover:opacity-70 disabled:opacity-40"
-                                    aria-label="Send comment"
-                                >
-                                    <Send className="h-4 w-4 text-primary-500" aria-hidden="true" />
-                                </button>
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
 
             {/* Bottom padding */}
             <div className="h-4" />
@@ -365,6 +228,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
             <LikesModal target={{ kind: 'post', postId: item.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
             <ReportContentDialog target={{ targetType: 'Post', targetId: item.id, label: 'post' }} open={reportPostOpen} onClose={() => setReportPostOpen(false)} />
             <ImageLightbox src={lightboxSrc ?? ''} open={Boolean(lightboxSrc)} onClose={() => setLightboxSrc(null)} />
+            <WorkoutDetailModal workoutId={selectedWorkoutId} ownerId={item.userId} onClose={() => setSelectedWorkoutId(null)} />
         </Card>
     );
 }

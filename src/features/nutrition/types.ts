@@ -14,6 +14,8 @@ export interface NutritionTarget extends NutritionTargetRequest { id: string; cr
 export interface FavouriteFood extends MealItemRequest { id: string; createdAt: string; updatedAt?: string | null; }
 export type FavouriteFoodRequest = MealItemRequest;
 export interface RecentFood extends MealItemRequest { lastUsedDate: string; lastUsedLocalTime?: string | null; }
+export interface CommonFood extends MealItemRequest { id: string; category: string; }
+export interface CommonFoodFilter { query?: string; category?: string; }
 export interface MealHistoryFilter extends Partial<PageRequest> { from?: string; to?: string; type?: MealType; }
 export interface FavouriteFoodFilter extends Partial<PageRequest> { query?: string; }
 export interface NutritionTotals { caloriesKcal: number; proteinGrams: number; carbsGrams: number; fatGrams: number; }

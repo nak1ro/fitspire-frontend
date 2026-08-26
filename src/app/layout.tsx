@@ -5,6 +5,9 @@ import { jakarta } from '@/shared/lib/fonts';
 export const metadata = {
     title: 'Fitspire',
     description: 'Your fitness journey starts here.',
+    icons: {
+        icon: '/icon.svg',
+    },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

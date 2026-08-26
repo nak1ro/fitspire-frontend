@@ -10,6 +10,10 @@ import { LogWorkoutModal } from '@/features/workout/components/LogWorkoutModal';
 export function AppShell({ children }: { children: ReactNode }) {
     const [logWorkoutOpen, setLogWorkoutOpen] = useState(false);
     const pathname = usePathname();
+    // /feed/[postId] renders as an intercepted overlay on top of /feed (see feed/@modal) —
+    // treat it as the same page for the fade key so opening/closing the post detail modal
+    // doesn't remount the feed underneath and lose its Following/Discover tab state.
+    const fadeKey = /^\/feed\/[^/]+$/.test(pathname) ? '/feed' : pathname;
 
     return (
         <div className="flex h-dvh overflow-hidden bg-background">
@@ -24,7 +28,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     {/* Keyed on route so it re-mounts (and re-plays the fade) on every
                         real navigation; in-page tabs don't change the pathname, so
                         they're untouched by this. */}
-                    <div key={pathname} className="animate-fade-in">
+                    <div key={fadeKey} className="animate-fade-in">
                         {children}
                     </div>
                 </main>

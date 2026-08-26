@@ -18,8 +18,10 @@ import {
     getPublicChallengeResults,
     getPublicFeaturedBadges,
     getPublicFeaturedPersonalRecord,
+    getPublicGoalDetail,
     getPublicGoalPeriods,
     getPublicGoals,
+    getPublicWorkoutDetail,
     getSocialProfile,
     searchSocialUsers,
 } from '../api/client';
@@ -144,6 +146,30 @@ export function usePublicGoals(userId: string | null) {
         queryKey: socialQueryKeys.publicGoals(userId ?? ''),
         queryFn: () => getPublicGoals(requireAccessToken(accessToken), userId ?? ''),
         enabled: Boolean(accessToken && userId),
+    });
+}
+
+export function usePublicGoalDetail(userId: string | null, goalId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicGoalDetail(userId ?? '', goalId ?? ''),
+        queryFn: () => getPublicGoalDetail(requireAccessToken(accessToken), userId ?? '', goalId ?? ''),
+        enabled: Boolean(accessToken && userId && goalId),
+        // A stale/no-longer-visible reference from a feed post is an expected outcome here,
+        // not a transient failure — don't retry, just let the caller show its fallback state.
+        retry: false,
+    });
+}
+
+export function usePublicWorkoutDetail(userId: string | null, workoutId: string | null) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.publicWorkoutDetail(userId ?? '', workoutId ?? ''),
+        queryFn: () => getPublicWorkoutDetail(requireAccessToken(accessToken), userId ?? '', workoutId ?? ''),
+        enabled: Boolean(accessToken && userId && workoutId),
+        retry: false,
     });
 }
 

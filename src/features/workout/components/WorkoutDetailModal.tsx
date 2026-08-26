@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check, Pencil, BookmarkPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
+import { usePublicWorkoutDetail } from '@/features/social/hooks/useSocialReads';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout, useSaveWorkoutAsRoutine } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
@@ -179,9 +181,14 @@ interface Props {
     workoutId: string | null;
     onClose: () => void;
     onDeleted?: () => void;
+    /** When set to someone other than the current user, the modal opens read-only —
+     *  fetched via the social endpoint instead of the private one, with all owner-only
+     *  actions (edit/delete/share/save-as-routine) hidden. Reached from a feed post's
+     *  workout badge. */
+    ownerId?: string;
 }
 
-export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
+export function WorkoutDetailModal({ workoutId, onClose, onDeleted, ownerId }: Props) {
     const router = useRouter();
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -193,7 +200,17 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
     const [routineSaved, setRoutineSaved] = useState(false);
     const [routineError, setRoutineError] = useState<string | null>(null);
 
-    const { data: workout, isLoading } = useWorkout(workoutId);
+    const { data: profile } = useUserProfile();
+    const isOwnWorkout = !ownerId || ownerId === profile?.id;
+
+    const { data: ownWorkout, isLoading: ownLoading } = useWorkout(isOwnWorkout ? workoutId : null);
+    const { data: sharedWorkout, isLoading: sharedLoading } = usePublicWorkoutDetail(
+        isOwnWorkout ? null : (ownerId ?? null),
+        isOwnWorkout ? null : workoutId
+    );
+    const workout = isOwnWorkout ? ownWorkout : sharedWorkout;
+    const isLoading = isOwnWorkout ? ownLoading : sharedLoading;
+
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
     const { mutate: shareWorkout, isPending: sharing } = useShareWorkout();
     const { mutate: saveAsRoutine, isPending: savingRoutinePending } = useSaveWorkoutAsRoutine();
@@ -210,7 +227,7 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
         setRoutineName('');
         setRoutineSaved(false);
         setRoutineError(null);
-    }, [workoutId]);
+    }, [workoutId, ownerId]);
 
     const handleShare = () => {
         if (!workoutId) return;
@@ -318,7 +335,8 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                     )}
                 </div>
 
-                {/* Footer — edit + share + delete actions */}
+                {/* Footer — edit + share + delete actions (owner only) */}
+                {isOwnWorkout && (
                 <div className="shrink-0 border-t border-surface-200 px-5 py-5 space-y-3">
                     {workout && workout.status !== 'Archived' && (
                         <Button
@@ -420,9 +438,10 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted }: Props) {
                         </div>
                     )}
                 </div>
+                )}
         </Modal>
 
-            {workout && (
+            {isOwnWorkout && workout && (
                 <EditWorkoutModal workout={workout} open={editOpen} onClose={() => setEditOpen(false)} />
             )}
         </>

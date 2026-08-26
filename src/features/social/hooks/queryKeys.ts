@@ -35,6 +35,8 @@ export const socialQueryKeys = {
         [...socialQueryKeys.connections(userId), 'following', pagination ?? {}] as const,
     gamification: (userId: string) => [...socialQueryKeys.profile(userId), 'gamification'] as const,
     publicGoals: (userId: string) => [...socialQueryKeys.gamification(userId), 'goals'] as const,
+    publicGoalDetail: (userId: string, goalId: string) => [...socialQueryKeys.gamification(userId), 'goals', goalId] as const,
+    publicWorkoutDetail: (userId: string, workoutId: string) => [...socialQueryKeys.gamification(userId), 'workouts', workoutId] as const,
     publicGoalPeriods: (userId: string, pagination?: FeedPagination) =>
         [...socialQueryKeys.gamification(userId), 'goal-periods', pagination ?? {}] as const,
     publicBadges: (userId: string, category?: string, pagination?: FeedPagination) =>

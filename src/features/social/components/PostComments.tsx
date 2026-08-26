@@ -1,45 +1,20 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Send } from 'lucide-react';
-import { Avatar, Button, Card } from '@/shared/ui';
+import { Heart, Send } from 'lucide-react';
+import { Avatar, Button } from '@/shared/ui';
+import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 import { usePostComments, useCommentReplies } from '../hooks/useSocialReads';
-import {
-    useCommentOnPost,
-    useUpdateComment,
-    useDeleteComment,
-    useLikeComment,
-    useUnlikeComment,
-} from '../hooks/useSocialMutations';
+import { useCommentOnPost, useUpdateComment, useDeleteComment } from '../hooks/useSocialMutations';
+import { useCommentLikeOptimistic } from '../hooks/useCommentLikeOptimistic';
 import { LikesModal } from './LikesModal';
+import { CommentMenu } from './CommentMenu';
 import type { CommentResponse } from '../types';
-import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
-
-function useOptimisticCommentLike(comment: CommentResponse, postId: string) {
-    const [liked, setLiked] = useState(comment.isLikedByCurrentUser);
-    const [count, setCount] = useState(comment.likesCount);
-    const { mutate: likeComment } = useLikeComment();
-    const { mutate: unlikeComment } = useUnlikeComment();
-
-    const toggle = () => {
-        const wasLiked = liked;
-        setLiked(!wasLiked);
-        setCount(c => c + (wasLiked ? -1 : 1));
-        const mutateLike = wasLiked ? unlikeComment : likeComment;
-        mutateLike({ postId, commentId: comment.id }, {
-            onError: () => {
-                setLiked(wasLiked);
-                setCount(c => c + (wasLiked ? 1 : -1));
-            },
-        });
-    };
-
-    return { liked, count, toggle };
-}
+import { ReportContentDialog } from '@/features/moderation/components/ReportContentDialog';
 
 function CommentItem({
     comment,
@@ -58,10 +33,11 @@ function CommentItem({
     const [editContent, setEditContent] = useState(comment.content);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [likesModalOpen, setLikesModalOpen] = useState(false);
+    const [reportOpen, setReportOpen] = useState(false);
     const [showReplies, setShowReplies] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
-    const { liked, count, toggle } = useOptimisticCommentLike(comment, postId);
+    const { liked, count, toggle } = useCommentLikeOptimistic(comment, postId);
     const { mutate: updateComment, isPending: saving } = useUpdateComment();
     const { mutate: deleteComment, isPending: deleting } = useDeleteComment();
 
@@ -69,6 +45,7 @@ function CommentItem({
     // matching Comment.CanBeDeletedBy on the backend.
     const isAuthor = Boolean(currentUserId && currentUserId === comment.userId);
     const canDelete = isAuthor || Boolean(currentUserId && currentUserId === postOwnerUserId);
+    const canReport = Boolean(currentUserId && !isAuthor);
     const isReply = Boolean(comment.rootCommentId);
 
     const handleSaveEdit = () => {
@@ -85,7 +62,6 @@ function CommentItem({
     };
 
     const handleDelete = () => {
-        if (!confirmDelete) { setConfirmDelete(true); return; }
         setError(null);
         deleteComment(
             { postId, commentId: comment.id },
@@ -94,80 +70,99 @@ function CommentItem({
     };
 
     return (
-        <div className={isReply ? 'flex items-start gap-2.5 pl-9' : 'flex items-start gap-2.5'}>
+        <div className={cn('group flex items-start gap-2.5', isReply && 'pl-9')}>
             <Link href={`/profile/${comment.userId}`} className="shrink-0 hover:opacity-80 transition-opacity">
                 <Avatar displayName={comment.userName} userName={comment.userName} avatarUrl={comment.userAvatarUrl} size={isReply ? 'xs' : 'sm'} />
             </Link>
             <div className="min-w-0 flex-1 space-y-1">
-                <div className="rounded-xl bg-background px-3.5 py-2.5">
-                    <Link href={`/profile/${comment.userId}`} className="text-xs font-semibold text-foreground hover:underline">
-                        {comment.userName}
-                    </Link>
-                    {comment.replyToUser && (
-                        <span className="text-xs text-surface-400">
-                            {' '}→{' '}
-                            <Link href={`/profile/${comment.replyToUser.id}`} className="font-semibold hover:underline">
-                                @{comment.replyToUser.userName}
-                            </Link>
-                        </span>
-                    )}
+                <div className="flex items-start gap-1">
+                    <div className="min-w-0 flex-1 rounded-xl bg-background px-3.5 py-2.5">
+                        <Link href={`/profile/${comment.userId}`} className="text-xs font-semibold text-foreground hover:underline">
+                            {comment.userName}
+                        </Link>
+                        {comment.replyToUser && (
+                            <span className="text-xs text-surface-400">
+                                {' '}→{' '}
+                                <Link href={`/profile/${comment.replyToUser.id}`} className="font-semibold hover:underline">
+                                    @{comment.replyToUser.userName}
+                                </Link>
+                            </span>
+                        )}
 
-                    {editing ? (
-                        <div className="mt-1.5 space-y-2">
-                            <textarea
-                                value={editContent}
-                                onChange={e => setEditContent(e.target.value)}
-                                rows={2}
-                                className="w-full resize-none rounded-lg bg-surface border border-surface-200 px-2.5 py-1.5 text-sm text-foreground outline-none focus:border-primary-500 transition-colors"
-                            />
-                            <div className="flex gap-2">
-                                <Button size="sm" loading={saving} disabled={!editContent.trim()} onClick={handleSaveEdit}>Save</Button>
-                                <Button size="sm" variant="secondary" onClick={() => { setEditing(false); setEditContent(comment.content); }}>Cancel</Button>
+                        {editing ? (
+                            <div className="mt-1.5 space-y-2">
+                                <textarea
+                                    value={editContent}
+                                    onChange={e => setEditContent(e.target.value)}
+                                    rows={2}
+                                    className="w-full resize-none rounded-lg bg-surface border border-surface-200 px-2.5 py-1.5 text-sm text-foreground outline-none focus:border-primary-500 transition-colors"
+                                />
+                                <div className="flex gap-2">
+                                    <Button size="sm" loading={saving} disabled={!editContent.trim()} onClick={handleSaveEdit}>Save</Button>
+                                    <Button size="sm" variant="secondary" onClick={() => { setEditing(false); setEditContent(comment.content); }}>Cancel</Button>
+                                </div>
                             </div>
+                        ) : (
+                            <p className="text-sm text-surface-700 mt-0.5">{comment.content}</p>
+                        )}
+                    </div>
+
+                    {!editing && (
+                        <div className="flex items-center gap-0.5 pt-1 shrink-0">
+                            <button
+                                onClick={toggle}
+                                className="p-1 rounded-lg transition-transform hover:scale-110 active:scale-125 cursor-pointer"
+                                aria-label={liked ? 'Unlike comment' : 'Like comment'}
+                            >
+                                <Heart
+                                    className={cn('h-3.5 w-3.5', liked ? 'text-primary-500 fill-primary-500' : 'text-surface-400')}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                            <CommentMenu
+                                canEdit={isAuthor}
+                                canDelete={canDelete}
+                                canReport={canReport}
+                                onEdit={() => setEditing(true)}
+                                onDelete={() => setConfirmDelete(true)}
+                                onReport={() => setReportOpen(true)}
+                            />
                         </div>
-                    ) : (
-                        <p className="text-sm text-surface-700 mt-0.5">{comment.content}</p>
                     )}
                 </div>
 
                 {error && <p className="text-xs text-error px-1">{error}</p>}
 
-                {!editing && (
+                {!editing && !confirmDelete && (
                     <div className="flex items-center gap-3 px-1">
                         <span className="text-[11px] text-surface-400">{formatRelativeTime(comment.createdAt)}</span>
-                        <button onClick={toggle} className={`text-[11px] font-semibold hover:opacity-70 ${liked ? 'text-primary-500' : 'text-surface-500'}`}>
-                            {liked ? 'Liked' : 'Like'}
-                        </button>
                         {count > 0 && (
-                            <button onClick={() => setLikesModalOpen(true)} className="text-[11px] text-surface-400 hover:underline">
+                            <button onClick={() => setLikesModalOpen(true)} className="text-[11px] text-surface-400 hover:underline cursor-pointer">
                                 {count} {count === 1 ? 'like' : 'likes'}
                             </button>
                         )}
-                        <button onClick={() => onReply(comment)} className="text-[11px] font-semibold text-surface-500 hover:text-foreground transition-colors">
+                        <button onClick={() => onReply(comment)} className="text-[11px] font-semibold text-surface-500 hover:text-foreground transition-colors cursor-pointer">
                             Reply
                         </button>
-                        {Boolean(currentUserId && !isAuthor) && <ReportTrigger target={{ targetType: 'Comment', targetId: comment.id, label: 'comment' }} />}
-                        {isAuthor && (
-                            <button onClick={() => setEditing(true)} className="text-[11px] font-semibold text-surface-500 hover:text-foreground transition-colors">
-                                Edit
-                            </button>
-                        )}
-                        {canDelete && (
-                            <button
-                                onClick={handleDelete}
-                                disabled={deleting}
-                                className={`text-[11px] font-semibold transition-colors disabled:opacity-50 ${confirmDelete ? 'text-error' : 'text-surface-500 hover:text-error'}`}
-                            >
-                                {confirmDelete ? (deleting ? 'Deleting…' : 'Confirm delete') : 'Delete'}
-                            </button>
-                        )}
+                    </div>
+                )}
+
+                {confirmDelete && (
+                    <div className="flex items-center gap-3 px-1">
+                        <span className="text-[11px] font-semibold text-error">Delete this comment?</span>
+                        <button onClick={handleDelete} disabled={deleting} className="text-[11px] font-semibold text-error hover:opacity-70 disabled:opacity-50 cursor-pointer disabled:cursor-default">
+                            {deleting ? 'Deleting…' : 'Yes'}
+                        </button>
+                        <button onClick={() => setConfirmDelete(false)} disabled={deleting} className="text-[11px] font-semibold text-surface-500 hover:text-foreground cursor-pointer disabled:cursor-default">
+                            Cancel
+                        </button>
                     </div>
                 )}
 
                 {!isReply && comment.repliesCount > 0 && (
                     <button
                         onClick={() => setShowReplies(v => !v)}
-                        className="text-[11px] font-semibold text-surface-400 hover:text-foreground transition-colors px-1"
+                        className="text-[11px] font-semibold text-surface-400 hover:text-foreground transition-colors px-1 cursor-pointer"
                     >
                         {showReplies ? 'Hide replies' : `View ${comment.repliesCount} ${comment.repliesCount === 1 ? 'reply' : 'replies'}`}
                     </button>
@@ -185,6 +180,7 @@ function CommentItem({
             </div>
 
             <LikesModal target={{ kind: 'comment', postId, commentId: comment.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
+            <ReportContentDialog target={{ targetType: 'Comment', targetId: comment.id, label: 'comment' }} open={reportOpen} onClose={() => setReportOpen(false)} />
         </div>
     );
 }
@@ -217,12 +213,29 @@ function RepliesList({
     );
 }
 
-export function PostComments({ postId, postOwnerUserId }: { postId: string; postOwnerUserId?: string }) {
+export function PostComments({
+    postId,
+    postOwnerUserId,
+    variant = 'card',
+    autoFocus = false,
+}: {
+    postId: string;
+    postOwnerUserId?: string;
+    /** 'bare' skips the Card wrapper and heading, for embedding inside another panel (e.g. the post detail view). */
+    variant?: 'card' | 'bare';
+    /** Focus the comment input as soon as it mounts — used when the detail view is opened via the feed card's Comment button. */
+    autoFocus?: boolean;
+}) {
     const { data: profile } = useUserProfile();
     const { data: comments, isLoading, isError } = usePostComments(postId, { pageSize: 50 });
     const { mutate: postComment, isPending: isSending } = useCommentOnPost();
     const [commentText, setCommentText] = useState('');
     const [replyTarget, setReplyTarget] = useState<CommentResponse | null>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+        if (autoFocus) inputRef.current?.focus();
+    }, [autoFocus]);
 
     const handleSubmit = () => {
         const trimmed = commentText.trim();
@@ -234,8 +247,11 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
     };
 
     return (
-        <Card padding="md" className="space-y-4">
-            <h3 className="text-sm font-bold text-foreground">Comments</h3>
+        <div
+            className={cn('space-y-4', variant === 'card' && 'rounded-2xl bg-surface p-5')}
+            style={variant === 'card' ? { boxShadow: 'var(--shadow-card)' } : undefined}
+        >
+            {variant === 'card' && <h3 className="text-sm font-bold text-foreground">Comments</h3>}
 
             {isLoading && <p className="text-sm text-surface-400">Loading comments…</p>}
             {isError && <p className="text-sm text-error">Couldn&apos;t load comments.</p>}
@@ -262,7 +278,7 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
                 {replyTarget && (
                     <div className="flex items-center justify-between text-xs text-surface-500 px-1">
                         <span>Replying to <span className="font-semibold text-foreground">{replyTarget.userName}</span></span>
-                        <button onClick={() => setReplyTarget(null)} className="font-semibold hover:text-foreground transition-colors">
+                        <button onClick={() => setReplyTarget(null)} className="font-semibold hover:text-foreground transition-colors cursor-pointer">
                             Cancel
                         </button>
                     </div>
@@ -271,6 +287,7 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
                     <Avatar displayName={profile?.displayName ?? ''} userName={profile?.userName ?? '...'} avatarUrl={profile?.profilePictureUrl} size="sm" />
                     <div className="flex-1 flex items-center gap-2 rounded-xl bg-background border border-surface-200 px-3 py-2">
                         <input
+                            ref={inputRef}
                             type="text"
                             value={commentText}
                             onChange={e => setCommentText(e.target.value)}
@@ -282,7 +299,7 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
                             <button
                                 onClick={handleSubmit}
                                 disabled={isSending}
-                                className="shrink-0 transition-opacity hover:opacity-70 disabled:opacity-40"
+                                className="shrink-0 transition-opacity hover:opacity-70 disabled:opacity-40 cursor-pointer disabled:cursor-default"
                                 aria-label="Send comment"
                             >
                                 <Send className="h-4 w-4 text-primary-500" aria-hidden="true" />
@@ -291,6 +308,6 @@ export function PostComments({ postId, postOwnerUserId }: { postId: string; post
                     </div>
                 </div>
             </div>
-        </Card>
+        </div>
     );
 }

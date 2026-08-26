@@ -1,11 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { usePost } from '../hooks/useSocialFeed';
-import { FeedCard } from './FeedCard';
-import { PostComments } from './PostComments';
+import { PostDetailContent } from './PostDetailContent';
 
 function DetailSkeleton() {
     return (
@@ -36,7 +35,9 @@ function PostNotFound() {
 
 export function PostDetailView({ postId }: { postId: string }) {
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { data: post, isLoading, isError } = usePost(postId);
+    const autoFocusComment = searchParams.get('focus') === 'comment';
 
     return (
         <div className="space-y-4">
@@ -48,10 +49,12 @@ export function PostDetailView({ postId }: { postId: string }) {
             {isLoading && <DetailSkeleton />}
             {isError && <PostNotFound />}
             {!isLoading && !isError && post && (
-                <>
-                    <FeedCard item={post} onDeleted={() => router.push('/feed')} />
-                    <PostComments postId={postId} postOwnerUserId={post.userId} />
-                </>
+                <div
+                    className="rounded-2xl overflow-hidden bg-surface"
+                    style={{ boxShadow: 'var(--shadow-card)' }}
+                >
+                    <PostDetailContent post={post} onDeleted={() => router.push('/feed')} autoFocusComment={autoFocusComment} />
+                </div>
             )}
         </div>
     );

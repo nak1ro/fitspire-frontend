@@ -35,6 +35,8 @@ export interface CommentPreview {
     userAvatarUrl?: string | null;
     userAvatar?: Media | null;
     content: string;
+    likesCount: number;
+    isLikedByCurrentUser: boolean;
     createdAt: string;
 }
 
