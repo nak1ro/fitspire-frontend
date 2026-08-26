@@ -2,10 +2,9 @@
 
 import { useTheme } from 'next-themes';
 import { Loader2 } from 'lucide-react';
-import { Alert, ChipGroup as SharedChipGroup, Toggle as SharedToggle, type ChipGroupOption } from '@/shared/ui';
+import { Alert, Toggle as SharedToggle } from '@/shared/ui';
 import { useUserPreferences, useUpdateUserPreferences } from '../hooks/useUserPreferences';
 import { ChangePasswordForm } from './ChangePasswordForm';
-import type { PreferredLanguage, UnitSystem } from '../types';
 
 // ─── Primitives ────────────────────────────────────────────────────────────────
 
@@ -44,27 +43,6 @@ function SettingRow({
     );
 }
 
-function ChipGroup<T extends string>({
-    options,
-    value,
-    onChange,
-    labelMap,
-}: {
-    options: readonly T[];
-    value: T;
-    onChange: (v: T) => void;
-    labelMap?: Partial<Record<T, string>>;
-}) {
-    const chipOptions: ChipGroupOption<T>[] = options.map(opt => ({ value: opt, label: labelMap?.[opt] ?? opt }));
-    return (
-        <SharedChipGroup
-            options={chipOptions}
-            value={value}
-            onChange={v => v && onChange(v)}
-        />
-    );
-}
-
 // ─── Skeleton ──────────────────────────────────────────────────────────────────
 
 function SettingsSkeleton() {
@@ -76,14 +54,6 @@ function SettingsSkeleton() {
         </div>
     );
 }
-
-// ─── Constants ─────────────────────────────────────────────────────────────────
-
-const UNIT_OPTIONS = ['metric', 'imperial'] as const satisfies readonly UnitSystem[];
-const UNIT_LABELS: Record<UnitSystem, string> = { metric: 'Metric', imperial: 'Imperial' };
-
-const LANGUAGE_OPTIONS = ['en', 'es', 'ru'] as const satisfies readonly PreferredLanguage[];
-const LANGUAGE_LABELS: Record<PreferredLanguage, string> = { en: 'English', es: 'Español', ru: 'Русский' };
 
 // ─── View ──────────────────────────────────────────────────────────────────────
 
@@ -114,49 +84,6 @@ export function SettingsView() {
                 <SharedToggle
                     checked={prefs.isDarkModeEnabled}
                     onChange={handleDarkMode}
-                />
-            </SettingRow>
-
-            {/* Units */}
-            <SectionHeader title="Units" />
-            <SettingRow
-                label="Unit system"
-                description="Used for distances, weights, and measurements"
-                saving={isPending}
-            >
-                <ChipGroup
-                    options={UNIT_OPTIONS}
-                    value={prefs.unitSystem}
-                    onChange={v => mutate({ unitSystem: v })}
-                    labelMap={UNIT_LABELS}
-                />
-            </SettingRow>
-
-            {/* Notifications */}
-            <SectionHeader title="Notifications" />
-            <SettingRow
-                label="Email notifications"
-                description="Receive updates about your activity and challenges"
-                saving={isPending}
-            >
-                <SharedToggle
-                    checked={prefs.receiveEmailNotifications}
-                    onChange={v => mutate({ receiveEmailNotifications: v })}
-                />
-            </SettingRow>
-
-            {/* Language */}
-            <SectionHeader title="Language" />
-            <SettingRow
-                label="Preferred language"
-                description="Language used across the app"
-                saving={isPending}
-            >
-                <ChipGroup
-                    options={LANGUAGE_OPTIONS}
-                    value={prefs.preferredLanguage}
-                    onChange={v => mutate({ preferredLanguage: v })}
-                    labelMap={LANGUAGE_LABELS}
                 />
             </SettingRow>
 

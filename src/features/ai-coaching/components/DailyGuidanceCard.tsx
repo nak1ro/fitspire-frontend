@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Dumbbell, Heart, Flame, Calendar, Utensils, Sparkles, Info, Loader2, type LucideIcon } from 'lucide-react';
-import { Alert, Badge, Button, Card, EmptyState } from '@/shared/ui';
+import { Alert, Badge, Button, Card, EmptyState, Skeleton, SkeletonCard } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useTodayDailyBriefing, useQueueTodayDailyBriefing, useRetryDailyBriefing } from '../hooks/useCoachInteractions';
 import { CoachMarkdown } from './CoachMarkdown';
@@ -20,9 +20,31 @@ const FOCUS_CONFIG: Record<DailyCoachFocus, { label: string; Icon: LucideIcon }>
 
 function ViewSkeleton() {
     return (
-        <div className="space-y-4 animate-pulse">
-            <div className="h-24 rounded-2xl bg-surface-100" />
-            <div className="h-32 rounded-2xl bg-surface-100" />
+        <div className="space-y-4" aria-label="Loading today's guidance" aria-busy="true">
+            <SkeletonCard className="p-5 space-y-3">
+                <Skeleton className="h-5 w-24 rounded-full" />
+                <Skeleton className="h-4 w-3/4 rounded-full" />
+                <div className="space-y-2">
+                    <Skeleton className="h-3 w-full rounded-full" />
+                    <Skeleton className="h-3 w-5/6 rounded-full" />
+                </div>
+            </SkeletonCard>
+
+            <div className="space-y-2.5">
+                <Skeleton className="h-3 w-20 rounded-full animate-pulse" />
+                <SkeletonCard className="space-y-2">
+                    <Skeleton className="h-3.5 w-2/3 rounded-full" />
+                    <Skeleton className="h-3 w-full rounded-full" />
+                </SkeletonCard>
+            </div>
+
+            <div className="space-y-2.5">
+                <Skeleton className="h-3 w-14 rounded-full animate-pulse" />
+                <SkeletonCard className="space-y-2">
+                    <Skeleton className="h-3 w-full rounded-full" />
+                    <Skeleton className="h-3 w-4/5 rounded-full" />
+                </SkeletonCard>
+            </div>
         </div>
     );
 }

@@ -3,17 +3,36 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Target } from 'lucide-react';
-import { Button, EmptyState } from '@/shared/ui';
+import { Button, EmptyState, Skeleton, SkeletonCard } from '@/shared/ui';
 import { useGoals, useGoalTypes } from '../hooks/useGoals';
 import { GoalCard } from './GoalCard';
 import { CreateGoalModal } from './CreateGoalModal';
 
+function SkeletonGoalCard() {
+    return (
+        <SkeletonCard className="space-y-3">
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    <Skeleton className="w-8 h-8 rounded-xl shrink-0" />
+                    <Skeleton className="h-3.5 w-32 rounded-full" />
+                </div>
+                <Skeleton className="h-4 w-14 rounded-full shrink-0" />
+            </div>
+            <Skeleton className="h-2 w-full rounded-full" />
+            <div className="flex items-center justify-between">
+                <Skeleton className="h-3 w-20 rounded-full" />
+                <Skeleton className="h-3 w-8 rounded-full" />
+            </div>
+        </SkeletonCard>
+    );
+}
+
 function GoalsSkeleton() {
     return (
-        <div className="space-y-2">
-            {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-24 rounded-2xl bg-surface-100 animate-pulse" />
-            ))}
+        <div className="space-y-2.5" aria-label="Loading goals" aria-busy="true">
+            <SkeletonGoalCard />
+            <SkeletonGoalCard />
+            <SkeletonGoalCard />
         </div>
     );
 }

@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Plus, Trophy } from 'lucide-react';
-import { Badge, Button, EmptyState } from '@/shared/ui';
+import { Badge, Button, EmptyState, Skeleton, SkeletonCard } from '@/shared/ui';
 import { useDiscoverChallenges, useAvailableChallenges, useIncomingChallengeInvitations, useMyChallenges } from '../hooks/useChallenges';
 import { ChallengeCard } from './ChallengeCard';
 import { ChallengeInvitationCard } from './ChallengeInvitationCard';
@@ -14,10 +14,33 @@ type Tab = 'discover' | 'mine' | 'invites';
 
 const ACTIVE_STATUSES = new Set(['Upcoming', 'Active', 'Finalizing']);
 
+function SkeletonChallengeCard() {
+    return (
+        <SkeletonCard className="space-y-3">
+            <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                    <Skeleton className="w-8 h-8 rounded-xl shrink-0" />
+                    <div className="space-y-1.5 flex-1">
+                        <Skeleton className="h-3.5 w-36 rounded-full" />
+                        <Skeleton className="h-2.5 w-24 rounded-full" />
+                    </div>
+                </div>
+                <Skeleton className="h-4 w-14 rounded-full shrink-0" />
+            </div>
+            <div className="flex items-center justify-between">
+                <Skeleton className="h-3 w-24 rounded-full" />
+                <Skeleton className="h-3 w-16 rounded-full" />
+            </div>
+        </SkeletonCard>
+    );
+}
+
 function ChallengesSkeleton() {
     return (
-        <div className="space-y-2.5">
-            {[1, 2, 3].map(i => <div key={i} className="h-24 rounded-2xl bg-surface-100 animate-pulse" />)}
+        <div className="space-y-2.5" aria-label="Loading challenges" aria-busy="true">
+            <SkeletonChallengeCard />
+            <SkeletonChallengeCard />
+            <SkeletonChallengeCard />
         </div>
     );
 }

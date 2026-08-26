@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { ChevronLeft, ChevronRight, Plus, Utensils } from 'lucide-react';
-import { Button, EmptyState } from '@/shared/ui';
+import { Button, EmptyState, Skeleton, SkeletonCard } from '@/shared/ui';
 import { useDailyNutrition } from '../hooks/useNutrition';
 import { MEAL_TYPES, MEAL_TYPE_CONFIG } from '../mealTypeConfig';
 import { DailySummaryCard } from './DailySummaryCard';
@@ -38,10 +38,35 @@ function formatDateLabel(dateStr: string): string {
 
 function DailySkeleton() {
     return (
-        <div className="space-y-4 animate-pulse">
-            <div className="h-40 rounded-2xl bg-surface-100" />
-            <div className="h-20 rounded-2xl bg-surface-100" />
-            <div className="h-20 rounded-2xl bg-surface-100" />
+        <div className="space-y-6" aria-label="Loading nutrition" aria-busy="true">
+            <SkeletonCard className="p-5 space-y-5">
+                <div className="flex items-center justify-between">
+                    <div className="space-y-2">
+                        <Skeleton className="h-7 w-28 rounded-full" />
+                        <Skeleton className="h-3 w-36 rounded-full" />
+                    </div>
+                    <Skeleton className="h-8 w-20 rounded-xl shrink-0" />
+                </div>
+                <Skeleton className="h-2.5 w-full rounded-full" />
+                <div className="flex gap-4">
+                    <Skeleton className="h-8 flex-1 rounded-xl" />
+                    <Skeleton className="h-8 flex-1 rounded-xl" />
+                    <Skeleton className="h-8 flex-1 rounded-xl" />
+                </div>
+            </SkeletonCard>
+
+            <Skeleton className="h-11 w-full rounded-xl animate-pulse" />
+
+            <div className="space-y-2.5">
+                <Skeleton className="h-3 w-20 rounded-full animate-pulse" />
+                <SkeletonCard className="flex items-center gap-3">
+                    <Skeleton className="w-8 h-8 rounded-xl shrink-0" />
+                    <div className="flex-1 space-y-1.5">
+                        <Skeleton className="h-3.5 w-32 rounded-full" />
+                        <Skeleton className="h-3 w-24 rounded-full" />
+                    </div>
+                </SkeletonCard>
+            </div>
         </div>
     );
 }

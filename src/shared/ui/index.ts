@@ -14,3 +14,4 @@ export * from './ChipGroup';
 export * from './EmptyState';
 export * from './ImageLightbox';
 export * from './Modal';
+export * from './Skeleton';
