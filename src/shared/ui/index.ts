@@ -13,5 +13,6 @@ export * from './Toggle';
 export * from './ChipGroup';
 export * from './EmptyState';
 export * from './ImageLightbox';
+export * from './Logo';
 export * from './Modal';
 export * from './Skeleton';

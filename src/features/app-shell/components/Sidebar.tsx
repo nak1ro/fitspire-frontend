@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles, Shield } from 'lucide-react';
-import { Button } from '@/shared/ui';
+import { Button, Logo } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { StreakCard } from './StreakCard';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
@@ -35,7 +35,7 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
 
             {/* Wordmark */}
             <div className="h-14 flex items-center gap-2 px-5 shrink-0">
-                <Dumbbell className="h-5 w-5 text-primary-500 shrink-0" aria-hidden="true" />
+                <Logo className="h-5 w-5 text-primary-500 shrink-0" />
                 <Link
                     href="/feed"
                     className="text-xl font-bold tracking-tight text-foreground hover:opacity-60 transition-opacity"
