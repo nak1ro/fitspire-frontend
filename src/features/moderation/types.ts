@@ -110,3 +110,10 @@ export interface ResolveModerationReportRequest {
 export interface AdminAccessResponse {
     isAdmin: true;
 }
+
+export type DemoDataSeedState = 'NotStarted' | 'Running' | 'Completed' | 'Failed';
+
+export interface DemoDataStatusResponse {
+    state: DemoDataSeedState;
+    errorMessage: string | null;
+}

@@ -7,4 +7,6 @@ export const MODERATION_ROUTES = {
     adminResolveReport: (reportId: string) => `/api/admin/moderation/reports/${reportId}/resolve`,
     adminRestoreTarget: (reportId: string) => `/api/admin/moderation/reports/${reportId}/restore-target`,
     adminUnsuspendUser: (reportId: string) => `/api/admin/moderation/reports/${reportId}/unsuspend-user`,
+    demoDataSeed: '/api/admin/demo-data/seed',
+    demoDataStatus: '/api/admin/demo-data/status',
 } as const;

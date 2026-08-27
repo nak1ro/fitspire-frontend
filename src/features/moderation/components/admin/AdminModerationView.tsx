@@ -5,6 +5,7 @@ import { AlertCircle, ShieldAlert } from 'lucide-react';
 import { Button, Card, EmptyState } from '@/shared/ui';
 import { useAdminModerationReports, useAdminModerationSummary } from '../../hooks/useAdminModeration';
 import type { AdminModerationReportFilter } from '../../types';
+import { DemoDataSeedCard } from './DemoDataSeedCard';
 import { ModerationQueueFilters } from './ModerationQueueFilters';
 import { ModerationReportCard } from './ModerationReportCard';
 
@@ -26,6 +27,7 @@ export function AdminModerationView() {
                 <Card padding="md"><p className="text-xs font-semibold text-surface-500">Open reports</p><p className="mt-1 text-2xl font-extrabold text-foreground">{summary.data?.openReports ?? '—'}</p></Card>
                 <Card padding="md"><p className="text-xs font-semibold text-surface-500">Resolved reports</p><p className="mt-1 text-2xl font-extrabold text-foreground">{summary.data?.resolvedReports ?? '—'}</p></Card>
             </div>
+            <DemoDataSeedCard />
             <ModerationQueueFilters filter={filter} onChange={setFilter} />
             {reports.isError ? <EmptyState icon={AlertCircle} title="Couldn't load reports" description="Try refreshing the page." /> : null}
             {reports.isLoading ? <div className="space-y-3">{[1, 2, 3].map((item) => <div key={item} className="h-36 animate-pulse rounded-2xl bg-surface-100" />)}</div> : null}

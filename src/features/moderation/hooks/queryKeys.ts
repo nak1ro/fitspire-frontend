@@ -9,4 +9,5 @@ export const moderationQueryKeys = {
     adminReports: (filter?: AdminModerationReportFilter) =>
         [...moderationQueryKeys.admin(), 'reports', normalizeAdminModerationReportFilter(filter)] as const,
     adminReport: (reportId: string) => [...moderationQueryKeys.admin(), 'report', reportId] as const,
+    demoDataStatus: () => [...moderationQueryKeys.admin(), 'demoDataStatus'] as const,
 };

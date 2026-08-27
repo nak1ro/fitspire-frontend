@@ -7,6 +7,7 @@ import type {
     AdminModerationReportFilter,
     AdminModerationReportPage,
     CreateModerationReportRequest,
+    DemoDataStatusResponse,
     ModerationReportSubmissionResponse,
     ResolveModerationReportRequest,
 } from '../types';
@@ -56,3 +57,9 @@ export const unsuspendModerationUser = (accessToken: string, reportId: string) =
         method: 'POST',
         accessToken,
     });
+
+export const seedDemoData = (accessToken: string) =>
+    http<{ message: string }>(MODERATION_ROUTES.demoDataSeed, { method: 'POST', accessToken });
+
+export const getDemoDataStatus = (accessToken: string) =>
+    http<DemoDataStatusResponse>(MODERATION_ROUTES.demoDataStatus, { accessToken });

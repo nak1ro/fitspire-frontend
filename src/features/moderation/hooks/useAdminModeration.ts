@@ -9,8 +9,10 @@ import {
     getAdminModerationReport,
     getAdminModerationReports,
     getAdminModerationSummary,
+    getDemoDataStatus,
     resolveModerationReport,
     restoreModerationTarget,
+    seedDemoData,
     unsuspendModerationUser,
 } from '../api/client';
 import type { AdminModerationReportFilter, ResolveModerationReportRequest } from '../types';
@@ -102,5 +104,28 @@ export function useUnsuspendModerationUser() {
     return useMutation({
         mutationFn: (reportId: string) => unsuspendModerationUser(requireAccessToken(accessToken), reportId),
         onSuccess: async (_, reportId) => invalidate(reportId, false),
+    });
+}
+
+export function useDemoDataStatus() {
+    const { accessToken, isAdmin } = useAuthSession();
+
+    return useQuery({
+        queryKey: moderationQueryKeys.demoDataStatus(),
+        queryFn: () => getDemoDataStatus(requireAccessToken(accessToken)),
+        enabled: Boolean(accessToken && isAdmin),
+        // Keeps polling while a run is in progress — including right after a page reload, since this
+        // reads the server's own state rather than a "did I just click the button" flag.
+        refetchInterval: (query) => (query.state.data?.state === 'Running' ? 5000 : false),
+    });
+}
+
+export function useSeedDemoData() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: () => seedDemoData(requireAccessToken(accessToken)),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationQueryKeys.demoDataStatus() }),
     });
 }
