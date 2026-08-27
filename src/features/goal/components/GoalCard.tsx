@@ -1,5 +1,6 @@
 import { Flame } from 'lucide-react';
 import { Badge, Card, IconChip } from '@/shared/ui';
+import { formatNumber } from '@/shared/lib/formatNumber';
 import { getCategoryConfig } from '../categoryConfig';
 import type { Goal } from '../types';
 
@@ -69,7 +70,7 @@ export function GoalCard({ goal, category, onClick }: GoalCardProps) {
             {/* Values */}
             <div className="flex items-center justify-between">
                 <span className="text-xs text-surface-500">
-                    {goal.currentValue} / {goal.targetValue} {goal.unit}
+                    {formatNumber(goal.currentValue)} / {formatNumber(goal.targetValue)} {goal.unit}
                 </span>
                 <div className="flex items-center gap-3">
                     {goal.isRecurring && goal.currentStreak > 0 && (
