@@ -22,5 +22,8 @@ export default auth((req) => {
 });
 
 export const config = {
-    matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+    // Excludes any path with a file extension (icon.svg, favicon.ico, robots.txt, etc.)
+    // so static assets under public/ are always served directly instead of being
+    // treated as a protected page and redirected to /auth.
+    matcher: ['/((?!api|_next/static|_next/image|.*\\..*).*)'],
 };

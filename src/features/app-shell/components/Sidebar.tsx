@@ -35,7 +35,7 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
 
             {/* Wordmark */}
             <div className="h-14 flex items-center gap-2 px-5 shrink-0">
-                <Logo className="h-5 w-5 text-primary-500 shrink-0" />
+                <Logo className="h-7 w-7 shrink-0" />
                 <Link
                     href="/feed"
                     className="text-xl font-bold tracking-tight text-foreground hover:opacity-60 transition-opacity"

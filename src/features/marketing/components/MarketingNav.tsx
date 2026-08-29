@@ -16,7 +16,7 @@ export function MarketingNav() {
             <div className="mx-auto max-w-6xl h-full flex items-center justify-between px-6">
 
                 <Link href="/" className="group flex items-center gap-2">
-                    <Logo className="h-5 w-5 text-primary-500 shrink-0" />
+                    <Logo className="h-7 w-7 shrink-0" />
                     <span className="text-xl font-bold tracking-tight text-foreground transition-opacity group-hover:opacity-60">
                         Fitspire
                     </span>
