@@ -20,6 +20,7 @@ export interface UserProfile {
 }
 
 export interface UpdateUserProfileRequest {
+    userName?: string;
     displayName?: string;
     bio?: string | null;
     isPrivate?: boolean;

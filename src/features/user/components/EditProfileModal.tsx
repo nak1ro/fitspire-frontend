@@ -17,6 +17,7 @@ interface Props {
 }
 
 export function EditProfileModal({ profile, open, onClose }: Props) {
+    const [userName, setUserName] = useState(profile.userName);
     const [displayName, setDisplayName] = useState(profile.displayName);
     const [bio, setBio] = useState(profile.bio ?? '');
     const [favoriteSport, setFavoriteSport] = useState<FavoriteSport | null>(profile.favoriteSport ?? null);
@@ -57,13 +58,14 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
 
     // Sync fields when profile changes
     useEffect(() => {
+        setUserName(profile.userName);
         setDisplayName(profile.displayName);
         setBio(profile.bio ?? '');
         setFavoriteSport(profile.favoriteSport ?? null);
         setFitnessLevel(profile.fitnessLevel ?? null);
         setHeightCm(profile.heightCm?.toString() ?? '');
         setIsPrivate(profile.isPrivate);
-    }, [profile.displayName, profile.bio, profile.favoriteSport, profile.fitnessLevel, profile.heightCm, profile.isPrivate]);
+    }, [profile.userName, profile.displayName, profile.bio, profile.favoriteSport, profile.fitnessLevel, profile.heightCm, profile.isPrivate]);
 
     const handleSubmit = async () => {
         if (!displayName.trim()) return;
@@ -71,6 +73,7 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
         try {
             const parsedHeight = heightCm.trim() === '' ? undefined : Number(heightCm);
             await mutateAsync({
+                userName: userName.trim(),
                 displayName: displayName.trim(),
                 bio: bio.trim() || null,
                 favoriteSport: favoriteSport ?? undefined,
@@ -141,6 +144,26 @@ export function EditProfileModal({ profile, open, onClose }: Props) {
                             </button>
                         )}
                         {photoError && <p className="text-xs text-error text-center">{photoError}</p>}
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="block text-xs font-semibold uppercase tracking-wider text-surface-500">
+                            Username
+                        </label>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-surface-400">@</span>
+                            <input
+                                type="text"
+                                value={userName}
+                                onChange={e => setUserName(e.target.value)}
+                                placeholder="your_username"
+                                autoComplete="username"
+                                minLength={3}
+                                maxLength={20}
+                                className="w-full bg-background border border-surface-200 rounded-xl py-2.5 pl-7 pr-3 text-sm font-medium text-foreground outline-none transition-colors placeholder:text-surface-400"
+                            />
+                        </div>
+                        <p className="text-[11px] text-surface-400">3–20 letters, numbers, or underscores.</p>
                     </div>
 
                     <div className="space-y-1.5">
