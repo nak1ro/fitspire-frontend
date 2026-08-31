@@ -10,6 +10,7 @@ import {
     getFollowing,
     getIncomingFollowRequests,
     getMySharedGoalIds,
+    getMySharedPersonalRecordIds,
     getMySharedWorkoutIds,
     getOutgoingFollowRequests,
     getPostComments,
@@ -23,6 +24,7 @@ import {
     getPublicGoals,
     getPublicWorkoutDetail,
     getSocialProfile,
+    discoverSocialUsers,
     searchSocialUsers,
 } from '../api/client';
 import { FeedPagination } from '../types';
@@ -99,6 +101,17 @@ export function useSearchSocialUsers(query: string, pagination?: FeedPagination)
     });
 }
 
+export function useDiscoverSocialUsers(query: string, enabled = true) {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.peopleDiscovery(query),
+        queryFn: () => discoverSocialUsers(requireAccessToken(accessToken), query || undefined),
+        enabled: Boolean(accessToken && enabled),
+        staleTime: 10 * 60 * 1000,
+    });
+}
+
 export function useFollowers(userId: string | null, pagination?: FeedPagination) {
     const { accessToken } = useAuthSession();
 
@@ -129,13 +142,13 @@ export function useIncomingFollowRequests(pagination?: FeedPagination) {
     });
 }
 
-export function useOutgoingFollowRequests(pagination?: FeedPagination) {
+export function useOutgoingFollowRequests(pagination?: FeedPagination, enabled = true) {
     const { accessToken } = useAuthSession();
 
     return useQuery({
         queryKey: socialQueryKeys.outgoingFollowRequests(pagination),
         queryFn: () => getOutgoingFollowRequests(requireAccessToken(accessToken), pagination),
-        enabled: Boolean(accessToken),
+        enabled: Boolean(accessToken && enabled),
     });
 }
 
@@ -239,6 +252,16 @@ export function useMySharedGoalIds() {
     return useQuery({
         queryKey: socialQueryKeys.sharedGoalIds(),
         queryFn: () => getMySharedGoalIds(requireAccessToken(accessToken)),
+        enabled: Boolean(accessToken),
+    });
+}
+
+export function useMySharedPersonalRecordIds() {
+    const { accessToken } = useAuthSession();
+
+    return useQuery({
+        queryKey: socialQueryKeys.sharedPersonalRecordIds(),
+        queryFn: () => getMySharedPersonalRecordIds(requireAccessToken(accessToken)),
         enabled: Boolean(accessToken),
     });
 }

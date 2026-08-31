@@ -28,6 +28,8 @@ export const socialQueryKeys = {
     profile: (userId: string) => [...socialQueryKeys.profiles(), userId] as const,
     search: (query: string, pagination?: FeedPagination) =>
         [...socialQueryKeys.profiles(), 'search', query, pagination ?? {}] as const,
+    peopleDiscovery: (query: string) =>
+        [...socialQueryKeys.profiles(), 'discover', query] as const,
     connections: (userId: string) => [...socialQueryKeys.profile(userId), 'connections'] as const,
     followers: (userId: string, pagination?: FeedPagination) =>
         [...socialQueryKeys.connections(userId), 'followers', pagination ?? {}] as const,
@@ -51,4 +53,5 @@ export const socialQueryKeys = {
         [...socialQueryKeys.followRequests(), 'outgoing', pagination ?? {}] as const,
     sharedWorkoutIds: () => [...socialQueryKeys.all, 'shared-workout-ids'] as const,
     sharedGoalIds: () => [...socialQueryKeys.all, 'shared-goal-ids'] as const,
+    sharedPersonalRecordIds: () => [...socialQueryKeys.all, 'shared-personal-record-ids'] as const,
 };

@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { X, Trash2, Lock, AlertTriangle, Dumbbell, Share2, Check, Pencil, BookmarkPlus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
-import { useShareWorkout } from '@/features/social/hooks/useSocialMutations';
-import { usePublicWorkoutDetail } from '@/features/social/hooks/useSocialReads';
+import { usePublicWorkoutDetail, useMySharedWorkoutIds } from '@/features/social/hooks/useSocialReads';
+import { useComposerDraftStore } from '@/features/social/store/composerDraftStore';
 import { useWorkout } from '../hooks/useWorkouts';
 import { useDeleteWorkout, useSaveWorkoutAsRoutine } from '../hooks/useWorkoutMutations';
 import { getTypeConfig, resolveKnownType } from '../typeConfig';
@@ -192,8 +192,6 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted, ownerId }: P
     const router = useRouter();
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
-    const [shared, setShared] = useState(false);
-    const [shareError, setShareError] = useState<string | null>(null);
     const [editOpen, setEditOpen] = useState(false);
     const [savingRoutine, setSavingRoutine] = useState(false);
     const [routineName, setRoutineName] = useState('');
@@ -212,16 +210,15 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted, ownerId }: P
     const isLoading = isOwnWorkout ? ownLoading : sharedLoading;
 
     const { mutateAsync: deleteWorkout, isPending: deleting } = useDeleteWorkout();
-    const { mutate: shareWorkout, isPending: sharing } = useShareWorkout();
     const { mutate: saveAsRoutine, isPending: savingRoutinePending } = useSaveWorkoutAsRoutine();
+    const { data: sharedWorkoutIds } = useMySharedWorkoutIds();
+    const shared = Boolean(workoutId && (sharedWorkoutIds ?? []).includes(workoutId));
 
     // The parent keeps this component mounted and only swaps `workoutId`, so local
     // state must be reset per-workout rather than relying on unmount to clear it.
     useEffect(() => {
         setConfirmDelete(false);
         setDeleteError(null);
-        setShared(false);
-        setShareError(null);
         setEditOpen(false);
         setSavingRoutine(false);
         setRoutineName('');
@@ -230,15 +227,28 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted, ownerId }: P
     }, [workoutId, ownerId]);
 
     const handleShare = () => {
-        if (!workoutId) return;
-        setShareError(null);
-        shareWorkout(
-            { workoutId },
-            {
-                onSuccess: () => setShared(true),
-                onError: (err) => setShareError(getErrorMessage(err, 'Failed to share workout.')),
-            }
-        );
+        if (!workoutId || !workout) return;
+        useComposerDraftStore.getState().setPending({
+            attachment: {
+                type: 'workout',
+                item: {
+                    id: workout.id,
+                    workoutType: workout.workoutType,
+                    date: workout.date,
+                    durationMinutes: workout.durationMinutes,
+                    caloriesBurned: 'caloriesBurned' in workout ? workout.caloriesBurned : null,
+                    isPrivate: workout.isPrivate,
+                    status: workout.status,
+                    completedAt: workout.completedAt,
+                    createdFromRoutineId: null,
+                    notesPreview: workout.notes,
+                    summary: {},
+                },
+            },
+            caption: 'Just finished a workout! 💪',
+        });
+        handleClose();
+        router.push('/feed');
     };
 
     const openSaveRoutine = () => {
@@ -351,21 +361,17 @@ export function WorkoutDetailModal({ workoutId, onClose, onDeleted, ownerId }: P
                         </Button>
                     )}
                     {workout && workout.status === 'Completed' && !workout.isPrivate && (
-                        <>
-                            {shareError && <Alert variant="error">{shareError}</Alert>}
-                            <Button
-                                variant="secondary"
-                                size="md"
-                                fullWidth
-                                loading={sharing}
-                                disabled={shared}
-                                onClick={handleShare}
-                                className="gap-2"
-                            >
-                                {shared ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4" aria-hidden="true" />}
-                                {shared ? 'Shared to feed' : 'Share to feed'}
-                            </Button>
-                        </>
+                        <Button
+                            variant="secondary"
+                            size="md"
+                            fullWidth
+                            disabled={shared}
+                            onClick={handleShare}
+                            className="gap-2"
+                        >
+                            {shared ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4" aria-hidden="true" />}
+                            {shared ? 'Shared to feed' : 'Share to feed'}
+                        </Button>
                     )}
                     {workout && workout.status === 'Completed' && !savingRoutine && (
                         <Button

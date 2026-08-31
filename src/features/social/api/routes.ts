@@ -15,6 +15,7 @@ export const SOCIAL_ROUTES = {
     commentLikes: (postId: string, commentId: string) =>
         `/api/social/posts/${postId}/comments/${commentId}/likes`,
     socialUserSearch: '/api/social/users/search',
+    discoverSocialUsers: '/api/social/users/discover',
     socialUser: (userId: string) => `/api/social/users/${userId}`,
     followers: (userId: string) => `/api/social/users/${userId}/followers`,
     following: (userId: string) => `/api/social/users/${userId}/following`,
@@ -26,6 +27,8 @@ export const SOCIAL_ROUTES = {
     myWorkoutShares: '/api/social/workout-shares/mine',
     goalShares: '/api/social/goal-shares',
     myGoalShares: '/api/social/goal-shares/mine',
+    personalRecordShares: '/api/social/personal-record-shares',
+    myPersonalRecordShares: '/api/social/personal-record-shares/mine',
     publicGoals: (userId: string) => `/api/social/users/${userId}/goals`,
     publicGoalDetail: (userId: string, goalId: string) => `/api/social/users/${userId}/goals/${goalId}`,
     publicGoalPeriods: (userId: string) => `/api/social/users/${userId}/goal-periods`,

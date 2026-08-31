@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useUserProfile } from '../hooks/useUserProfile';
 import { useWorkouts } from '@/features/workout/hooks/useWorkouts';
 import { usePersonalRecords } from '@/features/workout/hooks/usePersonalRecords';
 import { useSetFeaturedPersonalRecord } from '@/features/workout/hooks/useWorkoutMutations';
-import { useSocialProfile, useIncomingFollowRequests } from '@/features/social/hooks/useSocialReads';
+import { useSocialProfile, useIncomingFollowRequests, useMySharedPersonalRecordIds } from '@/features/social/hooks/useSocialReads';
+import { useComposerDraftStore } from '@/features/social/store/composerDraftStore';
+import type { PersonalRecord } from '@/features/workout/types';
 import { FollowListModal } from '@/features/social/components/FollowListModal';
 import { FollowRequestsModal } from '@/features/social/components/FollowRequestsModal';
 import { ProfileHeader } from './ProfileHeader';
@@ -73,6 +76,7 @@ function ProfileSkeleton() {
 // ─── View ──────────────────────────────────────────────────────────────────────
 
 export function ProfileView() {
+    const router = useRouter();
     const [activeTab, setActiveTab] = useState<Tab>('posts');
     const [editOpen, setEditOpen] = useState(false);
     const [listMode, setListMode] = useState<'followers' | 'following' | null>(null);
@@ -89,10 +93,19 @@ export function ProfileView() {
     const { data: incomingRequests } = useIncomingFollowRequests();
     const { data: featuredBadgesPage } = useMyBadges({ featured: true, pageSize: 5 });
     const { mutate: setFeaturedPersonalRecord } = useSetFeaturedPersonalRecord();
+    const { data: sharedPersonalRecordIds } = useMySharedPersonalRecordIds();
 
     const streak = useMemo(() => getCurrentStreak(workouts ?? []), [workouts]);
     const featuredRecord = useMemo(() => personalRecords?.find(r => r.isFeatured) ?? null, [personalRecords]);
     const handleTogglePin = (id: string) => setFeaturedPersonalRecord(id === featuredRecord?.id ? null : id);
+    const handleShareRecord = (record: PersonalRecord) => {
+        useComposerDraftStore.getState().setPending({
+            attachment: { type: 'record', item: record },
+            caption: 'New personal record! 🏆',
+        });
+        router.push('/feed');
+    };
+    const sharedRecordIdSet = useMemo(() => new Set(sharedPersonalRecordIds ?? []), [sharedPersonalRecordIds]);
     const featuredBadges = useMemo(
         () => (featuredBadgesPage?.items ?? []).map(item => ({
             id: item.badge.badgeId, name: item.badge.name, tier: item.badge.tier, iconUrl: item.badge.iconUrl,
@@ -134,7 +147,9 @@ export function ProfileView() {
                 <ProfileRecordsTab
                     records={personalRecords ?? []}
                     featuredRecordId={featuredRecord?.id}
+                    sharedRecordIds={sharedRecordIdSet}
                     onTogglePin={handleTogglePin}
+                    onShare={handleShareRecord}
                 />
             )}
             {activeTab === 'body' && <BodyTrackingTab />}

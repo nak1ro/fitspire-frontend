@@ -8,7 +8,7 @@ export default function FeedPage() {
                 <div className="lg:w-full lg:max-w-xl">
                     <FeedView />
                 </div>
-                <aside className="hidden lg:block w-72 shrink-0 sticky top-6">
+                <aside className="hidden lg:block w-[22rem] shrink-0 sticky top-6">
                     <FeedRail />
                 </aside>
             </div>

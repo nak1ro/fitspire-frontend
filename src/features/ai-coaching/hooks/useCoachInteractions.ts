@@ -83,7 +83,7 @@ export function useTodayDailyBriefing() {
         queryFn: () => getTodayDailyBriefing(requireAccessToken(accessToken)),
         enabled: Boolean(accessToken),
         retry: false,
-        refetchInterval: (query) => isGenerating(query.state.data?.status) ? pollIntervalMs : false,
+        refetchInterval: (query) => !query.state.data || isGenerating(query.state.data.status) ? pollIntervalMs : false,
         refetchIntervalInBackground: true,
     });
 }

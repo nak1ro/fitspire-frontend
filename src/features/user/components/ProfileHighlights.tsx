@@ -37,7 +37,7 @@ export function ProfileHighlights({ badges, record }: Props) {
                                 <Trophy className="h-5 w-5" style={{ color }} aria-hidden="true" />
                             </div>
                             <p className="text-[10px] font-bold text-foreground leading-tight" style={{ color }}>
-                                {formatValue(record.metric, record.value)}
+                                {formatValue(record.value, record.unit)}
                             </p>
                             <p className="text-[9px] text-surface-400 leading-tight truncate w-full text-center">
                                 {formatMetric(record.metric)}

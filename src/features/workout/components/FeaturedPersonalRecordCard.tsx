@@ -3,5 +3,6 @@ export interface FeaturedPersonalRecordItem {
     workoutType: string;
     metric: string;
     value: number;
+    unit: string;
     achievedAt: string;
 }

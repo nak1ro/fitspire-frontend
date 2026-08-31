@@ -2,12 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { X, Users, UserMinus } from 'lucide-react';
+import { X, Users, UserMinus, UserX } from 'lucide-react';
 import { Avatar, Button, EmptyState, Modal } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useUserProfile } from '@/features/user/hooks/useUserProfile';
 import { useFollowers, useFollowing } from '../hooks/useSocialReads';
-import { useRemoveFollower } from '../hooks/useSocialMutations';
+import { useRemoveFollower, useUnfollowUser } from '../hooks/useSocialMutations';
 import type { SocialUserSummary } from '../types';
 
 interface Props {
@@ -17,10 +17,11 @@ interface Props {
     onClose: () => void;
 }
 
-function UserRow({ user, onNavigate, canRemove }: { user: SocialUserSummary; onNavigate: () => void; canRemove: boolean }) {
+function UserRow({ user, onNavigate, canRemove, canUnfollow }: { user: SocialUserSummary; onNavigate: () => void; canRemove: boolean; canUnfollow: boolean }) {
     const [confirming, setConfirming] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const { mutate: removeFollower, isPending } = useRemoveFollower();
+    const { mutate: removeFollower, isPending: removing } = useRemoveFollower();
+    const { mutate: unfollowUser, isPending: unfollowing } = useUnfollowUser();
 
     const handleRemove = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -29,6 +30,15 @@ function UserRow({ user, onNavigate, canRemove }: { user: SocialUserSummary; onN
         setError(null);
         removeFollower(user.id, {
             onError: (err) => { setError(getErrorMessage(err, 'Failed to remove.')); setConfirming(false); },
+        });
+    };
+
+    const handleUnfollow = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setError(null);
+        unfollowUser(user.id, {
+            onError: (err) => setError(getErrorMessage(err, 'Failed to unfollow.')),
         });
     };
 
@@ -47,12 +57,24 @@ function UserRow({ user, onNavigate, canRemove }: { user: SocialUserSummary; onN
                 <Button
                     size="sm"
                     variant={confirming ? 'danger' : 'secondary'}
-                    loading={isPending}
+                    loading={removing}
                     onClick={handleRemove}
                     className="gap-1 shrink-0"
                 >
                     <UserMinus className="h-3.5 w-3.5" aria-hidden="true" />
                     {confirming ? 'Confirm' : 'Remove'}
+                </Button>
+            )}
+            {canUnfollow && (
+                <Button
+                    size="sm"
+                    variant="secondary"
+                    loading={unfollowing}
+                    onClick={handleUnfollow}
+                    className="gap-1 shrink-0"
+                >
+                    <UserX className="h-3.5 w-3.5" aria-hidden="true" />
+                    Unfollow
                 </Button>
             )}
         </div>
@@ -81,9 +103,11 @@ export function FollowListModal({ userId, mode, open, onClose }: Props) {
     const { data: profile } = useUserProfile();
 
     const { data: users, isLoading } = mode === 'followers' ? followersQuery : followingQuery;
-    // Removing a follower is only possible from your own followers list — the
+    // Removing a follower / unfollowing is only possible from your own lists — the
     // backend infers whose list is being edited from the caller's identity.
-    const canRemove = mode === 'followers' && Boolean(profile && profile.id === userId);
+    const isOwnList = Boolean(profile && profile.id === userId);
+    const canRemove = mode === 'followers' && isOwnList;
+    const canUnfollow = mode === 'following' && isOwnList;
 
     return (
         <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-sm" className="h-[70vh] sm:h-[32rem] flex flex-col" labelledBy="follow-list-title">
@@ -110,7 +134,7 @@ export function FollowListModal({ userId, mode, open, onClose }: Props) {
                     ) : (
                         <div className="py-1.5">
                             {users.map((user) => (
-                                <UserRow key={user.id} user={user} onNavigate={onClose} canRemove={canRemove} />
+                                <UserRow key={user.id} user={user} onNavigate={onClose} canRemove={canRemove} canUnfollow={canUnfollow} />
                             ))}
                         </div>
                     )}

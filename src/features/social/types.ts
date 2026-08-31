@@ -28,6 +28,16 @@ export interface GoalSummary {
     completedAt: string;
 }
 
+export interface PersonalRecordSummary {
+    id: string;
+    workoutType: string;
+    metric: string;
+    unit: string;
+    value: number;
+    exerciseName?: string | null;
+    achievedAt: string;
+}
+
 export interface CommentPreview {
     id: string;
     userId: string;
@@ -52,6 +62,7 @@ export interface FeedItem {
     referenceEntityId?: string | null;
     workoutSummary?: WorkoutSummary | null;
     goalSummary?: GoalSummary | null;
+    personalRecordSummary?: PersonalRecordSummary | null;
     likesCount: number;
     isLikedByCurrentUser: boolean;
     isSavedByCurrentUser: boolean;
@@ -121,12 +132,22 @@ export interface ShareGoalRequest {
     mediaAssetIds?: string[] | null;
 }
 
+export interface SharePersonalRecordRequest {
+    personalRecordId: string;
+    caption?: string | null;
+    mediaAssetIds?: string[] | null;
+}
+
 export interface SocialUserSummary {
     id: string;
     userName: string;
     displayName: string;
     profilePictureUrl?: string | null;
     profilePicture?: Media | null;
+}
+
+export interface DiscoverableSocialUser extends SocialUserSummary {
+    reason?: string | null;
 }
 
 export type SocialRelationship =

@@ -18,6 +18,7 @@ import {
     removeFollower,
     savePost,
     shareGoal,
+    sharePersonalRecord,
     shareWorkout,
     unlikeComment,
     unlikePost,
@@ -30,6 +31,7 @@ import {
     CommentRequest,
     CreatePostRequest,
     ShareGoalRequest,
+    SharePersonalRecordRequest,
     ShareWorkoutRequest,
     UpdateCommentRequest,
     UpdatePostRequest,
@@ -296,6 +298,22 @@ export function useShareGoal() {
                 invalidateFeedReads(queryClient),
                 queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
                 queryClient.invalidateQueries({ queryKey: socialQueryKeys.sharedGoalIds() }),
+            ]);
+        },
+    });
+}
+
+export function useSharePersonalRecord() {
+    const { accessToken } = useAuthSession();
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: SharePersonalRecordRequest) => sharePersonalRecord(requireAccessToken(accessToken), data),
+        onSuccess: async () => {
+            await Promise.all([
+                invalidateFeedReads(queryClient),
+                queryClient.invalidateQueries({ queryKey: notificationQueryKeys.all }),
+                queryClient.invalidateQueries({ queryKey: socialQueryKeys.sharedPersonalRecordIds() }),
             ]);
         },
     });

@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { Archive, Flame, History, Pencil, Target, TrendingUp } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Archive, Check, Flame, History, Pencil, Share2, Target, TrendingUp } from 'lucide-react';
 import { Alert, Badge, Button, Card, ChipGroup, EmptyState, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { usePublicGoalDetail } from '@/features/social/hooks/useSocialReads';
+import { roundTo1 } from '@/shared/lib/roundTo1';
+import { usePublicGoalDetail, useMySharedGoalIds } from '@/features/social/hooks/useSocialReads';
+import { useComposerDraftStore } from '@/features/social/store/composerDraftStore';
 import { useArchiveGoal, useGoal, useGoalPeriods, useGoalProgress, useGoalTargetHistory, useGoalTypes } from '../hooks/useGoals';
 import { getCategoryConfig } from '../categoryConfig';
 import { EditGoalModal } from './EditGoalModal';
@@ -58,12 +61,12 @@ function ProgressTab({ goalId }: { goalId: string }) {
                 <Card key={entry.id} padding="sm" className="flex items-center justify-between">
                     <div>
                         <p className="text-sm font-semibold text-foreground">
-                            {entry.previousValue} → {entry.newValue}
+                            {roundTo1(entry.previousValue)} → {roundTo1(entry.newValue)}
                         </p>
                         <p className="text-xs text-surface-400 mt-0.5">{formatDateTime(entry.recordedAt)}{entry.source ? ` · ${entry.source}` : ''}</p>
                     </div>
                     <span className={entry.delta >= 0 ? 'text-sm font-bold text-success tabular-nums' : 'text-sm font-bold text-error tabular-nums'}>
-                        {entry.delta >= 0 ? '+' : ''}{entry.delta}
+                        {entry.delta >= 0 ? '+' : ''}{roundTo1(entry.delta)}
                     </span>
                 </Card>
             ))}
@@ -92,7 +95,7 @@ function PeriodsTab({ goalId }: { goalId: string }) {
                         <p className="text-xs text-surface-500">{formatDate(period.startAt)} – {formatDate(period.endAt)}</p>
                         <Badge variant={PERIOD_STATUS_VARIANT[period.status] ?? 'default'} size="sm">{period.status}</Badge>
                     </div>
-                    <p className="text-sm font-semibold text-foreground">{period.progressValue} / {period.targetValue}</p>
+                    <p className="text-sm font-semibold text-foreground">{roundTo1(period.progressValue)} / {roundTo1(period.targetValue)}</p>
                 </Card>
             ))}
         </div>
@@ -111,7 +114,7 @@ function TargetsTab({ goalId }: { goalId: string }) {
             {changes.map((change) => (
                 <Card key={change.id} padding="sm" className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-foreground">
-                        {change.previousTargetValue} → {change.newTargetValue}
+                        {roundTo1(change.previousTargetValue)} → {roundTo1(change.newTargetValue)}
                     </p>
                     <p className="text-xs text-surface-400">{formatDate(change.changedAt)}</p>
                 </Card>
@@ -158,7 +161,7 @@ function PublicGoalDetail({ goalId, ownerId }: { goalId: string; ownerId: string
             </div>
 
             <div className="flex items-center justify-between">
-                <span className="text-sm text-surface-500">{goal.currentValue} / {goal.targetValue} {goal.unit}</span>
+                <span className="text-sm text-surface-500">{roundTo1(goal.currentValue)} / {roundTo1(goal.targetValue)} {goal.unit}</span>
                 <span className="text-sm font-bold text-primary-600">{pct}%</span>
             </div>
         </Card>
@@ -174,8 +177,10 @@ export function GoalDetailView({ goalId, ownerId }: { goalId: string; ownerId?: 
 }
 
 function PrivateGoalDetail({ goalId }: { goalId: string }) {
+    const router = useRouter();
     const { data: detail, isLoading, isError } = useGoal(goalId);
     const { data: goalTypes } = useGoalTypes();
+    const { data: sharedGoalIds } = useMySharedGoalIds();
     const { mutate: archiveGoal, isPending: archiving } = useArchiveGoal();
     const [editOpen, setEditOpen] = useState(false);
     const [archiveConfirming, setArchiveConfirming] = useState(false);
@@ -209,6 +214,18 @@ function PrivateGoalDetail({ goalId }: { goalId: string }) {
         });
     };
 
+    // Mirrors AttachGoalPicker's own eligibility filter — a goal that wouldn't show up
+    // there isn't shareable from here either.
+    const canShare = goal.status === 'Completed' && goal.isPublic;
+    const shared = (sharedGoalIds ?? []).includes(goal.id);
+    const handleShare = () => {
+        useComposerDraftStore.getState().setPending({
+            attachment: { type: 'goal', item: goal },
+            caption: 'Just completed this goal! 🎯',
+        });
+        router.push('/feed');
+    };
+
     return (
         <div className="space-y-5">
             <Card padding="md" className="space-y-4">
@@ -230,7 +247,7 @@ function PrivateGoalDetail({ goalId }: { goalId: string }) {
                 </div>
 
                 <div className="flex items-center justify-between">
-                    <span className="text-sm text-surface-500">{goal.currentValue} / {goal.targetValue} {goal.unit}</span>
+                    <span className="text-sm text-surface-500">{roundTo1(goal.currentValue)} / {roundTo1(goal.targetValue)} {goal.unit}</span>
                     <div className="flex items-center gap-3">
                         {goal.isRecurring && goal.currentStreak > 0 && (
                             <span className="flex items-center gap-1 text-xs font-semibold text-warning">
@@ -243,7 +260,7 @@ function PrivateGoalDetail({ goalId }: { goalId: string }) {
                 </div>
             </Card>
 
-            {(canEdit || canArchive) && (
+            {(canEdit || canArchive || canShare) && (
                 <div className="flex items-center gap-2 flex-wrap">
                     {canEdit && (
                         <button
@@ -252,6 +269,16 @@ function PrivateGoalDetail({ goalId }: { goalId: string }) {
                         >
                             <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
                             Edit
+                        </button>
+                    )}
+                    {canShare && (
+                        <button
+                            onClick={handleShare}
+                            disabled={shared}
+                            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold border border-surface-200 bg-surface text-surface-600 hover:bg-background hover:text-foreground transition-all disabled:opacity-50"
+                        >
+                            {shared ? <Check className="h-3.5 w-3.5" aria-hidden="true" /> : <Share2 className="h-3.5 w-3.5" aria-hidden="true" />}
+                            {shared ? 'Shared to feed' : 'Share to feed'}
                         </button>
                     )}
                     {canArchive && (
@@ -279,7 +306,7 @@ function PrivateGoalDetail({ goalId }: { goalId: string }) {
                         <p className="text-xs text-surface-500">{formatDate(currentPeriod.startAt)} – {formatDate(currentPeriod.endAt)}</p>
                         <Badge variant={PERIOD_STATUS_VARIANT[currentPeriod.status] ?? 'default'} size="sm">{currentPeriod.status}</Badge>
                     </div>
-                    <p className="text-sm font-semibold text-foreground">{currentPeriod.progressValue} / {currentPeriod.targetValue}</p>
+                    <p className="text-sm font-semibold text-foreground">{roundTo1(currentPeriod.progressValue)} / {roundTo1(currentPeriod.targetValue)}</p>
                 </Card>
             )}
 

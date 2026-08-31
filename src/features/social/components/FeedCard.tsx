@@ -13,6 +13,7 @@ import { useDeletePost } from '../hooks/useSocialMutations';
 import { usePostEngagement } from '../hooks/usePostEngagement';
 import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { GoalSummaryBlock } from './GoalSummaryBlock';
+import { PersonalRecordSummaryBlock } from './PersonalRecordSummaryBlock';
 import { EditPostModal } from './EditPostModal';
 import { LikesModal } from './LikesModal';
 import { PostDetailModal } from './PostDetailModal';
@@ -127,6 +128,18 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                             >
                                 <GoalSummaryBlock summary={item.goalSummary} />
                             </Link>
+                        )}
+                    </>
+                )}
+
+                {item.type === 'PersonalRecordAchieved' && (
+                    <>
+                        {item.content && (
+                            <p className="text-sm text-foreground leading-relaxed mb-2.5">{item.content}</p>
+                        )}
+                        {/* No click-through — unlike Workout/Goal, there's no personal-record detail view to link to. */}
+                        {item.personalRecordSummary && (
+                            <PersonalRecordSummaryBlock summary={item.personalRecordSummary} />
                         )}
                     </>
                 )}

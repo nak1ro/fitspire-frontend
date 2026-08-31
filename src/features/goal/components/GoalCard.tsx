@@ -1,4 +1,4 @@
-import { Flame } from 'lucide-react';
+import { ChevronDown, Flame } from 'lucide-react';
 import { Badge, Card, IconChip } from '@/shared/ui';
 import { formatNumber } from '@/shared/lib/formatNumber';
 import { getCategoryConfig } from '../categoryConfig';
@@ -18,9 +18,11 @@ interface GoalCardProps {
     goal: Goal;
     category?: string;
     onClick?: () => void;
+    collapsed?: boolean;
+    onToggleCollapsed?: () => void;
 }
 
-export function GoalCard({ goal, category, onClick }: GoalCardProps) {
+export function GoalCard({ goal, category, onClick, collapsed = false, onToggleCollapsed }: GoalCardProps) {
     // goal.milestonePercent is bucketed to 0/25/50/75/100 on the backend for milestone-notification
     // gating — compute the real continuous percentage here instead so the bar/label match currentValue.
     const rawPct = goal.targetValue > 0 ? (goal.currentValue / goal.targetValue) * 100 : 0;
@@ -41,8 +43,13 @@ export function GoalCard({ goal, category, onClick }: GoalCardProps) {
 
     const pctColor = done ? 'text-success' : failed || overdue ? 'text-error' : archived ? 'text-surface-500' : 'text-primary-600';
 
+    const handleToggle = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.stopPropagation();
+        onToggleCollapsed?.();
+    };
+
     return (
-        <Card padding="sm" interactive onClick={onClick} className="space-y-3">
+        <Card padding="sm" interactive onClick={onClick} className={collapsed ? '' : 'space-y-3'}>
             <div className="flex items-start justify-between gap-2">
                 <div className="flex items-center gap-2.5 min-w-0">
                     <IconChip icon={Icon} size="sm" color={color} bg={bg} />
@@ -56,30 +63,39 @@ export function GoalCard({ goal, category, onClick }: GoalCardProps) {
                     {goal.deadline && !done && !failed && !archived && !overdue && (
                         <span className="text-[11px] text-surface-400">by {formatDeadline(goal.deadline)}</span>
                     )}
+                    {onToggleCollapsed && (
+                        <button
+                            type="button"
+                            onClick={handleToggle}
+                            className="rounded-md p-0.5 text-surface-400 transition-colors hover:bg-surface-100 hover:text-foreground"
+                            aria-label={collapsed ? `Expand ${goal.goalTypeName}` : `Collapse ${goal.goalTypeName}`}
+                            aria-expanded={!collapsed}
+                        >
+                            <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${collapsed ? '-rotate-90' : ''}`} aria-hidden="true" />
+                        </button>
+                    )}
                 </div>
             </div>
 
-            {/* Progress bar */}
-            <div className="w-full h-2 rounded-full bg-surface-200 overflow-hidden">
-                <div
-                    className={`h-full rounded-full transition-all duration-500 ${barClass}`}
-                    style={{ width: `${pct}%` }}
-                />
-            </div>
-
-            {/* Values */}
-            <div className="flex items-center justify-between">
-                <span className="text-xs text-surface-500">
-                    {formatNumber(goal.currentValue)} / {formatNumber(goal.targetValue)} {goal.unit}
-                </span>
-                <div className="flex items-center gap-3">
-                    {goal.isRecurring && goal.currentStreak > 0 && (
-                        <span className="flex items-center gap-1 text-xs font-semibold text-warning">
-                            <Flame className="h-3.5 w-3.5" aria-hidden="true" />
-                            {goal.currentStreak}
+            <div className={`grid transition-[grid-template-rows,opacity] duration-200 ease-out ${collapsed ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr] opacity-100'}`}>
+                <div className="min-h-0 space-y-3 overflow-hidden">
+                    <div className="w-full h-2 rounded-full bg-surface-200 overflow-hidden">
+                        <div className={`h-full rounded-full transition-all duration-500 ${barClass}`} style={{ width: `${pct}%` }} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                        <span className="text-xs text-surface-500">
+                            {formatNumber(goal.currentValue)} / {formatNumber(goal.targetValue)} {goal.unit}
                         </span>
-                    )}
-                    <span className={`text-xs font-bold ${pctColor}`}>{pct}%</span>
+                        <div className="flex items-center gap-3">
+                            {goal.isRecurring && goal.currentStreak > 0 && (
+                                <span className="flex items-center gap-1 text-xs font-semibold text-warning">
+                                    <Flame className="h-3.5 w-3.5" aria-hidden="true" />
+                                    {goal.currentStreak}
+                                </span>
+                            )}
+                            <span className={`text-xs font-bold ${pctColor}`}>{pct}%</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </Card>

@@ -5,6 +5,7 @@ import {
     CommentRequest,
     CommentResponse,
     CreatePostRequest,
+    DiscoverableSocialUser,
     FeedItem,
     FeedPagination,
     FollowRequestResponse,
@@ -17,6 +18,7 @@ import {
     PublicPersonalRecord,
     SaveResponse,
     ShareGoalRequest,
+    SharePersonalRecordRequest,
     ShareWorkoutRequest,
     SocialProfileResponse,
     SocialUserSummary,
@@ -192,6 +194,12 @@ export const searchSocialUsers = (accessToken: string, query: string, pagination
         query: toSearchQuery(query, pagination),
     });
 
+export const discoverSocialUsers = (accessToken: string, query?: string) =>
+    http<DiscoverableSocialUser[]>(SOCIAL_ROUTES.discoverSocialUsers, {
+        accessToken,
+        query: { query, limit: 5 },
+    });
+
 export const getSocialProfile = (accessToken: string, userId: string) =>
     http<SocialProfileResponse>(SOCIAL_ROUTES.socialUser(userId), { accessToken });
 
@@ -274,6 +282,16 @@ export const shareGoal = (accessToken: string, data: ShareGoalRequest) =>
 
 export const getMySharedGoalIds = (accessToken: string) =>
     http<string[]>(SOCIAL_ROUTES.myGoalShares, { accessToken });
+
+export const sharePersonalRecord = (accessToken: string, data: SharePersonalRecordRequest) =>
+    http<string>(SOCIAL_ROUTES.personalRecordShares, {
+        method: 'POST',
+        accessToken,
+        json: data,
+    });
+
+export const getMySharedPersonalRecordIds = (accessToken: string) =>
+    http<string[]>(SOCIAL_ROUTES.myPersonalRecordShares, { accessToken });
 
 export const getPublicGoals = (accessToken: string, userId: string) =>
     http<PublicGoal[]>(SOCIAL_ROUTES.publicGoals(userId), { accessToken });

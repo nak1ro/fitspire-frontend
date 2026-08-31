@@ -58,18 +58,24 @@ export function UserProfileHeader({ profile }: Props) {
                         <span className="text-lg font-extrabold text-foreground tabular-nums leading-none">{profile.followingCount}</span>
                         <span className="text-[11px] font-medium text-surface-500">following</span>
                     </button>
-                    {canReport && <ReportTrigger target={{ targetType: 'Profile', targetId: profile.id, label: 'profile' }} />}
                     <FollowButton userId={profile.id} relationship={profile.relationship} isPrivate={profile.isPrivate} />
                 </div>
             </div>
 
             {/* Name + username */}
-            <div className="mb-2">
-                <div className="flex items-center gap-1.5">
-                    <h1 className="text-xl font-extrabold text-foreground leading-tight">{profile.displayName}</h1>
-                    {profile.isPrivate && <Lock className="h-4 w-4 text-surface-400 shrink-0" aria-hidden="true" />}
+            <div className="mb-2 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                    <div className="flex items-center gap-1.5">
+                        <h1 className="text-xl font-extrabold text-foreground leading-tight truncate">{profile.displayName}</h1>
+                        {profile.isPrivate && <Lock className="h-4 w-4 text-surface-400 shrink-0" aria-hidden="true" />}
+                    </div>
+                    <p className="text-sm text-surface-500 mt-0.5">@{profile.userName}</p>
                 </div>
-                <p className="text-sm text-surface-500 mt-0.5">@{profile.userName}</p>
+                {canReport && (
+                    <div className="shrink-0 pt-1">
+                        <ReportTrigger target={{ targetType: 'Profile', targetId: profile.id, label: 'profile' }} />
+                    </div>
+                )}
             </div>
 
             {profile.bio && (

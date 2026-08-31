@@ -1,4 +1,4 @@
-import { Trophy, Pin } from 'lucide-react';
+import { Trophy, Pin, Share2, Check } from 'lucide-react';
 import { EmptyState, IconChip } from '@/shared/ui';
 import { getTypeConfig, resolveKnownType, KNOWN_TYPES } from '@/features/workout/typeConfig';
 import { formatMetric, formatDate, formatValue } from '@/features/workout/personalRecordFormat';
@@ -10,10 +10,14 @@ interface PRCardProps {
     bg: string;
     border: string;
     featured: boolean;
+    shared: boolean;
     onTogglePin?: (id: string) => void;
+    onShare?: (record: PersonalRecord) => void;
 }
 
-function PRCard({ record, color, bg, border, featured, onTogglePin }: PRCardProps) {
+function PRCard({ record, color, bg, border, featured, shared, onTogglePin, onShare }: PRCardProps) {
+    const metricLabel = formatMetric(record.metric);
+
     return (
         <div
             className="flex items-center gap-3 px-4 py-3 rounded-2xl border"
@@ -21,12 +25,27 @@ function PRCard({ record, color, bg, border, featured, onTogglePin }: PRCardProp
         >
             <IconChip icon={Trophy} size="sm" color={color} bg={bg} />
             <div className="flex-1 min-w-0">
-                <p className="text-sm font-bold text-foreground truncate">{formatMetric(record.metric)}</p>
-                <p className="text-[11px] text-surface-400">{formatDate(record.achievedAt)}</p>
+                <p className="text-sm font-bold text-foreground truncate">{record.exerciseName ?? metricLabel}</p>
+                <p className="text-[11px] text-surface-400">
+                    {record.exerciseName ? `${metricLabel} · ` : ''}{formatDate(record.achievedAt)}
+                </p>
             </div>
             <span className="text-base font-extrabold shrink-0 tabular-nums" style={{ color }}>
-                {formatValue(record.metric, record.value)}
+                {formatValue(record.value, record.unit)}
             </span>
+            {onShare && (
+                <button
+                    type="button"
+                    onClick={() => !shared && onShare(record)}
+                    disabled={shared}
+                    aria-label={shared ? 'Already shared to feed' : 'Share to feed'}
+                    title={shared ? 'Already shared to feed' : 'Share to feed'}
+                    className="shrink-0 p-1.5 rounded-lg transition-colors disabled:cursor-default"
+                    style={shared ? { color } : undefined}
+                >
+                    {shared ? <Check className="h-4 w-4" aria-hidden="true" /> : <Share2 className="h-4 w-4 text-surface-300" aria-hidden="true" />}
+                </button>
+            )}
             {onTogglePin && (
                 <button
                     type="button"
@@ -46,10 +65,12 @@ function PRCard({ record, color, bg, border, featured, onTogglePin }: PRCardProp
 interface Props {
     records: PersonalRecord[];
     featuredRecordId?: string | null;
+    sharedRecordIds?: Set<string>;
     onTogglePin?: (id: string) => void;
+    onShare?: (record: PersonalRecord) => void;
 }
 
-export function ProfileRecordsTab({ records, featuredRecordId, onTogglePin }: Props) {
+export function ProfileRecordsTab({ records, featuredRecordId, sharedRecordIds, onTogglePin, onShare }: Props) {
     if (records.length === 0) {
         return (
             <EmptyState
@@ -99,7 +120,9 @@ export function ProfileRecordsTab({ records, featuredRecordId, onTogglePin }: Pr
                                     bg={bg}
                                     border={border}
                                     featured={r.id === featuredRecordId}
+                                    shared={sharedRecordIds?.has(r.id) ?? false}
                                     onTogglePin={onTogglePin}
+                                    onShare={onShare}
                                 />
                             ))}
                         </div>

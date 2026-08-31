@@ -13,15 +13,22 @@ interface FollowButtonProps {
     relationship: SocialRelationship;
     isPrivate: boolean;
     size?: 'sm' | 'md';
+    skipPendingRequestLookup?: boolean;
 }
 
-export function FollowButton({ userId, relationship, isPrivate, size = 'md' }: FollowButtonProps) {
+export function FollowButton({
+    userId,
+    relationship,
+    isPrivate,
+    size = 'md',
+    skipPendingRequestLookup = false,
+}: FollowButtonProps) {
     const [hovered, setHovered] = useState(false);
     const [confirming, setConfirming] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const { mutate: follow, isPending: isFollowing } = useFollowUser();
     const { mutate: unfollow, isPending: isUnfollowing } = useUnfollowUser();
-    const { data: outgoingRequests } = useOutgoingFollowRequests();
+    const { data: outgoingRequests } = useOutgoingFollowRequests(undefined, !skipPendingRequestLookup);
     const { mutate: cancelRequest, isPending: isCancelling } = useCancelFollowRequest();
 
     if (relationship === 'self') return null;
