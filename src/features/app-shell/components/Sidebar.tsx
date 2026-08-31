@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation';
 import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles, Shield } from 'lucide-react';
 import { Button, Logo } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
-import { StreakCard } from './StreakCard';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
 
 const NAV_ITEMS = [
@@ -78,13 +77,11 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
                 </Button>
             </div>
 
-            {/* Spacer — pushes streak card + settings to the bottom */}
+            {/* Spacer — pushes profile link to the bottom */}
             <div className="flex-1" />
 
-            {/* Bottom section — streak card + profile */}
-            <div className="shrink-0 px-3 pt-1 pb-4 space-y-5">
-                <StreakCard />
-
+            {/* Bottom section — profile */}
+            <div className="shrink-0 px-3 pt-1 pb-4">
                 <Link
                     href="/profile"
                     className={cn(

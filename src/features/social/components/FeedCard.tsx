@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Bookmark, Heart, MessageCircle } from 'lucide-react';
 import { Alert, Avatar, Card, ImageLightbox } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
@@ -16,6 +15,7 @@ import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { GoalSummaryBlock } from './GoalSummaryBlock';
 import { EditPostModal } from './EditPostModal';
 import { LikesModal } from './LikesModal';
+import { PostDetailModal } from './PostDetailModal';
 import { PostMenu } from './PostMenu';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
 import { ReportContentDialog } from '@/features/moderation/components/ReportContentDialog';
@@ -24,7 +24,6 @@ import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 // ─── Main card ─────────────────────────────────────────────────────────────────
 
 export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () => void }) {
-    const router = useRouter();
     const [editOpen, setEditOpen] = useState(false);
     const [likesModalOpen, setLikesModalOpen] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
@@ -32,6 +31,14 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
     const [reportPostOpen, setReportPostOpen] = useState(false);
     const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
     const [selectedWorkoutId, setSelectedWorkoutId] = useState<string | null>(null);
+    const [detailOpen, setDetailOpen] = useState(false);
+    const [focusComment, setFocusComment] = useState(false);
+
+    const openDetail = (withFocusComment = false) => {
+        setFocusComment(withFocusComment);
+        setDetailOpen(true);
+    };
+    const closeDetail = () => setDetailOpen(false);
 
     const { data: profile } = useUserProfile();
     const { liked, likesCount, toggleLike, saved, toggleSave } = usePostEngagement(item);
@@ -61,9 +68,9 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                     <Link href={`/profile/${item.userId}`} className="text-sm font-semibold text-foreground leading-tight hover:underline">
                         {item.userName}
                     </Link>
-                    <Link href={`/feed/${item.id}`} scroll={false} className="text-[11px] text-surface-400 leading-tight mt-0.5 hover:underline block w-fit">
+                    <button type="button" onClick={() => openDetail()} className="text-[11px] text-surface-400 leading-tight mt-0.5 hover:underline block w-fit cursor-pointer">
                         {formatRelativeTime(item.createdAt)}
-                    </Link>
+                    </button>
                 </div>
                 {(isOwner || canReport) && <PostMenu isOwner={isOwner} canEdit={item.type === 'Text'} onEdit={() => setEditOpen(true)} onDelete={handleDelete} onReport={() => setReportPostOpen(true)} />}
             </div>
@@ -176,10 +183,10 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                             </button>
                         )}
                         {item.commentsCount > 0 && (
-                            <Link href={`/feed/${item.id}`} scroll={false} className="flex items-center gap-1.5 hover:underline">
+                            <button type="button" onClick={() => openDetail()} className="flex items-center gap-1.5 hover:underline cursor-pointer">
                                 <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
                                 {item.commentsCount} {item.commentsCount === 1 ? 'comment' : 'comments'}
-                            </Link>
+                            </button>
                         )}
                     </div>
                 )}
@@ -199,7 +206,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                     </button>
 
                     <button
-                        onClick={() => router.push(`/feed/${item.id}?focus=comment`, { scroll: false })}
+                        onClick={() => openDetail(true)}
                         className="flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold text-surface-500 hover:bg-surface-100 transition-colors cursor-pointer"
                         aria-label="Comment on post"
                     >
@@ -229,6 +236,13 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
             <ReportContentDialog target={{ targetType: 'Post', targetId: item.id, label: 'post' }} open={reportPostOpen} onClose={() => setReportPostOpen(false)} />
             <ImageLightbox src={lightboxSrc ?? ''} open={Boolean(lightboxSrc)} onClose={() => setLightboxSrc(null)} />
             <WorkoutDetailModal workoutId={selectedWorkoutId} ownerId={item.userId} onClose={() => setSelectedWorkoutId(null)} />
+            <PostDetailModal
+                postId={item.id}
+                open={detailOpen}
+                onClose={closeDetail}
+                onDeleted={() => { closeDetail(); onDeleted?.(); }}
+                autoFocusComment={focusComment}
+            />
         </Card>
     );
 }

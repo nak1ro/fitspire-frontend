@@ -1,6 +1,6 @@
-import { PostDetailModal } from '@/features/social/components/PostDetailModal';
+import { RoutedPostDetailModal } from '@/features/social/components/RoutedPostDetailModal';
 
 export default async function InterceptedPostDetailPage({ params }: { params: Promise<{ postId: string }> }) {
     const { postId } = await params;
-    return <PostDetailModal postId={postId} />;
+    return <RoutedPostDetailModal postId={postId} />;
 }

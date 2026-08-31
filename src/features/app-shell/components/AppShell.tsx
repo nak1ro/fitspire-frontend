@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Sidebar } from './Sidebar';
 import { AppHeader } from './AppHeader';
 import { BottomNav } from './BottomNav';
+import { AppShellActionsProvider } from './AppShellActionsProvider';
 import { LogWorkoutModal } from '@/features/workout/components/LogWorkoutModal';
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -16,6 +17,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     const fadeKey = /^\/feed\/[^/]+$/.test(pathname) ? '/feed' : pathname;
 
     return (
+        <AppShellActionsProvider openLogWorkout={() => setLogWorkoutOpen(true)}>
         <div className="flex h-dvh overflow-hidden bg-background">
 
             {/* Left sidebar — desktop only */}
@@ -37,5 +39,6 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <LogWorkoutModal open={logWorkoutOpen} onClose={() => setLogWorkoutOpen(false)} />
         </div>
+        </AppShellActionsProvider>
     );
 }
