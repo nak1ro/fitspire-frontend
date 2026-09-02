@@ -15,6 +15,7 @@ import {
     queueTodayDailyBriefing,
     retryCoachMessage,
     retryDailyBriefing,
+    regenerateDailyBriefing,
     sendCoachMessage,
     updateCoachThread,
 } from '../api/client';
@@ -28,6 +29,7 @@ import type {
 import { aiCoachingQueryKeys } from './queryKeys';
 
 const pollIntervalMs = 3000;
+const missingDailyBriefingPollIntervalMs = 5 * 60 * 1000;
 const isGenerating = (status?: string) => status === 'Pending' || status === 'Processing';
 const createRequestId = () => crypto.randomUUID();
 
@@ -83,7 +85,9 @@ export function useTodayDailyBriefing() {
         queryFn: () => getTodayDailyBriefing(requireAccessToken(accessToken)),
         enabled: Boolean(accessToken),
         retry: false,
-        refetchInterval: (query) => !query.state.data || isGenerating(query.state.data.status) ? pollIntervalMs : false,
+        refetchInterval: (query) => !query.state.data
+            ? missingDailyBriefingPollIntervalMs
+            : isGenerating(query.state.data.status) ? pollIntervalMs : false,
         refetchIntervalInBackground: true,
     });
 }
@@ -142,4 +146,13 @@ export function useRetryDailyBriefing() {
     const { accessToken } = useAuthSession();
     const invalidate = useInteractionInvalidation();
     return useMutation({ mutationFn: (briefingId: string) => retryDailyBriefing(requireAccessToken(accessToken), briefingId), onSuccess: invalidate });
+}
+
+export function useRegenerateDailyBriefing() {
+    const { accessToken } = useAuthSession();
+    const invalidate = useInteractionInvalidation();
+    return useMutation({
+        mutationFn: (briefingId: string) => regenerateDailyBriefing(requireAccessToken(accessToken), briefingId),
+        onSuccess: invalidate,
+    });
 }

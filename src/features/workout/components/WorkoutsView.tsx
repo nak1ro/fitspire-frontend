@@ -6,7 +6,6 @@ import { EmptyState } from '@/shared/ui';
 import { useWorkouts } from '../hooks/useWorkouts';
 import { useWorkoutHistory } from '../hooks/useWorkoutHistory';
 import { resolveKnownType } from '../typeConfig';
-import { WorkoutStatsStrip } from './WorkoutStatsStrip';
 import { WorkoutTypeFilter } from './WorkoutTypeFilter';
 import { WorkoutCard } from './WorkoutCard';
 import { WorkoutListSkeleton } from './WorkoutListSkeleton';
@@ -67,9 +66,6 @@ function ActiveTab() {
 
     return (
         <>
-            {/* Stats strip — always uses unfiltered list */}
-            <WorkoutStatsStrip workouts={workouts ?? []} />
-
             {/* Type filter chips */}
             <WorkoutTypeFilter value={selectedType} onChange={setSelectedType} />
 

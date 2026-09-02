@@ -118,13 +118,12 @@ export function PostComposer() {
 
     return (
         <Card padding="md">
-            <div className="flex gap-3">
+            <div className="flex items-center gap-3">
                 <Avatar
                     displayName={profile?.displayName ?? ''}
                     userName={profile?.userName ?? '...'}
                     avatarUrl={profile?.profilePictureUrl}
                     size="sm"
-                    className="mt-0.5"
                 />
 
                 <textarea

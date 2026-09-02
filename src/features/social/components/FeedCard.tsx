@@ -15,7 +15,6 @@ import { WorkoutSummaryBlock } from './WorkoutSummaryBlock';
 import { GoalSummaryBlock } from './GoalSummaryBlock';
 import { PersonalRecordSummaryBlock } from './PersonalRecordSummaryBlock';
 import { EditPostModal } from './EditPostModal';
-import { LikesModal } from './LikesModal';
 import { PostDetailModal } from './PostDetailModal';
 import { PostMenu } from './PostMenu';
 import { formatRelativeTime } from '@/shared/lib/formatRelativeTime';
@@ -26,7 +25,6 @@ import { ReportTrigger } from '@/features/moderation/components/ReportTrigger';
 
 export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () => void }) {
     const [editOpen, setEditOpen] = useState(false);
-    const [likesModalOpen, setLikesModalOpen] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [reportPostOpen, setReportPostOpen] = useState(false);
@@ -180,32 +178,9 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
 
             {/* Footer */}
             <div className="px-4 pt-3 pb-0">
-                {/* Counts summary */}
-                {(likesCount > 0 || item.commentsCount > 0) && (
-                    <div className="flex items-center gap-4 border-t border-surface-100 pt-3 pb-3 text-xs text-surface-400">
-                        {likesCount > 0 && (
-                            <button
-                                onClick={() => setLikesModalOpen(true)}
-                                className="flex items-center gap-1.5 hover:underline cursor-pointer"
-                                aria-label="See who liked this post"
-                            >
-                                <span className="flex items-center justify-center h-4 w-4 rounded-full bg-primary-500">
-                                    <Heart className="h-2.5 w-2.5 text-white fill-white" aria-hidden="true" />
-                                </span>
-                                {likesCount} {likesCount === 1 ? 'like' : 'likes'}
-                            </button>
-                        )}
-                        {item.commentsCount > 0 && (
-                            <button type="button" onClick={() => openDetail()} className="flex items-center gap-1.5 hover:underline cursor-pointer">
-                                <MessageCircle className="h-3.5 w-3.5" aria-hidden="true" />
-                                {item.commentsCount} {item.commentsCount === 1 ? 'comment' : 'comments'}
-                            </button>
-                        )}
-                    </div>
-                )}
-
-                {/* Actions */}
-                <div className={cn('grid grid-cols-3', likesCount === 0 && item.commentsCount === 0 && 'border-t border-surface-100 pt-3')}>
+                {/* Actions — icon + count together, like Feed rows on X/Threads, rather than a
+                    separate summary line above the buttons. */}
+                <div className="grid grid-cols-3 border-t border-surface-100 pt-3">
                     <button
                         onClick={toggleLike}
                         className={cn(
@@ -215,7 +190,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                         aria-label={liked ? 'Unlike post' : 'Like post'}
                     >
                         <Heart className={cn('h-[18px] w-[18px] transition-transform active:scale-125', liked && 'fill-primary-500')} aria-hidden="true" />
-                        Like
+                        {likesCount > 0 ? likesCount : 'Like'}
                     </button>
 
                     <button
@@ -224,7 +199,7 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
                         aria-label="Comment on post"
                     >
                         <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
-                        Comment
+                        {item.commentsCount > 0 ? item.commentsCount : 'Comment'}
                     </button>
 
                     <button
@@ -245,7 +220,6 @@ export function FeedCard({ item, onDeleted }: { item: FeedItem; onDeleted?: () =
             <div className="h-4" />
 
             <EditPostModal postId={item.id} initialContent={item.content ?? ''} open={editOpen} onClose={() => setEditOpen(false)} />
-            <LikesModal target={{ kind: 'post', postId: item.id }} open={likesModalOpen} onClose={() => setLikesModalOpen(false)} />
             <ReportContentDialog target={{ targetType: 'Post', targetId: item.id, label: 'post' }} open={reportPostOpen} onClose={() => setReportPostOpen(false)} />
             <ImageLightbox src={lightboxSrc ?? ''} open={Boolean(lightboxSrc)} onClose={() => setLightboxSrc(null)} />
             <WorkoutDetailModal workoutId={selectedWorkoutId} ownerId={item.userId} onClose={() => setSelectedWorkoutId(null)} />

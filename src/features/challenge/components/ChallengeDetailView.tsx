@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { AlertCircle, Calendar, Pencil, Target, Trophy, UserPlus, Users, XCircle } from 'lucide-react';
 import { Alert, Avatar, Badge, Button, Card, IconChip } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
+import { roundTo1 } from '@/shared/lib/roundTo1';
 import { useCancelChallenge, useChallenge, useJoinChallenge, useLeaveChallenge } from '../hooks/useChallenges';
 import { getMetricConfig } from '../metricConfig';
 import { ChallengeInvitationsManageList } from './ChallengeInvitationsManageList';
@@ -197,7 +198,7 @@ export function ChallengeDetailView({ challengeId }: { challengeId: string }) {
             {challenge.viewer.membershipStatus === 'Joined' && challenge.viewer.score != null && (
                 <Card padding="sm" className="flex items-center justify-between">
                     <p className="text-sm font-semibold text-surface-600">Your score</p>
-                    <p className="text-lg font-extrabold text-foreground tabular-nums">{challenge.viewer.score}</p>
+                    <p className="text-lg font-extrabold text-foreground tabular-nums">{roundTo1(challenge.viewer.score)}</p>
                 </Card>
             )}
 

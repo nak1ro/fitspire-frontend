@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Pause, Play, X } from 'lucide-react';
 import { Alert, Button, IconChip, Modal, Toggle } from '@/shared/ui';
+import { cn } from '@/shared/lib/cn';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
 import { useActiveWorkoutSession, useAbandonWorkout, usePauseWorkout, useResumeWorkout } from '../hooks/useWorkoutSessions';
 import { useWorkout } from '../hooks/useWorkouts';
@@ -123,25 +124,47 @@ export function LiveSessionModal({ open, onClose }: Props) {
         });
     };
 
+    const isPaused = session.status === 'Paused';
+
     return (
-        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-lg" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="live-session-title">
+        <Modal open={open} onClose={onClose} maxWidthClassName="sm:max-w-xl" className="max-h-[92dvh] sm:max-h-[88dvh] flex flex-col" labelledBy="live-session-title">
                 {/* Header */}
-                <div className="flex items-center gap-3.5 px-5 pt-5 pb-2 shrink-0">
+                <div className="flex items-center gap-3.5 px-5 pt-5 pb-3 shrink-0">
                     <IconChip icon={TypeIcon} size="sm" color={color} bg={bg} />
                     <div className="flex-1 min-w-0">
-                        <h2 id="live-session-title" className="text-base font-bold text-foreground truncate">{typeLabel} session</h2>
-                        <p className="text-xs text-surface-400">
-                            {session.status === 'Paused' ? 'Paused at ' : ''}{elapsed.formatted}
+                        <div className="flex items-center gap-1.5">
+                            <h2 id="live-session-title" className="text-xs font-semibold uppercase tracking-wider text-surface-500 truncate">
+                                {typeLabel} session
+                            </h2>
+                            {isPaused ? (
+                                <span className="shrink-0 text-[10px] font-bold uppercase tracking-wider text-surface-500 bg-surface-100 px-1.5 py-0.5 rounded-full">
+                                    Paused
+                                </span>
+                            ) : (
+                                <span className="flex items-center gap-1 shrink-0">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-error animate-pulse" aria-hidden="true" />
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-error">Live</span>
+                                </span>
+                            )}
+                        </div>
+                        <p
+                            className={cn(
+                                'text-3xl font-extrabold leading-tight mt-0.5',
+                                isPaused ? 'text-surface-400' : 'text-foreground'
+                            )}
+                            style={{ fontVariantNumeric: 'tabular-nums' }}
+                        >
+                            {elapsed.formatted}
                         </p>
                     </div>
                     <button
                         type="button"
-                        onClick={() => (session.status === 'Paused' ? resume(session.id) : pause(session.id))}
+                        onClick={() => (isPaused ? resume(session.id) : pause(session.id))}
                         disabled={pausing || resuming}
                         className="flex items-center justify-center h-9 w-9 rounded-xl text-surface-500 hover:text-foreground hover:bg-surface-100 transition-all disabled:opacity-50"
-                        aria-label={session.status === 'Paused' ? 'Resume session' : 'Pause session'}
+                        aria-label={isPaused ? 'Resume session' : 'Pause session'}
                     >
-                        {session.status === 'Paused' ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
+                        {isPaused ? <Play className="h-4 w-4" aria-hidden="true" /> : <Pause className="h-4 w-4" aria-hidden="true" />}
                     </button>
                     <button
                         onClick={onClose}

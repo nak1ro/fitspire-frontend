@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles, Shield } from 'lucide-react';
+import { Home, Dumbbell, Target, Trophy, User, Plus, Utensils, Sparkles, Shield, Bookmark } from 'lucide-react';
 import { Button, Logo } from '@/shared/ui';
 import { cn } from '@/shared/lib/cn';
 import { useAuthSession } from '@/features/auth/hooks/useAuthSession';
@@ -80,8 +80,24 @@ export function Sidebar({ onLogWorkout }: SidebarProps) {
             {/* Spacer — pushes profile link to the bottom */}
             <div className="flex-1" />
 
-            {/* Bottom section — profile */}
-            <div className="shrink-0 px-3 pt-1 pb-4">
+            {/* Bottom section — saved posts + profile */}
+            <div className="shrink-0 px-3 pt-1 pb-4 space-y-1.5">
+                <Link
+                    href="/saved"
+                    className={cn(
+                        'flex items-center gap-3 h-10 px-3 rounded-xl text-sm font-medium transition-colors duration-200',
+                        isActive('/saved') ? 'bg-primary-50 text-primary-600' : 'text-surface-600 hover:bg-surface-100'
+                    )}
+                >
+                    <Bookmark
+                        className={cn(
+                            'h-[18px] w-[18px] shrink-0 transition-all duration-200',
+                            isActive('/saved') ? 'text-primary-500 scale-110' : 'text-surface-500'
+                        )}
+                        aria-hidden="true"
+                    />
+                    Saved
+                </Link>
                 <Link
                     href="/profile"
                     className={cn(

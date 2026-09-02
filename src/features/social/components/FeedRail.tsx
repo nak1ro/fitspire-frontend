@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronDown } from 'lucide-react';
 import { Card } from '@/shared/ui';
@@ -9,6 +8,7 @@ import { useGoals, useGoalTypes } from '@/features/goal/hooks/useGoals';
 import { GoalCard } from '@/features/goal/components/GoalCard';
 import { StreakCard } from '@/features/app-shell/components/StreakCard';
 import { FeedAiInsightCard } from '@/features/ai-coaching/components/FeedAiInsightCard';
+import { GenerateFeedAiInsightCard } from '@/features/ai-coaching/components/GenerateFeedAiInsightCard';
 import { FindPeopleToFollowCard } from './FindPeopleToFollowCard';
 import { useFeedRailCollapse } from '../hooks/useFeedRailCollapse';
 
@@ -38,7 +38,7 @@ export function FeedRail() {
 
     return (
         <section className="space-y-5" aria-labelledby="feed-rail-title">
-            <div className="flex items-center justify-between">
+            <div>
                 <button
                     type="button"
                     onClick={toggleSection}
@@ -49,11 +49,6 @@ export function FeedRail() {
                     <h3 id="feed-rail-title" className="text-xs font-bold uppercase tracking-widest text-surface-400">Your updates</h3>
                     <ChevronDown className={`h-4 w-4 text-surface-400 transition-transform duration-200 ${sectionCollapsed ? '-rotate-90' : ''}`} aria-hidden="true" />
                 </button>
-                {!sectionCollapsed && (
-                    <Link href="/goals" className="text-xs font-semibold text-primary-500 hover:underline">
-                        See all
-                    </Link>
-                )}
             </div>
 
             {sectionCollapsed ? (
@@ -88,6 +83,7 @@ export function FeedRail() {
 
                     <FeedAiInsightCard collapsed={aiCollapsed} onToggleCollapsed={toggleAi} />
                     <StreakCard collapsed={streakCollapsed} onToggleCollapsed={toggleStreak} />
+                    <GenerateFeedAiInsightCard />
                     <FindPeopleToFollowCard />
                 </div>
             )}

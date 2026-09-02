@@ -22,8 +22,11 @@ export function NotificationsDropdown() {
 
     return (
         <div
+            className="absolute right-0 top-full z-20 pt-2"
+        >
+            <div
             role="menu"
-            className="absolute right-0 top-full mt-2 w-80 rounded-xl border border-surface-200 bg-background overflow-hidden z-20"
+            className="w-80 overflow-hidden rounded-xl border border-surface-200 bg-background"
             style={{ boxShadow: 'var(--shadow-panel)' }}
         >
             <div className="flex items-center justify-between px-3 py-2.5 border-b border-surface-100">
@@ -62,6 +65,7 @@ export function NotificationsDropdown() {
             >
                 View all
             </Link>
+            </div>
         </div>
     );
 }

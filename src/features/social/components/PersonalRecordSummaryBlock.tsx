@@ -8,16 +8,22 @@ function formatDate(dateStr: string): string {
     return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
+// Matches the Gym workout type color (TYPE_CONFIG.Gym / the app's primary emerald) — the same
+// green as the "workout" chip these PR badges sit right next to on a workout-share post.
+const RECORD_ACCENT = '#059669';
+const RECORD_ACCENT_BG = 'rgba(5,150,105,0.08)';
+const RECORD_ACCENT_BORDER = 'rgba(5,150,105,0.3)';
+
 export function PersonalRecordSummaryBlock({ summary }: { summary: PersonalRecordSummary }) {
     const { color, bg } = getTypeConfig(summary.workoutType);
     const metricLabel = formatMetric(summary.metric);
 
     return (
-        <div className="rounded-xl overflow-hidden border border-warning/25 mt-3 shadow-chip">
-            <div className="flex items-center gap-2.5 px-3.5 py-2.5 bg-warning/5">
+        <div className="rounded-xl overflow-hidden mt-3 shadow-chip" style={{ border: `1px solid ${RECORD_ACCENT_BORDER}` }}>
+            <div className="flex items-center gap-2.5 px-3.5 py-2.5" style={{ backgroundColor: RECORD_ACCENT_BG }}>
                 <IconChip icon={Trophy} size="sm" color={color} bg={bg} />
-                <span className="text-sm font-bold text-warning truncate">{summary.exerciseName ?? metricLabel}</span>
-                <span className="ml-auto flex items-center gap-1 text-xs font-semibold text-warning/70 shrink-0">
+                <span className="text-sm font-bold truncate" style={{ color: RECORD_ACCENT }}>{summary.exerciseName ?? metricLabel}</span>
+                <span className="ml-auto flex items-center gap-1 text-xs font-bold shrink-0" style={{ color: RECORD_ACCENT }}>
                     <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
                     New PR!
                 </span>

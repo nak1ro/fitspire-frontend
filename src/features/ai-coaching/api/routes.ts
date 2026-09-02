@@ -9,4 +9,5 @@ export const AI_COACHING_ROUTES = {
     dailyToday: '/api/ai-coach/daily-briefings/today',
     dailyBriefing: (briefingId: string) => `/api/ai-coach/daily-briefings/${briefingId}`,
     retryDailyBriefing: (briefingId: string) => `/api/ai-coach/daily-briefings/${briefingId}/retry`,
+    regenerateDailyBriefing: (briefingId: string) => `/api/ai-coach/daily-briefings/${briefingId}/regenerate`,
 } as const;

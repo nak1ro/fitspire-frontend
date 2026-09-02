@@ -16,7 +16,7 @@ export interface ChallengeMetricOption {
 // there is no metrics-catalogue endpoint for challenges (unlike Goal templates), so
 // this list is hardcoded to match.
 export const CHALLENGE_METRICS: ChallengeMetricOption[] = [
-    { code: 'workout.count', label: 'Workouts', unit: 'count', workoutType: null, Icon: Hash, color: '#059669', bg: 'rgba(5,150,105,0.08)' },
+    { code: 'workout.count', label: 'Workouts amount', unit: 'count', workoutType: null, Icon: Hash, color: '#059669', bg: 'rgba(5,150,105,0.08)' },
     { code: 'workout.duration.minutes', label: 'Workout duration', unit: 'minutes', workoutType: null, Icon: Clock, color: '#4A7C5F', bg: 'rgba(74,124,95,0.08)' },
     { code: 'workout.calories.kcal', label: 'Calories burned', unit: 'kcal', workoutType: null, Icon: Flame, color: '#B8860B', bg: 'rgba(184,134,11,0.08)' },
     { code: 'running.distance.km', label: 'Running distance', unit: 'km', workoutType: 'running', Icon: TYPE_CONFIG.Running.Icon, color: TYPE_CONFIG.Running.color, bg: TYPE_CONFIG.Running.bg },

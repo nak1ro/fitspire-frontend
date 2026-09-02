@@ -84,7 +84,7 @@ function DiscoverTab() {
 // ─── View ──────────────────────────────────────────────────────────────────────
 
 export function FeedView() {
-    const [tab, setTab] = useState<Tab>('following');
+    const [tab, setTab] = useState<Tab>('discover');
 
     return (
         <div className="space-y-4">
@@ -92,8 +92,8 @@ export function FeedView() {
 
             <div className="flex border-b border-surface-200">
                 {([
-                    { key: 'following', label: 'Following' },
                     { key: 'discover', label: 'Discover' },
+                    { key: 'following', label: 'Following' },
                 ] as const).map(t => (
                     <button
                         key={t.key}

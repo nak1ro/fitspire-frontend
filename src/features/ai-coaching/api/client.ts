@@ -51,8 +51,10 @@ export const retryCoachMessage = (token: string, threadId: string, messageId: st
 export const queueTodayDailyBriefing = (token: string) =>
     http<DailyCoachBriefing>(AI_COACHING_ROUTES.dailyToday, { method: 'POST', accessToken: token });
 export const getTodayDailyBriefing = (token: string) =>
-    http<DailyCoachBriefing>(AI_COACHING_ROUTES.dailyToday, { accessToken: token });
+    http<DailyCoachBriefing | undefined>(AI_COACHING_ROUTES.dailyToday, { accessToken: token });
 export const getDailyBriefing = (token: string, briefingId: string) =>
     http<DailyCoachBriefing>(AI_COACHING_ROUTES.dailyBriefing(briefingId), { accessToken: token });
 export const retryDailyBriefing = (token: string, briefingId: string) =>
     http<DailyCoachBriefing>(AI_COACHING_ROUTES.retryDailyBriefing(briefingId), { method: 'POST', accessToken: token });
+export const regenerateDailyBriefing = (token: string, briefingId: string) =>
+    http<DailyCoachBriefing>(AI_COACHING_ROUTES.regenerateDailyBriefing(briefingId), { method: 'POST', accessToken: token });

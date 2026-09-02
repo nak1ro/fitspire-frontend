@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Trophy } from 'lucide-react';
 import { Avatar, EmptyState } from '@/shared/ui';
+import { roundTo1 } from '@/shared/lib/roundTo1';
 import { useChallengeLeaderboard, useChallengeResults } from '../hooks/useChallenges';
 import type { ChallengeLeaderboardEntry } from '../types';
 
@@ -37,7 +38,7 @@ function Row({ entry }: { entry: ChallengeLeaderboardEntry }) {
                     </div>
                 )}
             </div>
-            <span className="text-sm font-bold text-foreground tabular-nums shrink-0">{entry.score}</span>
+            <span className="text-sm font-bold text-foreground tabular-nums shrink-0">{roundTo1(entry.score)}</span>
         </Link>
     );
 }
