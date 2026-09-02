@@ -4,22 +4,28 @@ import { useState } from 'react';
 import { Loader2, Sparkles } from 'lucide-react';
 import { Alert, Button, Card } from '@/shared/ui';
 import { getErrorMessage } from '@/shared/lib/getErrorMessage';
-import { useQueueTodayDailyBriefing, useTodayDailyBriefing } from '../hooks/useCoachInteractions';
+import { useQueueTodayDailyBriefing, useRetryDailyBriefing, useTodayDailyBriefing } from '../hooks/useCoachInteractions';
 
 export function GenerateFeedAiInsightCard() {
     const [error, setError] = useState<string | null>(null);
     const { data: briefing } = useTodayDailyBriefing();
-    const { mutateAsync: queueToday, isPending } = useQueueTodayDailyBriefing();
+    const { mutateAsync: queueToday, isPending: isQueueing } = useQueueTodayDailyBriefing();
+    const { mutateAsync: retryDailyBriefing, isPending: isRetrying } = useRetryDailyBriefing();
     const isGenerating = briefing?.status === 'Pending' || briefing?.status === 'Processing';
+    const canRetry = briefing?.status === 'Failed' && briefing.canRetry;
 
     if (briefing?.status === 'Completed') return null;
 
     const handleGenerate = async () => {
         setError(null);
         try {
-            await queueToday();
+            if (canRetry) {
+                await retryDailyBriefing(briefing.id);
+            } else {
+                await queueToday();
+            }
         } catch (error) {
-            setError(getErrorMessage(error, 'Failed to generate today’s summary.'));
+            setError(getErrorMessage(error, canRetry ? 'Failed to retry today’s summary.' : 'Failed to generate today’s summary.'));
         }
     };
 
@@ -36,10 +42,12 @@ export function GenerateFeedAiInsightCard() {
                 </div>
             ) : (
                 <>
-                    <p className="text-xs leading-relaxed text-surface-500">Generate a fresh, data-backed insight for today.</p>
-                    <Button size="sm" fullWidth onClick={handleGenerate} loading={isPending} className="gap-1.5">
+                    <p className="text-xs leading-relaxed text-surface-500">
+                        {canRetry ? 'The previous attempt failed. Retry it with the latest AI configuration.' : 'Generate a fresh, data-backed insight for today.'}
+                    </p>
+                    <Button size="sm" fullWidth onClick={handleGenerate} loading={isQueueing || isRetrying} className="gap-1.5">
                         <Sparkles className="h-3.5 w-3.5" aria-hidden="true" />
-                        Generate summary
+                        {canRetry ? 'Retry summary' : 'Generate summary'}
                     </Button>
                 </>
             )}
